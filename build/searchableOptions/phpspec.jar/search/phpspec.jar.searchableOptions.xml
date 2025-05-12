@@ -1,0 +1,10 @@
+<options>
+  <configurable id="preferences.keymap" configurable_name="Keymap">
+    <option name="creates" path="ActionManager" hit="Creates new PHPSpec Spec" />
+    <option name="new" path="ActionManager" hit="Creates new PHPSpec Spec" />
+    <option name="phpspec" path="ActionManager" hit="Creates new PHPSpec Spec" />
+    <option name="spec" path="ActionManager" hit="Creates new PHPSpec Spec" />
+    <option name="phpspec" path="ActionManager" hit="PHPSpec Spec" />
+    <option name="spec" path="ActionManager" hit="PHPSpec Spec" />
+  </configurable>
+</options>

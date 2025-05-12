@@ -1,0 +1,36 @@
+<options>
+  <configurable id="preferences.keymap" configurable_name="Keymap">
+    <option name="" path="ActionManager" hit="" />
+    <option name="add" path="ActionManager" hit="Add to Ignored Psalm Files" />
+    <option name="files" path="ActionManager" hit="Add to Ignored Psalm Files" />
+    <option name="ignored" path="ActionManager" hit="Add to Ignored Psalm Files" />
+    <option name="psalm" path="ActionManager" hit="Add to Ignored Psalm Files" />
+    <option name="to" path="ActionManager" hit="Add to Ignored Psalm Files" />
+  </configurable>
+  <configurable id="settings.php.quality.tools.psalm" configurable_name="Psalm">
+    <option name="configuration" hit="Configuration file:" />
+    <option name="file" hit="Configuration file:" />
+    <option name="configuration" hit="Configuration:" />
+    <option name="annotations" hit="Find unused @psalm-suppress annotations " />
+    <option name="find" hit="Find unused @psalm-suppress annotations " />
+    <option name="psalm-suppress" hit="Find unused @psalm-suppress annotations " />
+    <option name="unused" hit="Find unused @psalm-suppress annotations " />
+    <option name="code" hit="Find unused code" />
+    <option name="find" hit="Find unused code" />
+    <option name="unused" hit="Find unused code" />
+    <option name="options" hit="Options" />
+    <option name="psalm" hit="Psalm" />
+    <option name="configuration" hit="Psalm path is empty for selected configuration" />
+    <option name="empty" hit="Psalm path is empty for selected configuration" />
+    <option name="for" hit="Psalm path is empty for selected configuration" />
+    <option name="is" hit="Psalm path is empty for selected configuration" />
+    <option name="path" hit="Psalm path is empty for selected configuration" />
+    <option name="psalm" hit="Psalm path is empty for selected configuration" />
+    <option name="selected" hit="Psalm path is empty for selected configuration" />
+    <option name="files" hit="Show ignored files" />
+    <option name="ignored" hit="Show ignored files" />
+    <option name="show" hit="Show ignored files" />
+    <option name="info" hit="Show info" />
+    <option name="show" hit="Show info" />
+  </configurable>
+</options>

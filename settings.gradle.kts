@@ -1,0 +1,1 @@
+rootProject.name = "phpstorm-time-tracker-ui-v7"

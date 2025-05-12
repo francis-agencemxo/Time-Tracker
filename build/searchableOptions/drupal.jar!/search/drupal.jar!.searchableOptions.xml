@@ -1,0 +1,9 @@
+<options>
+  <configurable id="fileTemplates" configurable_name="File and Code Templates">
+    <option name="comment" hit="Drupal Hook Implementation Doc Comment" />
+    <option name="doc" hit="Drupal Hook Implementation Doc Comment" />
+    <option name="drupal" hit="Drupal Hook Implementation Doc Comment" />
+    <option name="hook" hit="Drupal Hook Implementation Doc Comment" />
+    <option name="implementation" hit="Drupal Hook Implementation Doc Comment" />
+  </configurable>
+</options>

@@ -1,0 +1,10 @@
+<plugins>
+    <plugin id="com.mxo.timetracker" url="https://dev.mxo.agency/mxo-utils/phpStormPlugins/phpstorm-time-tracker-ui-v7-1.6.zip" version="1.6">
+        <idea-version since-build="241" until-build="241.*"/>
+        <name>MXO Time Tracker</name>
+        <description><![CDATA[
+      MXO Time Tracker plugin for PhpStorm.
+    ]]></description>
+        <vendor>MXO</vendor>
+    </plugin>
+</plugins>

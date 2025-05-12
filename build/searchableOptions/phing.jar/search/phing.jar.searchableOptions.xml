@@ -1,0 +1,43 @@
+<options>
+  <configurable id="preferences.keymap" configurable_name="Keymap">
+    <option name="add" path="ActionManager" hit="Add as Phing Build File" />
+    <option name="as" path="ActionManager" hit="Add as Phing Build File" />
+    <option name="build" path="ActionManager" hit="Add as Phing Build File" />
+    <option name="file" path="ActionManager" hit="Add as Phing Build File" />
+    <option name="phing" path="ActionManager" hit="Add as Phing Build File" />
+    <option name="adds" path="ActionManager" hit="Adds XML file to the project's Phing build files list." />
+    <option name="build" path="ActionManager" hit="Adds XML file to the project's Phing build files list." />
+    <option name="file" path="ActionManager" hit="Adds XML file to the project's Phing build files list." />
+    <option name="files" path="ActionManager" hit="Adds XML file to the project's Phing build files list." />
+    <option name="list" path="ActionManager" hit="Adds XML file to the project's Phing build files list." />
+    <option name="phing" path="ActionManager" hit="Adds XML file to the project's Phing build files list." />
+    <option name="project" path="ActionManager" hit="Adds XML file to the project's Phing build files list." />
+    <option name="s" path="ActionManager" hit="Adds XML file to the project's Phing build files list." />
+    <option name="the" path="ActionManager" hit="Adds XML file to the project's Phing build files list." />
+    <option name="to" path="ActionManager" hit="Adds XML file to the project's Phing build files list." />
+    <option name="xml" path="ActionManager" hit="Adds XML file to the project's Phing build files list." />
+    <option name="run" path="ActionManager" hit="Run" />
+    <option name="build" path="ActionManager" hit="Run the selected build file or selected target(s) with Phing" />
+    <option name="file" path="ActionManager" hit="Run the selected build file or selected target(s) with Phing" />
+    <option name="or" path="ActionManager" hit="Run the selected build file or selected target(s) with Phing" />
+    <option name="phing" path="ActionManager" hit="Run the selected build file or selected target(s) with Phing" />
+    <option name="run" path="ActionManager" hit="Run the selected build file or selected target(s) with Phing" />
+    <option name="s" path="ActionManager" hit="Run the selected build file or selected target(s) with Phing" />
+    <option name="selected" path="ActionManager" hit="Run the selected build file or selected target(s) with Phing" />
+    <option name="target" path="ActionManager" hit="Run the selected build file or selected target(s) with Phing" />
+    <option name="the" path="ActionManager" hit="Run the selected build file or selected target(s) with Phing" />
+    <option name="with" path="ActionManager" hit="Run the selected build file or selected target(s) with Phing" />
+  </configurable>
+  <configurable id="settings.phing" configurable_name="Phing">
+    <option name="" hit="Path to Phing  executable :" />
+    <option name="executable" hit="Path to Phing  executable :" />
+    <option name="path" hit="Path to Phing  executable :" />
+    <option name="phing" hit="Path to Phing  executable :" />
+    <option name="to" hit="Path to Phing  executable :" />
+    <option name="phing" hit="Phing" />
+    <option name="not" hit="Phing path not provided." />
+    <option name="path" hit="Phing path not provided." />
+    <option name="phing" hit="Phing path not provided." />
+    <option name="provided" hit="Phing path not provided." />
+  </configurable>
+</options>

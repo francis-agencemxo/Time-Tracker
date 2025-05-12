@@ -1,0 +1,20 @@
+<options>
+  <configurable id="preferences.keymap" configurable_name="Keymap">
+    <option name="codeception" path="ActionManager" hit="Codeception Functional Test" />
+    <option name="functional" path="ActionManager" hit="Codeception Functional Test" />
+    <option name="test" path="ActionManager" hit="Codeception Functional Test" />
+    <option name="codeception" path="ActionManager" hit="Codeception Unit Test" />
+    <option name="test" path="ActionManager" hit="Codeception Unit Test" />
+    <option name="unit" path="ActionManager" hit="Codeception Unit Test" />
+    <option name="codeception" path="ActionManager" hit="Creates new Codeception Functional Test" />
+    <option name="creates" path="ActionManager" hit="Creates new Codeception Functional Test" />
+    <option name="functional" path="ActionManager" hit="Creates new Codeception Functional Test" />
+    <option name="new" path="ActionManager" hit="Creates new Codeception Functional Test" />
+    <option name="test" path="ActionManager" hit="Creates new Codeception Functional Test" />
+    <option name="codeception" path="ActionManager" hit="Creates new Codeception Unit Test" />
+    <option name="creates" path="ActionManager" hit="Creates new Codeception Unit Test" />
+    <option name="new" path="ActionManager" hit="Creates new Codeception Unit Test" />
+    <option name="test" path="ActionManager" hit="Creates new Codeception Unit Test" />
+    <option name="unit" path="ActionManager" hit="Creates new Codeception Unit Test" />
+  </configurable>
+</options>

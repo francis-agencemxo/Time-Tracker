@@ -1,0 +1,12 @@
+<options>
+  <configurable id="reference.settingsdialog.IDE.editor.colors.Ini" configurable_name="Ini">
+    <option name="ini" hit="Ini" />
+    <option name="comment" hit="Comment" />
+    <option name="equal" hit="Equal" />
+    <option name="key" hit="Property key" />
+    <option name="property" hit="Property key" />
+    <option name="property" hit="Property value" />
+    <option name="value" hit="Property value" />
+    <option name="section" hit="Section" />
+  </configurable>
+</options>

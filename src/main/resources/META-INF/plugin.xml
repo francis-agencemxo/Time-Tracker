@@ -1,0 +1,19 @@
+<idea-plugin>
+    <id>com.mxo.timetracker</id>
+    <name>MXO Time Tracker</name>
+    <version>1.6</version>
+    <vendor>MXO</vendor>
+
+    <depends>com.jetbrains.php</depends>
+    <depends>com.intellij.modules.phpstorm</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="MXO Time Tracker"
+                    label="MXO Time Tracker"
+                    icon="/icons/logo-mxo.svg"
+                    anchor="right"
+                    factoryClass="com.mxo.timetracker.TimeTrackerToolWindowFactory"
+                    canCloseContents="false"/>
+        <postStartupActivity implementation="com.mxo.timetracker.TrackingStartupActivity"/>
+    </extensions>
+</idea-plugin>

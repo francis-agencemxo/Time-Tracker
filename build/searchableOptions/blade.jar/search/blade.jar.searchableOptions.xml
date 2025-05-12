@@ -1,0 +1,72 @@
+<options>
+  <configurable id="reference.settingsdialog.IDE.editor.colors.Blade" configurable_name="Blade">
+    <option name="blade" hit="Blade" />
+    <option name="background" hit="Background" />
+    <option name="comment" hit="Comment" />
+    <option name="directive" hit="Directive" />
+    <option name="character" hit="Illegal character" />
+    <option name="illegal" hit="Illegal character" />
+    <option name="block" hit="Text block delimiter" />
+    <option name="delimiter" hit="Text block delimiter" />
+    <option name="text" hit="Text block delimiter" />
+  </configurable>
+  <configurable id="Configurable.PHP.Blade" configurable_name="Blade">
+    <option name="blade" hit="Blade" />
+    <option name="content" path="Text Tags" hit="Content tags" />
+    <option name="tags" path="Text Tags" hit="Content tags" />
+    <option name="directives" path="Directives" hit="Directives" />
+    <option name="end" path="Text Tags" hit="End:" />
+    <option name="escaped" path="Text Tags" hit="Escaped tags" />
+    <option name="tags" path="Text Tags" hit="Escaped tags" />
+    <option name="has" path="Directives" hit="Has parameters" />
+    <option name="parameters" path="Directives" hit="Has parameters" />
+    <option name="detected" path="Directives" hit="Invalid directives detected" />
+    <option name="directives" path="Directives" hit="Invalid directives detected" />
+    <option name="invalid" path="Directives" hit="Invalid directives detected" />
+    <option name="name" path="Directives" hit="Name:" />
+    <option name="directive" path="Directives" hit="No directive selected" />
+    <option name="no" path="Directives" hit="No directive selected" />
+    <option name="selected" path="Directives" hit="No directive selected" />
+    <option name="prefix" path="Directives" hit="Prefix:" />
+    <option name="raw" path="Text Tags" hit="Raw tags" />
+    <option name="tags" path="Text Tags" hit="Raw tags" />
+    <option name="start" path="Text Tags" hit="Start:" />
+    <option name="suffix" path="Directives" hit="Suffix:" />
+    <option name="block" path="Text Tags" hit="Text Block Tags" />
+    <option name="tags" path="Text Tags" hit="Text Block Tags" />
+    <option name="text" path="Text Tags" hit="Text Block Tags" />
+    <option name="tags" path="Text Tags" hit="Text Tags" />
+    <option name="text" path="Text Tags" hit="Text Tags" />
+    <option name="directive" path="Directives" hit="Unmodifiable directive" />
+    <option name="unmodifiable" path="Directives" hit="Unmodifiable directive" />
+    <option name="default" hit="Use default settings" />
+    <option name="settings" hit="Use default settings" />
+    <option name="use" hit="Use default settings" />
+  </configurable>
+  <configurable id="preferences.sourceCode.Blade" configurable_name="Blade">
+    <option name="blade" hit="Blade" />
+    <option name="continuation" path="Tabs and Indents" hit="Continuation indent:" />
+    <option name="indent" path="Tabs and Indents" hit="Continuation indent:" />
+    <option name="disable" hit="Disable" />
+    <option name="indent" path="Tabs and Indents" hit="Indent:" />
+    <option name="empty" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="indents" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="keep" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="lines" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="on" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="loading" hit="Loading..." />
+    <option name="scheme" hit="Scheme:" />
+    <option name="from" hit="Set from..." />
+    <option name="set" hit="Set from..." />
+    <option name="smart" path="Tabs and Indents" hit="Smart tabs" />
+    <option name="tabs" path="Tabs and Indents" hit="Smart tabs" />
+    <option name="size" path="Tabs and Indents" hit="Tab size:" />
+    <option name="tab" path="Tabs and Indents" hit="Tab size:" />
+    <option name="and" path="Tabs and Indents" hit="Tabs and Indents" />
+    <option name="indents" path="Tabs and Indents" hit="Tabs and Indents" />
+    <option name="tabs" path="Tabs and Indents" hit="Tabs and Indents" />
+    <option name="character" path="Tabs and Indents" hit="Use tab character" />
+    <option name="tab" path="Tabs and Indents" hit="Use tab character" />
+    <option name="use" path="Tabs and Indents" hit="Use tab character" />
+  </configurable>
+</options>

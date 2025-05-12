@@ -1,0 +1,20 @@
+<options>
+  <configurable id="preferences.keymap" configurable_name="Keymap">
+    <option name="command" path="ActionManager" hit="Run Command..." />
+    <option name="run" path="ActionManager" hit="Run Command..." />
+    <option name="command" path="ActionManager" hit="Run command line" />
+    <option name="line" path="ActionManager" hit="Run command line" />
+    <option name="run" path="ActionManager" hit="Run command line" />
+  </configurable>
+  <configurable id="reference.webide.settings.project.settings.php.zend.framework.tool" configurable_name="PHP Command Line Tool Support">
+    <option name="fix" hit="Fix" />
+    <option name="command" hit="PHP Command Line Tool Support" />
+    <option name="line" hit="PHP Command Line Tool Support" />
+    <option name="php" hit="PHP Command Line Tool Support" />
+    <option name="support" hit="PHP Command Line Tool Support" />
+    <option name="tool" hit="PHP Command Line Tool Support" />
+    <option name="show" hit="Show tool type" />
+    <option name="tool" hit="Show tool type" />
+    <option name="type" hit="Show tool type" />
+  </configurable>
+</options>

@@ -1,0 +1,108 @@
+<options>
+  <configurable id="editor.preferences.twigOptions" configurable_name="Twig">
+    <option name="auto-insert" hit="Auto-insert closing delimiter" />
+    <option name="closing" hit="Auto-insert closing delimiter" />
+    <option name="delimiter" hit="Auto-insert closing delimiter" />
+    <option name="closing" hit="Simultaneous opening/closing delimiter editing" />
+    <option name="delimiter" hit="Simultaneous opening/closing delimiter editing" />
+    <option name="editing" hit="Simultaneous opening/closing delimiter editing" />
+    <option name="opening" hit="Simultaneous opening/closing delimiter editing" />
+    <option name="simultaneous" hit="Simultaneous opening/closing delimiter editing" />
+    <option name="twig" hit="Twig" />
+  </configurable>
+  <configurable id="reference.settingsdialog.IDE.editor.colors.Twig" configurable_name="Twig">
+    <option name="twig" hit="Twig" />
+    <option name="bad" hit="Bad character" />
+    <option name="character" hit="Bad character" />
+    <option name="brackets" hit="Brackets" />
+    <option name="comment" hit="Comment" />
+    <option name="identifier" hit="Identifier" />
+    <option name="keyword" hit="Keyword" />
+    <option name="number" hit="Number" />
+    <option name="operator" hit="Operator" />
+    <option name="string" hit="String" />
+    <option name="code" hit="Twig code" />
+    <option name="twig" hit="Twig code" />
+  </configurable>
+  <configurable id="Configurable.PHP.Twig" configurable_name="Twig">
+    <option name="block" hit="Comment block end:" />
+    <option name="comment" hit="Comment block end:" />
+    <option name="end" hit="Comment block end:" />
+    <option name="block" hit="Comment block start:" />
+    <option name="comment" hit="Comment block start:" />
+    <option name="start" hit="Comment block start:" />
+    <option name="block" hit="Tag block end:" />
+    <option name="end" hit="Tag block end:" />
+    <option name="tag" hit="Tag block end:" />
+    <option name="block" hit="Tag block start:" />
+    <option name="start" hit="Tag block start:" />
+    <option name="tag" hit="Tag block start:" />
+    <option name="twig" hit="Twig" />
+    <option name="block" hit="Variable block end:" />
+    <option name="end" hit="Variable block end:" />
+    <option name="variable" hit="Variable block end:" />
+    <option name="block" hit="Variable block start:" />
+    <option name="start" hit="Variable block start:" />
+    <option name="variable" hit="Variable block start:" />
+  </configurable>
+  <configurable id="preferences.sourceCode.Twig" configurable_name="Twig">
+    <option name="continuation" path="Tabs and Indents" hit="Continuation indent:" />
+    <option name="indent" path="Tabs and Indents" hit="Continuation indent:" />
+    <option name="default" path="Other" hit="Default: No" />
+    <option name="no" path="Other" hit="Default: No" />
+    <option name="disable" hit="Disable" />
+    <option name="at" path="Other" hit="Hard wrap at:" />
+    <option name="hard" path="Other" hit="Hard wrap at:" />
+    <option name="wrap" path="Other" hit="Hard wrap at:" />
+    <option name="indent" path="Tabs and Indents" hit="Indent:" />
+    <option name="empty" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="indents" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="keep" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="lines" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="on" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="loading" hit="Loading..." />
+    <option name="no" path="Other" hit="No" />
+    <option name="other" path="Other" hit="Other" />
+    <option name="reset" path="Other" hit="Reset" />
+    <option name="scheme" hit="Scheme:" />
+    <option name="from" hit="Set from..." />
+    <option name="set" hit="Set from..." />
+    <option name="smart" path="Tabs and Indents" hit="Smart tabs" />
+    <option name="tabs" path="Tabs and Indents" hit="Smart tabs" />
+    <option name="#" path="Other" hit="Spaces inside comment delimiters {#...#}" />
+    <option name="comment" path="Other" hit="Spaces inside comment delimiters {#...#}" />
+    <option name="delimiters" path="Other" hit="Spaces inside comment delimiters {#...#}" />
+    <option name="inside" path="Other" hit="Spaces inside comment delimiters {#...#}" />
+    <option name="spaces" path="Other" hit="Spaces inside comment delimiters {#...#}" />
+    <option name="delimiters" path="Other" hit="Spaces inside delimiters {%...%}" />
+    <option name="inside" path="Other" hit="Spaces inside delimiters {%...%}" />
+    <option name="spaces" path="Other" hit="Spaces inside delimiters {%...%}" />
+    <option name="delimiters" path="Other" hit="Spaces inside variable delimiters {{...}}" />
+    <option name="inside" path="Other" hit="Spaces inside variable delimiters {{...}}" />
+    <option name="spaces" path="Other" hit="Spaces inside variable delimiters {{...}}" />
+    <option name="variable" path="Other" hit="Spaces inside variable delimiters {{...}}" />
+    <option name="120" path="Other" hit="Specify one guide (80) or several (80, 120)" />
+    <option name="80" path="Other" hit="Specify one guide (80) or several (80, 120)" />
+    <option name="guide" path="Other" hit="Specify one guide (80) or several (80, 120)" />
+    <option name="one" path="Other" hit="Specify one guide (80) or several (80, 120)" />
+    <option name="or" path="Other" hit="Specify one guide (80) or several (80, 120)" />
+    <option name="several" path="Other" hit="Specify one guide (80) or several (80, 120)" />
+    <option name="specify" path="Other" hit="Specify one guide (80) or several (80, 120)" />
+    <option name="size" path="Tabs and Indents" hit="Tab size:" />
+    <option name="tab" path="Tabs and Indents" hit="Tab size:" />
+    <option name="and" path="Tabs and Indents" hit="Tabs and Indents" />
+    <option name="indents" path="Tabs and Indents" hit="Tabs and Indents" />
+    <option name="tabs" path="Tabs and Indents" hit="Tabs and Indents" />
+    <option name="twig" hit="Twig" />
+    <option name="character" path="Tabs and Indents" hit="Use tab character" />
+    <option name="tab" path="Tabs and Indents" hit="Use tab character" />
+    <option name="use" path="Tabs and Indents" hit="Use tab character" />
+    <option name="guides" path="Other" hit="Visual guides:" />
+    <option name="visual" path="Other" hit="Visual guides:" />
+    <option name="on" path="Other" hit="Wrap on typing" />
+    <option name="typing" path="Other" hit="Wrap on typing" />
+    <option name="wrap" path="Other" hit="Wrap on typing" />
+    <option name="yes" path="Other" hit="Yes" />
+    <option name="columns" path="Other" hit="columns" />
+  </configurable>
+</options>

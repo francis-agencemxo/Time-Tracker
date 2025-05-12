@@ -1,0 +1,8 @@
+<options>
+  <configurable id="preferences.keymap" configurable_name="Keymap">
+    <option name="on" path="ActionManager" hit="Search on WordPress.org" />
+    <option name="org" path="ActionManager" hit="Search on WordPress.org" />
+    <option name="search" path="ActionManager" hit="Search on WordPress.org" />
+    <option name="wordpress" path="ActionManager" hit="Search on WordPress.org" />
+  </configurable>
+</options>

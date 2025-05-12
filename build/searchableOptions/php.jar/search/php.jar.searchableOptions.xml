@@ -1,0 +1,2294 @@
+<options>
+  <configurable id="preferences.keymap" configurable_name="Keymap">
+    <option name="" path="ActionManager" hit="" />
+    <option name="add" path="ActionManager" hit="Add Method to Skip List" />
+    <option name="list" path="ActionManager" hit="Add Method to Skip List" />
+    <option name="method" path="ActionManager" hit="Add Method to Skip List" />
+    <option name="skip" path="ActionManager" hit="Add Method to Skip List" />
+    <option name="to" path="ActionManager" hit="Add Method to Skip List" />
+    <option name="add" path="ActionManager" hit="Add PHPDoc blocks for functions, classes and fields." />
+    <option name="and" path="ActionManager" hit="Add PHPDoc blocks for functions, classes and fields." />
+    <option name="blocks" path="ActionManager" hit="Add PHPDoc blocks for functions, classes and fields." />
+    <option name="classes" path="ActionManager" hit="Add PHPDoc blocks for functions, classes and fields." />
+    <option name="fields" path="ActionManager" hit="Add PHPDoc blocks for functions, classes and fields." />
+    <option name="for" path="ActionManager" hit="Add PHPDoc blocks for functions, classes and fields." />
+    <option name="functions" path="ActionManager" hit="Add PHPDoc blocks for functions, classes and fields." />
+    <option name="phpdoc" path="ActionManager" hit="Add PHPDoc blocks for functions, classes and fields." />
+    <option name="add" path="ActionManager" hit="Add to Ignore List of…" />
+    <option name="ignore" path="ActionManager" hit="Add to Ignore List of…" />
+    <option name="list" path="ActionManager" hit="Add to Ignore List of…" />
+    <option name="of" path="ActionManager" hit="Add to Ignore List of…" />
+    <option name="to" path="ActionManager" hit="Add to Ignore List of…" />
+    <option name="add" path="ActionManager" hit="Add to PHP CS Fixer Ignore List" />
+    <option name="cs" path="ActionManager" hit="Add to PHP CS Fixer Ignore List" />
+    <option name="fixer" path="ActionManager" hit="Add to PHP CS Fixer Ignore List" />
+    <option name="ignore" path="ActionManager" hit="Add to PHP CS Fixer Ignore List" />
+    <option name="list" path="ActionManager" hit="Add to PHP CS Fixer Ignore List" />
+    <option name="php" path="ActionManager" hit="Add to PHP CS Fixer Ignore List" />
+    <option name="to" path="ActionManager" hit="Add to PHP CS Fixer Ignore List" />
+    <option name="add" path="ActionManager" hit="Add to PHP CS Fixer ignore list" />
+    <option name="cs" path="ActionManager" hit="Add to PHP CS Fixer ignore list" />
+    <option name="fixer" path="ActionManager" hit="Add to PHP CS Fixer ignore list" />
+    <option name="ignore" path="ActionManager" hit="Add to PHP CS Fixer ignore list" />
+    <option name="list" path="ActionManager" hit="Add to PHP CS Fixer ignore list" />
+    <option name="php" path="ActionManager" hit="Add to PHP CS Fixer ignore list" />
+    <option name="to" path="ActionManager" hit="Add to PHP CS Fixer ignore list" />
+    <option name="add" path="ActionManager" hit="Add to PHP Mess Detector ignore list" />
+    <option name="detector" path="ActionManager" hit="Add to PHP Mess Detector ignore list" />
+    <option name="ignore" path="ActionManager" hit="Add to PHP Mess Detector ignore list" />
+    <option name="list" path="ActionManager" hit="Add to PHP Mess Detector ignore list" />
+    <option name="mess" path="ActionManager" hit="Add to PHP Mess Detector ignore list" />
+    <option name="php" path="ActionManager" hit="Add to PHP Mess Detector ignore list" />
+    <option name="to" path="ActionManager" hit="Add to PHP Mess Detector ignore list" />
+    <option name="add" path="ActionManager" hit="Add to PHPCS Ignore List" />
+    <option name="ignore" path="ActionManager" hit="Add to PHPCS Ignore List" />
+    <option name="list" path="ActionManager" hit="Add to PHPCS Ignore List" />
+    <option name="phpcs" path="ActionManager" hit="Add to PHPCS Ignore List" />
+    <option name="to" path="ActionManager" hit="Add to PHPCS Ignore List" />
+    <option name="add" path="ActionManager" hit="Add to PHPMD Ignore List" />
+    <option name="ignore" path="ActionManager" hit="Add to PHPMD Ignore List" />
+    <option name="list" path="ActionManager" hit="Add to PHPMD Ignore List" />
+    <option name="phpmd" path="ActionManager" hit="Add to PHPMD Ignore List" />
+    <option name="to" path="ActionManager" hit="Add to PHPMD Ignore List" />
+    <option name="add" path="ActionManager" hit="Add to PHP_CodeSniffer Ignore List" />
+    <option name="codesniffer" path="ActionManager" hit="Add to PHP_CodeSniffer Ignore List" />
+    <option name="ignore" path="ActionManager" hit="Add to PHP_CodeSniffer Ignore List" />
+    <option name="list" path="ActionManager" hit="Add to PHP_CodeSniffer Ignore List" />
+    <option name="php" path="ActionManager" hit="Add to PHP_CodeSniffer Ignore List" />
+    <option name="to" path="ActionManager" hit="Add to PHP_CodeSniffer Ignore List" />
+    <option name="analyze" path="ActionManager" hit="Analyze Xdebug Profiler Snapshot…" />
+    <option name="profiler" path="ActionManager" hit="Analyze Xdebug Profiler Snapshot…" />
+    <option name="snapshot" path="ActionManager" hit="Analyze Xdebug Profiler Snapshot…" />
+    <option name="xdebug" path="ActionManager" hit="Analyze Xdebug Profiler Snapshot…" />
+    <option name="at" path="ActionManager" hit="Break at first line in PHP scripts" />
+    <option name="break" path="ActionManager" hit="Break at first line in PHP scripts" />
+    <option name="first" path="ActionManager" hit="Break at first line in PHP scripts" />
+    <option name="in" path="ActionManager" hit="Break at first line in PHP scripts" />
+    <option name="line" path="ActionManager" hit="Break at first line in PHP scripts" />
+    <option name="php" path="ActionManager" hit="Break at first line in PHP scripts" />
+    <option name="scripts" path="ActionManager" hit="Break at first line in PHP scripts" />
+    <option name="cancel" path="ActionManager" hit="Cancel IDE Registration" />
+    <option name="ide" path="ActionManager" hit="Cancel IDE Registration" />
+    <option name="registration" path="ActionManager" hit="Cancel IDE Registration" />
+    <option name="change" path="ActionManager" hit="Change PHP Interpreter" />
+    <option name="interpreter" path="ActionManager" hit="Change PHP Interpreter" />
+    <option name="php" path="ActionManager" hit="Change PHP Interpreter" />
+    <option name="change" path="ActionManager" hit="Change project PHP interpreter" />
+    <option name="interpreter" path="ActionManager" hit="Change project PHP interpreter" />
+    <option name="php" path="ActionManager" hit="Change project PHP interpreter" />
+    <option name="project" path="ActionManager" hit="Change project PHP interpreter" />
+    <option name="changes" path="ActionManager" hit="Check for Changes in Dependencies" />
+    <option name="check" path="ActionManager" hit="Check for Changes in Dependencies" />
+    <option name="dependencies" path="ActionManager" hit="Check for Changes in Dependencies" />
+    <option name="for" path="ActionManager" hit="Check for Changes in Dependencies" />
+    <option name="in" path="ActionManager" hit="Check for Changes in Dependencies" />
+    <option name="check" path="ActionManager" hit="Check for common Composer problems" />
+    <option name="common" path="ActionManager" hit="Check for common Composer problems" />
+    <option name="composer" path="ActionManager" hit="Check for common Composer problems" />
+    <option name="for" path="ActionManager" hit="Check for common Composer problems" />
+    <option name="problems" path="ActionManager" hit="Check for common Composer problems" />
+    <option name="check" path="ActionManager" hit="Check if composer.json is valid" />
+    <option name="composer" path="ActionManager" hit="Check if composer.json is valid" />
+    <option name="if" path="ActionManager" hit="Check if composer.json is valid" />
+    <option name="is" path="ActionManager" hit="Check if composer.json is valid" />
+    <option name="json" path="ActionManager" hit="Check if composer.json is valid" />
+    <option name="valid" path="ActionManager" hit="Check if composer.json is valid" />
+    <option name="any" path="ActionManager" hit="Check if there are local changes in any of dependencies" />
+    <option name="are" path="ActionManager" hit="Check if there are local changes in any of dependencies" />
+    <option name="changes" path="ActionManager" hit="Check if there are local changes in any of dependencies" />
+    <option name="check" path="ActionManager" hit="Check if there are local changes in any of dependencies" />
+    <option name="dependencies" path="ActionManager" hit="Check if there are local changes in any of dependencies" />
+    <option name="if" path="ActionManager" hit="Check if there are local changes in any of dependencies" />
+    <option name="in" path="ActionManager" hit="Check if there are local changes in any of dependencies" />
+    <option name="local" path="ActionManager" hit="Check if there are local changes in any of dependencies" />
+    <option name="of" path="ActionManager" hit="Check if there are local changes in any of dependencies" />
+    <option name="there" path="ActionManager" hit="Check if there are local changes in any of dependencies" />
+    <option name="cache" path="ActionManager" hit="Clear Cache" />
+    <option name="clear" path="ActionManager" hit="Clear Cache" />
+    <option name="composer" path="ActionManager" hit="Composer" />
+    <option name="configuration" path="ActionManager" hit="Configuration…" />
+    <option name="constructor" path="ActionManager" hit="Constructor…" />
+    <option name="copy" path="ActionManager" hit="Copy Path" />
+    <option name="path" path="ActionManager" hit="Copy Path" />
+    <option name="copy" path="ActionManager" hit="Copy Type" />
+    <option name="type" path="ActionManager" hit="Copy Type" />
+    <option name="as" path="ActionManager" hit="Copy Value As…" />
+    <option name="copy" path="ActionManager" hit="Copy Value As…" />
+    <option name="value" path="ActionManager" hit="Copy Value As…" />
+    <option name="a" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from file content " />
+    <option name="content" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from file content " />
+    <option name="create" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from file content " />
+    <option name="file" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from file content " />
+    <option name="from" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from file content " />
+    <option name="in" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from file content " />
+    <option name="issue" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from file content " />
+    <option name="phpstorm" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from file content " />
+    <option name="project" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from file content " />
+    <option name="wi" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from file content " />
+    <option name="youtrack" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from file content " />
+    <option name="a" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from selection content" />
+    <option name="content" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from selection content" />
+    <option name="create" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from selection content" />
+    <option name="from" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from selection content" />
+    <option name="in" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from selection content" />
+    <option name="issue" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from selection content" />
+    <option name="phpstorm" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from selection content" />
+    <option name="project" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from selection content" />
+    <option name="selection" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from selection content" />
+    <option name="wi" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from selection content" />
+    <option name="youtrack" path="ActionManager" hit="Create a YouTrack issue in WI (PhpStorm) project from selection content" />
+    <option name="a" path="ActionManager" hit="Create a constructor." />
+    <option name="constructor" path="ActionManager" hit="Create a constructor." />
+    <option name="create" path="ActionManager" hit="Create a constructor." />
+    <option name="and" path="ActionManager" hit="Create getters and setters for private class fields." />
+    <option name="class" path="ActionManager" hit="Create getters and setters for private class fields." />
+    <option name="create" path="ActionManager" hit="Create getters and setters for private class fields." />
+    <option name="fields" path="ActionManager" hit="Create getters and setters for private class fields." />
+    <option name="for" path="ActionManager" hit="Create getters and setters for private class fields." />
+    <option name="getters" path="ActionManager" hit="Create getters and setters for private class fields." />
+    <option name="private" path="ActionManager" hit="Create getters and setters for private class fields." />
+    <option name="setters" path="ActionManager" hit="Create getters and setters for private class fields." />
+    <option name="class" path="ActionManager" hit="Create getters for private class fields." />
+    <option name="create" path="ActionManager" hit="Create getters for private class fields." />
+    <option name="fields" path="ActionManager" hit="Create getters for private class fields." />
+    <option name="for" path="ActionManager" hit="Create getters for private class fields." />
+    <option name="getters" path="ActionManager" hit="Create getters for private class fields." />
+    <option name="private" path="ActionManager" hit="Create getters for private class fields." />
+    <option name="create" path="ActionManager" hit="Create new PHP Test" />
+    <option name="new" path="ActionManager" hit="Create new PHP Test" />
+    <option name="php" path="ActionManager" hit="Create new PHP Test" />
+    <option name="test" path="ActionManager" hit="Create new PHP Test" />
+    <option name="class" path="ActionManager" hit="Create setters for private class fields." />
+    <option name="create" path="ActionManager" hit="Create setters for private class fields." />
+    <option name="fields" path="ActionManager" hit="Create setters for private class fields." />
+    <option name="for" path="ActionManager" hit="Create setters for private class fields." />
+    <option name="private" path="ActionManager" hit="Create setters for private class fields." />
+    <option name="setters" path="ActionManager" hit="Create setters for private class fields." />
+    <option name="creates" path="ActionManager" hit="Creates PHPUnit setUp method" />
+    <option name="method" path="ActionManager" hit="Creates PHPUnit setUp method" />
+    <option name="phpunit" path="ActionManager" hit="Creates PHPUnit setUp method" />
+    <option name="setup" path="ActionManager" hit="Creates PHPUnit setUp method" />
+    <option name="creates" path="ActionManager" hit="Creates PHPUnit tearDown method" />
+    <option name="method" path="ActionManager" hit="Creates PHPUnit tearDown method" />
+    <option name="phpunit" path="ActionManager" hit="Creates PHPUnit tearDown method" />
+    <option name="teardown" path="ActionManager" hit="Creates PHPUnit tearDown method" />
+    <option name="creates" path="ActionManager" hit="Creates PHPUnit test method" />
+    <option name="method" path="ActionManager" hit="Creates PHPUnit test method" />
+    <option name="phpunit" path="ActionManager" hit="Creates PHPUnit test method" />
+    <option name="test" path="ActionManager" hit="Creates PHPUnit test method" />
+    <option name="a" path="ActionManager" hit="Creates a composer.json file" />
+    <option name="composer" path="ActionManager" hit="Creates a composer.json file" />
+    <option name="creates" path="ActionManager" hit="Creates a composer.json file" />
+    <option name="file" path="ActionManager" hit="Creates a composer.json file" />
+    <option name="json" path="ActionManager" hit="Creates a composer.json file" />
+    <option name="creates" path="ActionManager" hit="Creates new PHP File" />
+    <option name="file" path="ActionManager" hit="Creates new PHP File" />
+    <option name="new" path="ActionManager" hit="Creates new PHP File" />
+    <option name="php" path="ActionManager" hit="Creates new PHP File" />
+    <option name="class" path="ActionManager" hit="Creates new PHP class" />
+    <option name="creates" path="ActionManager" hit="Creates new PHP class" />
+    <option name="new" path="ActionManager" hit="Creates new PHP class" />
+    <option name="php" path="ActionManager" hit="Creates new PHP class" />
+    <option name="creates" path="ActionManager" hit="Creates new PHPUnit Test" />
+    <option name="new" path="ActionManager" hit="Creates new PHPUnit Test" />
+    <option name="phpunit" path="ActionManager" hit="Creates new PHPUnit Test" />
+    <option name="test" path="ActionManager" hit="Creates new PHPUnit Test" />
+    <option name="all" path="ActionManager" hit="Delete all content from Composer's cache directories" />
+    <option name="cache" path="ActionManager" hit="Delete all content from Composer's cache directories" />
+    <option name="composer" path="ActionManager" hit="Delete all content from Composer's cache directories" />
+    <option name="content" path="ActionManager" hit="Delete all content from Composer's cache directories" />
+    <option name="delete" path="ActionManager" hit="Delete all content from Composer's cache directories" />
+    <option name="directories" path="ActionManager" hit="Delete all content from Composer's cache directories" />
+    <option name="from" path="ActionManager" hit="Delete all content from Composer's cache directories" />
+    <option name="s" path="ActionManager" hit="Delete all content from Composer's cache directories" />
+    <option name="detach" path="ActionManager" hit="Detach from session" />
+    <option name="from" path="ActionManager" hit="Detach from session" />
+    <option name="session" path="ActionManager" hit="Detach from session" />
+    <option name="detect" path="ActionManager" hit="Detect PSR-0 Namespace Roots" />
+    <option name="namespace" path="ActionManager" hit="Detect PSR-0 Namespace Roots" />
+    <option name="psr-0" path="ActionManager" hit="Detect PSR-0 Namespace Roots" />
+    <option name="roots" path="ActionManager" hit="Detect PSR-0 Namespace Roots" />
+    <option name="diagnose" path="ActionManager" hit="Diagnose" />
+    <option name="and" path="ActionManager" hit="Disabling it stops getting user defined constants information and improves debugger performance " />
+    <option name="constants" path="ActionManager" hit="Disabling it stops getting user defined constants information and improves debugger performance " />
+    <option name="debugger" path="ActionManager" hit="Disabling it stops getting user defined constants information and improves debugger performance " />
+    <option name="defined" path="ActionManager" hit="Disabling it stops getting user defined constants information and improves debugger performance " />
+    <option name="disabling" path="ActionManager" hit="Disabling it stops getting user defined constants information and improves debugger performance " />
+    <option name="getting" path="ActionManager" hit="Disabling it stops getting user defined constants information and improves debugger performance " />
+    <option name="improves" path="ActionManager" hit="Disabling it stops getting user defined constants information and improves debugger performance " />
+    <option name="information" path="ActionManager" hit="Disabling it stops getting user defined constants information and improves debugger performance " />
+    <option name="it" path="ActionManager" hit="Disabling it stops getting user defined constants information and improves debugger performance " />
+    <option name="performance" path="ActionManager" hit="Disabling it stops getting user defined constants information and improves debugger performance " />
+    <option name="stops" path="ActionManager" hit="Disabling it stops getting user defined constants information and improves debugger performance " />
+    <option name="user" path="ActionManager" hit="Disabling it stops getting user defined constants information and improves debugger performance " />
+    <option name="autoloader" path="ActionManager" hit="Dump Autoloader…" />
+    <option name="dump" path="ActionManager" hit="Dump Autoloader…" />
+    <option name="class" path="ActionManager" hit="Extract Class…" />
+    <option name="extract" path="ActionManager" hit="Extract Class…" />
+    <option name="a" path="ActionManager" hit="Extracts elements to a separate class" />
+    <option name="class" path="ActionManager" hit="Extracts elements to a separate class" />
+    <option name="elements" path="ActionManager" hit="Extracts elements to a separate class" />
+    <option name="extracts" path="ActionManager" hit="Extracts elements to a separate class" />
+    <option name="separate" path="ActionManager" hit="Extracts elements to a separate class" />
+    <option name="to" path="ActionManager" hit="Extracts elements to a separate class" />
+    <option name="and" path="ActionManager" hit="Getters and Setters…" />
+    <option name="getters" path="ActionManager" hit="Getters and Setters…" />
+    <option name="setters" path="ActionManager" hit="Getters and Setters…" />
+    <option name="getters" path="ActionManager" hit="Getters…" />
+    <option name="exclude" path="ActionManager" hit="Include or exclude phar from project" />
+    <option name="from" path="ActionManager" hit="Include or exclude phar from project" />
+    <option name="include" path="ActionManager" hit="Include or exclude phar from project" />
+    <option name="or" path="ActionManager" hit="Include or exclude phar from project" />
+    <option name="phar" path="ActionManager" hit="Include or exclude phar from project" />
+    <option name="project" path="ActionManager" hit="Include or exclude phar from project" />
+    <option name="composer" path="ActionManager" hit="Init Composer" />
+    <option name="init" path="ActionManager" hit="Init Composer" />
+    <option name="composer" path="ActionManager" hit="Init Composer…" />
+    <option name="init" path="ActionManager" hit="Init Composer…" />
+    <option name="install" path="ActionManager" hit="Install" />
+    <option name="appropriate" path="ActionManager" hit="Installs latest appropriate versions of packages from composer.json" />
+    <option name="composer" path="ActionManager" hit="Installs latest appropriate versions of packages from composer.json" />
+    <option name="from" path="ActionManager" hit="Installs latest appropriate versions of packages from composer.json" />
+    <option name="installs" path="ActionManager" hit="Installs latest appropriate versions of packages from composer.json" />
+    <option name="json" path="ActionManager" hit="Installs latest appropriate versions of packages from composer.json" />
+    <option name="latest" path="ActionManager" hit="Installs latest appropriate versions of packages from composer.json" />
+    <option name="of" path="ActionManager" hit="Installs latest appropriate versions of packages from composer.json" />
+    <option name="packages" path="ActionManager" hit="Installs latest appropriate versions of packages from composer.json" />
+    <option name="versions" path="ActionManager" hit="Installs latest appropriate versions of packages from composer.json" />
+    <option name="account" path="ActionManager" hit="Installs packages from composer.json, taking account of composer.lock" />
+    <option name="composer" path="ActionManager" hit="Installs packages from composer.json, taking account of composer.lock" />
+    <option name="from" path="ActionManager" hit="Installs packages from composer.json, taking account of composer.lock" />
+    <option name="installs" path="ActionManager" hit="Installs packages from composer.json, taking account of composer.lock" />
+    <option name="json" path="ActionManager" hit="Installs packages from composer.json, taking account of composer.lock" />
+    <option name="lock" path="ActionManager" hit="Installs packages from composer.json, taking account of composer.lock" />
+    <option name="of" path="ActionManager" hit="Installs packages from composer.json, taking account of composer.lock" />
+    <option name="packages" path="ActionManager" hit="Installs packages from composer.json, taking account of composer.lock" />
+    <option name="taking" path="ActionManager" hit="Installs packages from composer.json, taking account of composer.lock" />
+    <option name="jump" path="ActionManager" hit="Jump To Source" />
+    <option name="source" path="ActionManager" hit="Jump To Source" />
+    <option name="to" path="ActionManager" hit="Jump To Source" />
+    <option name="jump" path="ActionManager" hit="Jump to source" />
+    <option name="source" path="ActionManager" hit="Jump to source" />
+    <option name="to" path="ActionManager" hit="Jump to source" />
+    <option name="licenses" path="ActionManager" hit="List Licenses" />
+    <option name="list" path="ActionManager" hit="List Licenses" />
+    <option name="connections" path="ActionManager" hit="Listen for Debug Connections" />
+    <option name="debug" path="ActionManager" hit="Listen for Debug Connections" />
+    <option name="for" path="ActionManager" hit="Listen for Debug Connections" />
+    <option name="listen" path="ActionManager" hit="Listen for Debug Connections" />
+    <option name="connections" path="ActionManager" hit="Listen for debug connections" />
+    <option name="debug" path="ActionManager" hit="Listen for debug connections" />
+    <option name="for" path="ActionManager" hit="Listen for debug connections" />
+    <option name="listen" path="ActionManager" hit="Listen for debug connections" />
+    <option name="and" path="ActionManager" hit="Lists the name, version and license of every package installed" />
+    <option name="every" path="ActionManager" hit="Lists the name, version and license of every package installed" />
+    <option name="installed" path="ActionManager" hit="Lists the name, version and license of every package installed" />
+    <option name="license" path="ActionManager" hit="Lists the name, version and license of every package installed" />
+    <option name="lists" path="ActionManager" hit="Lists the name, version and license of every package installed" />
+    <option name="name" path="ActionManager" hit="Lists the name, version and license of every package installed" />
+    <option name="of" path="ActionManager" hit="Lists the name, version and license of every package installed" />
+    <option name="package" path="ActionManager" hit="Lists the name, version and license of every package installed" />
+    <option name="the" path="ActionManager" hit="Lists the name, version and license of every package installed" />
+    <option name="version" path="ActionManager" hit="Lists the name, version and license of every package installed" />
+    <option name="make" path="ActionManager" hit="Make Static" />
+    <option name="static" path="ActionManager" hit="Make Static" />
+    <option name="class" path="ActionManager" hit="Make class method static" />
+    <option name="make" path="ActionManager" hit="Make class method static" />
+    <option name="method" path="ActionManager" hit="Make class method static" />
+    <option name="static" path="ActionManager" hit="Make class method static" />
+    <option name="composer" path="ActionManager" hit="Manage Composer dependencies" />
+    <option name="dependencies" path="ActionManager" hit="Manage Composer dependencies" />
+    <option name="manage" path="ActionManager" hit="Manage Composer dependencies" />
+    <option name="dependencies" path="ActionManager" hit="Manage Dependencies…" />
+    <option name="manage" path="ActionManager" hit="Manage Dependencies…" />
+    <option name="new" path="ActionManager" hit="New PHP Test" />
+    <option name="php" path="ActionManager" hit="New PHP Test" />
+    <option name="test" path="ActionManager" hit="New PHP Test" />
+    <option name="class" path="ActionManager" hit="PHP Class" />
+    <option name="php" path="ActionManager" hit="PHP Class" />
+    <option name="file" path="ActionManager" hit="PHP File" />
+    <option name="php" path="ActionManager" hit="PHP File" />
+    <option name="php" path="ActionManager" hit="PHP Test" />
+    <option name="test" path="ActionManager" hit="PHP Test" />
+    <option name="blocks" path="ActionManager" hit="PHPDoc Blocks…" />
+    <option name="phpdoc" path="ActionManager" hit="PHPDoc Blocks…" />
+    <option name="phpunit" path="ActionManager" hit="PHPUnit Test" />
+    <option name="test" path="ActionManager" hit="PHPUnit Test" />
+    <option name="guide" path="ActionManager" hit="PhpStorm Migration Guide" />
+    <option name="migration" path="ActionManager" hit="PhpStorm Migration Guide" />
+    <option name="phpstorm" path="ActionManager" hit="PhpStorm Migration Guide" />
+    <option name="configuration" path="ActionManager" hit="Proxy configuration" />
+    <option name="proxy" path="ActionManager" hit="Proxy configuration" />
+    <option name="init" path="ActionManager" hit="Proxy init" />
+    <option name="proxy" path="ActionManager" hit="Proxy init" />
+    <option name="proxy" path="ActionManager" hit="Proxy stop" />
+    <option name="stop" path="ActionManager" hit="Proxy stop" />
+    <option name="autoloaded" path="ActionManager" hit="Regenerate the list of autoloaded classes" />
+    <option name="classes" path="ActionManager" hit="Regenerate the list of autoloaded classes" />
+    <option name="list" path="ActionManager" hit="Regenerate the list of autoloaded classes" />
+    <option name="of" path="ActionManager" hit="Regenerate the list of autoloaded classes" />
+    <option name="regenerate" path="ActionManager" hit="Regenerate the list of autoloaded classes" />
+    <option name="the" path="ActionManager" hit="Regenerate the list of autoloaded classes" />
+    <option name="ide" path="ActionManager" hit="Register IDE" />
+    <option name="register" path="ActionManager" hit="Register IDE" />
+    <option name="configuration" path="ActionManager" hit="Run with ParaTest context configuration" />
+    <option name="context" path="ActionManager" hit="Run with ParaTest context configuration" />
+    <option name="paratest" path="ActionManager" hit="Run with ParaTest context configuration" />
+    <option name="run" path="ActionManager" hit="Run with ParaTest context configuration" />
+    <option name="with" path="ActionManager" hit="Run with ParaTest context configuration" />
+    <option name="self-update" path="ActionManager" hit="Self-Update" />
+    <option name="method" path="ActionManager" hit="SetUp Method" />
+    <option name="setup" path="ActionManager" hit="SetUp Method" />
+    <option name="setters" path="ActionManager" hit="Setters…" />
+    <option name="log" path="ActionManager" hit="Show Log" />
+    <option name="show" path="ActionManager" hit="Show Log" />
+    <option name="fqn" path="ActionManager" hit="Show PHP FQN" />
+    <option name="php" path="ActionManager" hit="Show PHP FQN" />
+    <option name="show" path="ActionManager" hit="Show PHP FQN" />
+    <option name="empty" path="ActionManager" hit="Show empty superglobals variables" />
+    <option name="show" path="ActionManager" hit="Show empty superglobals variables" />
+    <option name="superglobals" path="ActionManager" hit="Show empty superglobals variables" />
+    <option name="variables" path="ActionManager" hit="Show empty superglobals variables" />
+    <option name="actions" path="ActionManager" hit="Show log of composer actions with this composer.json" />
+    <option name="composer" path="ActionManager" hit="Show log of composer actions with this composer.json" />
+    <option name="json" path="ActionManager" hit="Show log of composer actions with this composer.json" />
+    <option name="log" path="ActionManager" hit="Show log of composer actions with this composer.json" />
+    <option name="of" path="ActionManager" hit="Show log of composer actions with this composer.json" />
+    <option name="show" path="ActionManager" hit="Show log of composer actions with this composer.json" />
+    <option name="this" path="ActionManager" hit="Show log of composer actions with this composer.json" />
+    <option name="with" path="ActionManager" hit="Show log of composer actions with this composer.json" />
+    <option name="constants" path="ActionManager" hit="Show user defined constants" />
+    <option name="defined" path="ActionManager" hit="Show user defined constants" />
+    <option name="show" path="ActionManager" hit="Show user defined constants" />
+    <option name="user" path="ActionManager" hit="Show user defined constants" />
+    <option name="simulate" path="ActionManager" hit="Simulate Update" />
+    <option name="update" path="ActionManager" hit="Simulate Update" />
+    <option name="actually" path="ActionManager" hit="Simulates an update without actually doing it" />
+    <option name="an" path="ActionManager" hit="Simulates an update without actually doing it" />
+    <option name="doing" path="ActionManager" hit="Simulates an update without actually doing it" />
+    <option name="it" path="ActionManager" hit="Simulates an update without actually doing it" />
+    <option name="simulates" path="ActionManager" hit="Simulates an update without actually doing it" />
+    <option name="update" path="ActionManager" hit="Simulates an update without actually doing it" />
+    <option name="without" path="ActionManager" hit="Simulates an update without actually doing it" />
+    <option name="method" path="ActionManager" hit="TearDown Method" />
+    <option name="teardown" path="ActionManager" hit="TearDown Method" />
+    <option name="method" path="ActionManager" hit="Test Method" />
+    <option name="test" path="ActionManager" hit="Test Method" />
+    <option name="update" path="ActionManager" hit="Update" />
+    <option name="composer" path="ActionManager" hit="Updates Composer itself to the latest version" />
+    <option name="itself" path="ActionManager" hit="Updates Composer itself to the latest version" />
+    <option name="latest" path="ActionManager" hit="Updates Composer itself to the latest version" />
+    <option name="the" path="ActionManager" hit="Updates Composer itself to the latest version" />
+    <option name="to" path="ActionManager" hit="Updates Composer itself to the latest version" />
+    <option name="updates" path="ActionManager" hit="Updates Composer itself to the latest version" />
+    <option name="version" path="ActionManager" hit="Updates Composer itself to the latest version" />
+    <option name="validate" path="ActionManager" hit="Validate…" />
+    <option name="debug" path="ActionManager" hit="Web Server Debug Validation" />
+    <option name="server" path="ActionManager" hit="Web Server Debug Validation" />
+    <option name="validation" path="ActionManager" hit="Web Server Debug Validation" />
+    <option name="web" path="ActionManager" hit="Web Server Debug Validation" />
+    <option name="detect" path="ActionManager" hit="Will detect source namespace roots" />
+    <option name="namespace" path="ActionManager" hit="Will detect source namespace roots" />
+    <option name="roots" path="ActionManager" hit="Will detect source namespace roots" />
+    <option name="source" path="ActionManager" hit="Will detect source namespace roots" />
+    <option name="will" path="ActionManager" hit="Will detect source namespace roots" />
+    <option name="composer" path="ActionManager" hit="composer.json File" />
+    <option name="file" path="ActionManager" hit="composer.json File" />
+    <option name="json" path="ActionManager" hit="composer.json File" />
+  </configurable>
+  <configurable id="editor.breadcrumbs" configurable_name="Breadcrumbs">
+    <option name="php" hit="PHP" />
+  </configurable>
+  <configurable id="editor.preferences.phpOptions" configurable_name="PHP">
+    <option name="after" hit="Auto-insert '&lt;?php' tag after typing '&lt;?'" />
+    <option name="auto-insert" hit="Auto-insert '&lt;?php' tag after typing '&lt;?'" />
+    <option name="php" hit="Auto-insert '&lt;?php' tag after typing '&lt;?'" />
+    <option name="tag" hit="Auto-insert '&lt;?php' tag after typing '&lt;?'" />
+    <option name="typing" hit="Auto-insert '&lt;?php' tag after typing '&lt;?'" />
+    <option name="auto-insert" hit="Auto-insert closing HTML tag in PHPDoc blocks" />
+    <option name="blocks" hit="Auto-insert closing HTML tag in PHPDoc blocks" />
+    <option name="closing" hit="Auto-insert closing HTML tag in PHPDoc blocks" />
+    <option name="html" hit="Auto-insert closing HTML tag in PHPDoc blocks" />
+    <option name="in" hit="Auto-insert closing HTML tag in PHPDoc blocks" />
+    <option name="phpdoc" hit="Auto-insert closing HTML tag in PHPDoc blocks" />
+    <option name="tag" hit="Auto-insert closing HTML tag in PHPDoc blocks" />
+    <option name="a" hit="Auto-insert semicolon when it is typed inside a function call " />
+    <option name="auto-insert" hit="Auto-insert semicolon when it is typed inside a function call " />
+    <option name="call" hit="Auto-insert semicolon when it is typed inside a function call " />
+    <option name="function" hit="Auto-insert semicolon when it is typed inside a function call " />
+    <option name="inside" hit="Auto-insert semicolon when it is typed inside a function call " />
+    <option name="is" hit="Auto-insert semicolon when it is typed inside a function call " />
+    <option name="it" hit="Auto-insert semicolon when it is typed inside a function call " />
+    <option name="semicolon" hit="Auto-insert semicolon when it is typed inside a function call " />
+    <option name="typed" hit="Auto-insert semicolon when it is typed inside a function call " />
+    <option name="when" hit="Auto-insert semicolon when it is typed inside a function call " />
+    <option name="completion" hit="Enable smart function parameters completion" />
+    <option name="enable" hit="Enable smart function parameters completion" />
+    <option name="function" hit="Enable smart function parameters completion" />
+    <option name="parameters" hit="Enable smart function parameters completion" />
+    <option name="smart" hit="Enable smart function parameters completion" />
+    <option name="escape" hit="Escape symbols on paste in string literals" />
+    <option name="in" hit="Escape symbols on paste in string literals" />
+    <option name="literals" hit="Escape symbols on paste in string literals" />
+    <option name="on" hit="Escape symbols on paste in string literals" />
+    <option name="paste" hit="Escape symbols on paste in string literals" />
+    <option name="string" hit="Escape symbols on paste in string literals" />
+    <option name="symbols" hit="Escape symbols on paste in string literals" />
+    <option name="php" hit="PHP" />
+    <option name="close" hit="Remove PHP open/close tags while pasting in PHP context" />
+    <option name="context" hit="Remove PHP open/close tags while pasting in PHP context" />
+    <option name="in" hit="Remove PHP open/close tags while pasting in PHP context" />
+    <option name="open" hit="Remove PHP open/close tags while pasting in PHP context" />
+    <option name="pasting" hit="Remove PHP open/close tags while pasting in PHP context" />
+    <option name="php" hit="Remove PHP open/close tags while pasting in PHP context" />
+    <option name="remove" hit="Remove PHP open/close tags while pasting in PHP context" />
+    <option name="tags" hit="Remove PHP open/close tags while pasting in PHP context" />
+    <option name="while" hit="Remove PHP open/close tags while pasting in PHP context" />
+    <option name="double" hit="Replace unnecessary double quotes on paste" />
+    <option name="on" hit="Replace unnecessary double quotes on paste" />
+    <option name="paste" hit="Replace unnecessary double quotes on paste" />
+    <option name="quotes" hit="Replace unnecessary double quotes on paste" />
+    <option name="replace" hit="Replace unnecessary double quotes on paste" />
+    <option name="unnecessary" hit="Replace unnecessary double quotes on paste" />
+    <option name="click" hit="Select variable name without '$' sign on double click" />
+    <option name="double" hit="Select variable name without '$' sign on double click" />
+    <option name="name" hit="Select variable name without '$' sign on double click" />
+    <option name="on" hit="Select variable name without '$' sign on double click" />
+    <option name="select" hit="Select variable name without '$' sign on double click" />
+    <option name="sign" hit="Select variable name without '$' sign on double click" />
+    <option name="variable" hit="Select variable name without '$' sign on double click" />
+    <option name="without" hit="Select variable name without '$' sign on double click" />
+    <option name="additional" hit="Show additional options when searching for method usages" />
+    <option name="for" hit="Show additional options when searching for method usages" />
+    <option name="method" hit="Show additional options when searching for method usages" />
+    <option name="options" hit="Show additional options when searching for method usages" />
+    <option name="searching" hit="Show additional options when searching for method usages" />
+    <option name="show" hit="Show additional options when searching for method usages" />
+    <option name="usages" hit="Show additional options when searching for method usages" />
+    <option name="when" hit="Show additional options when searching for method usages" />
+  </configurable>
+  <configurable id="reference.settingsdialog.IDE.editor.colors.PHP" configurable_name="PHP">
+    <option name="php" hit="PHP" />
+    <option name="attributes" hit="Attributes" />
+    <option name="and" hit="Braces and Operators//Braces" />
+    <option name="braces" hit="Braces and Operators//Braces" />
+    <option name="operators" hit="Braces and Operators//Braces" />
+    <option name="and" hit="Braces and Operators//Brackets" />
+    <option name="braces" hit="Braces and Operators//Brackets" />
+    <option name="brackets" hit="Braces and Operators//Brackets" />
+    <option name="operators" hit="Braces and Operators//Brackets" />
+    <option name="and" hit="Braces and Operators//Comma" />
+    <option name="braces" hit="Braces and Operators//Comma" />
+    <option name="comma" hit="Braces and Operators//Comma" />
+    <option name="operators" hit="Braces and Operators//Comma" />
+    <option name="and" hit="Braces and Operators//Operators" />
+    <option name="braces" hit="Braces and Operators//Operators" />
+    <option name="operators" hit="Braces and Operators//Operators" />
+    <option name="and" hit="Braces and Operators//Parentheses" />
+    <option name="braces" hit="Braces and Operators//Parentheses" />
+    <option name="operators" hit="Braces and Operators//Parentheses" />
+    <option name="parentheses" hit="Braces and Operators//Parentheses" />
+    <option name="and" hit="Braces and Operators//Semicolon" />
+    <option name="braces" hit="Braces and Operators//Semicolon" />
+    <option name="operators" hit="Braces and Operators//Semicolon" />
+    <option name="semicolon" hit="Braces and Operators//Semicolon" />
+    <option name="and" hit="Classes and Properties//Class" />
+    <option name="class" hit="Classes and Properties//Class" />
+    <option name="classes" hit="Classes and Properties//Class" />
+    <option name="properties" hit="Classes and Properties//Class" />
+    <option name="and" hit="Classes and Properties//Instance Property" />
+    <option name="classes" hit="Classes and Properties//Instance Property" />
+    <option name="instance" hit="Classes and Properties//Instance Property" />
+    <option name="properties" hit="Classes and Properties//Instance Property" />
+    <option name="property" hit="Classes and Properties//Instance Property" />
+    <option name="and" hit="Classes and Properties//Interface" />
+    <option name="classes" hit="Classes and Properties//Interface" />
+    <option name="interface" hit="Classes and Properties//Interface" />
+    <option name="properties" hit="Classes and Properties//Interface" />
+    <option name="and" hit="Classes and Properties//Private Instance Property" />
+    <option name="classes" hit="Classes and Properties//Private Instance Property" />
+    <option name="instance" hit="Classes and Properties//Private Instance Property" />
+    <option name="private" hit="Classes and Properties//Private Instance Property" />
+    <option name="properties" hit="Classes and Properties//Private Instance Property" />
+    <option name="property" hit="Classes and Properties//Private Instance Property" />
+    <option name="and" hit="Classes and Properties//Protected Instance Property" />
+    <option name="classes" hit="Classes and Properties//Protected Instance Property" />
+    <option name="instance" hit="Classes and Properties//Protected Instance Property" />
+    <option name="properties" hit="Classes and Properties//Protected Instance Property" />
+    <option name="property" hit="Classes and Properties//Protected Instance Property" />
+    <option name="protected" hit="Classes and Properties//Protected Instance Property" />
+    <option name="and" hit="Classes and Properties//Static Property" />
+    <option name="classes" hit="Classes and Properties//Static Property" />
+    <option name="properties" hit="Classes and Properties//Static Property" />
+    <option name="property" hit="Classes and Properties//Static Property" />
+    <option name="static" hit="Classes and Properties//Static Property" />
+    <option name="comments" hit="Comments" />
+    <option name="and" hit="Functions and Methods//Declaration" />
+    <option name="declaration" hit="Functions and Methods//Declaration" />
+    <option name="functions" hit="Functions and Methods//Declaration" />
+    <option name="methods" hit="Functions and Methods//Declaration" />
+    <option name="and" hit="Functions and Methods//Function Call" />
+    <option name="call" hit="Functions and Methods//Function Call" />
+    <option name="function" hit="Functions and Methods//Function Call" />
+    <option name="functions" hit="Functions and Methods//Function Call" />
+    <option name="methods" hit="Functions and Methods//Function Call" />
+    <option name="and" hit="Functions and Methods//Instance Method Call" />
+    <option name="call" hit="Functions and Methods//Instance Method Call" />
+    <option name="functions" hit="Functions and Methods//Instance Method Call" />
+    <option name="instance" hit="Functions and Methods//Instance Method Call" />
+    <option name="method" hit="Functions and Methods//Instance Method Call" />
+    <option name="methods" hit="Functions and Methods//Instance Method Call" />
+    <option name="and" hit="Functions and Methods//Parameter" />
+    <option name="functions" hit="Functions and Methods//Parameter" />
+    <option name="methods" hit="Functions and Methods//Parameter" />
+    <option name="parameter" hit="Functions and Methods//Parameter" />
+    <option name="and" hit="Functions and Methods//Private Instance Method Call" />
+    <option name="call" hit="Functions and Methods//Private Instance Method Call" />
+    <option name="functions" hit="Functions and Methods//Private Instance Method Call" />
+    <option name="instance" hit="Functions and Methods//Private Instance Method Call" />
+    <option name="method" hit="Functions and Methods//Private Instance Method Call" />
+    <option name="methods" hit="Functions and Methods//Private Instance Method Call" />
+    <option name="private" hit="Functions and Methods//Private Instance Method Call" />
+    <option name="and" hit="Functions and Methods//Protected Instance Method Call" />
+    <option name="call" hit="Functions and Methods//Protected Instance Method Call" />
+    <option name="functions" hit="Functions and Methods//Protected Instance Method Call" />
+    <option name="instance" hit="Functions and Methods//Protected Instance Method Call" />
+    <option name="method" hit="Functions and Methods//Protected Instance Method Call" />
+    <option name="methods" hit="Functions and Methods//Protected Instance Method Call" />
+    <option name="protected" hit="Functions and Methods//Protected Instance Method Call" />
+    <option name="and" hit="Functions and Methods//Static Method Call" />
+    <option name="call" hit="Functions and Methods//Static Method Call" />
+    <option name="functions" hit="Functions and Methods//Static Method Call" />
+    <option name="method" hit="Functions and Methods//Static Method Call" />
+    <option name="methods" hit="Functions and Methods//Static Method Call" />
+    <option name="static" hit="Functions and Methods//Static Method Call" />
+    <option name="heredoc" hit="Heredoc//Heredoc ID" />
+    <option name="id" hit="Heredoc//Heredoc ID" />
+    <option name="content" hit="Heredoc//Heredoc content" />
+    <option name="heredoc" hit="Heredoc//Heredoc content" />
+    <option name="identifiers" hit="Identifiers//'$this' variable" />
+    <option name="this" hit="Identifiers//'$this' variable" />
+    <option name="variable" hit="Identifiers//'$this' variable" />
+    <option name="alias" hit="Identifiers//Alias reference" />
+    <option name="identifiers" hit="Identifiers//Alias reference" />
+    <option name="reference" hit="Identifiers//Alias reference" />
+    <option name="constant" hit="Identifiers//Constant" />
+    <option name="identifiers" hit="Identifiers//Constant" />
+    <option name="default" hit="Identifiers//Default" />
+    <option name="identifiers" hit="Identifiers//Default" />
+    <option name="goto" hit="Identifiers//Goto label" />
+    <option name="identifiers" hit="Identifiers//Goto label" />
+    <option name="label" hit="Identifiers//Goto label" />
+    <option name="access" hit="Identifiers//Magic Member Access" />
+    <option name="identifiers" hit="Identifiers//Magic Member Access" />
+    <option name="magic" hit="Identifiers//Magic Member Access" />
+    <option name="member" hit="Identifiers//Magic Member Access" />
+    <option name="identifiers" hit="Identifiers//Predefined symbols" />
+    <option name="predefined" hit="Identifiers//Predefined symbols" />
+    <option name="symbols" hit="Identifiers//Predefined symbols" />
+    <option name="hint" hit="Identifiers//Primitive Type Hint" />
+    <option name="identifiers" hit="Identifiers//Primitive Type Hint" />
+    <option name="primitive" hit="Identifiers//Primitive Type Hint" />
+    <option name="type" hit="Identifiers//Primitive Type Hint" />
+    <option name="identifiers" hit="Identifiers//Variable" />
+    <option name="variable" hit="Identifiers//Variable" />
+    <option name="identifiers" hit="Identifiers//Variable variable" />
+    <option name="variable" hit="Identifiers//Variable variable" />
+    <option name="keywords" hit="Keywords" />
+    <option name="arguments" hit="Named Arguments" />
+    <option name="named" hit="Named Arguments" />
+    <option name="numbers" hit="Numbers" />
+    <option name="background" hit="PHP Code//Background" />
+    <option name="code" hit="PHP Code//Background" />
+    <option name="php" hit="PHP Code//Background" />
+    <option name="code" hit="PHP Code//Tags" />
+    <option name="php" hit="PHP Code//Tags" />
+    <option name="tags" hit="PHP Code//Tags" />
+    <option name="identifier" hit="PHPDoc//Identifier" />
+    <option name="phpdoc" hit="PHPDoc//Identifier" />
+    <option name="markup" hit="PHPDoc//Markup" />
+    <option name="phpdoc" hit="PHPDoc//Markup" />
+    <option name="declaration" hit="PHPDoc//Method Declaration" />
+    <option name="method" hit="PHPDoc//Method Declaration" />
+    <option name="phpdoc" hit="PHPDoc//Method Declaration" />
+    <option name="parameter" hit="PHPDoc//Parameter" />
+    <option name="phpdoc" hit="PHPDoc//Parameter" />
+    <option name="phpdoc" hit="PHPDoc//Property" />
+    <option name="property" hit="PHPDoc//Property" />
+    <option name="phpdoc" hit="PHPDoc//Tag" />
+    <option name="tag" hit="PHPDoc//Tag" />
+    <option name="phpdoc" hit="PHPDoc//Template Type" />
+    <option name="template" hit="PHPDoc//Template Type" />
+    <option name="type" hit="PHPDoc//Template Type" />
+    <option name="phpdoc" hit="PHPDoc//Text" />
+    <option name="text" hit="PHPDoc//Text" />
+    <option name="phpdoc" hit="PHPDoc//Variable" />
+    <option name="variable" hit="PHPDoc//Variable" />
+    <option name="highlighting" hit="Semantic highlighting" />
+    <option name="semantic" hit="Semantic highlighting" />
+    <option name="command" hit="Shell command" />
+    <option name="shell" hit="Shell command" />
+    <option name="characters" hit="Strings//Characters" />
+    <option name="strings" hit="Strings//Characters" />
+    <option name="concatenation" hit="Strings//Concatenation" />
+    <option name="strings" hit="Strings//Concatenation" />
+    <option name="escape" hit="Strings//Escape sequences" />
+    <option name="sequences" hit="Strings//Escape sequences" />
+    <option name="strings" hit="Strings//Escape sequences" />
+    <option name="character" hit="Unknown character" />
+    <option name="unknown" hit="Unknown character" />
+  </configurable>
+  <configurable id="reference.settingsdialog.IDE.editor.colors.Smarty" configurable_name="Smarty">
+    <option name="smarty" hit="Smarty" />
+    <option name="bad" hit="Bad character" />
+    <option name="character" hit="Bad character" />
+    <option name="brackets" hit="Brackets" />
+    <option name="comment" hit="Comment" />
+    <option name="identifier" hit="Identifier" />
+    <option name="keyword" hit="Keyword" />
+    <option name="number" hit="Number" />
+    <option name="operator" hit="Operator" />
+    <option name="code" hit="Smarty code" />
+    <option name="smarty" hit="Smarty code" />
+    <option name="string" hit="String" />
+  </configurable>
+  <configurable id="preferences.sourceCode.PHP" configurable_name="PHP">
+    <option name="a" path="Code Conversion" hit="Add a comma after last argument in function call" />
+    <option name="add" path="Code Conversion" hit="Add a comma after last argument in function call" />
+    <option name="after" path="Code Conversion" hit="Add a comma after last argument in function call" />
+    <option name="argument" path="Code Conversion" hit="Add a comma after last argument in function call" />
+    <option name="call" path="Code Conversion" hit="Add a comma after last argument in function call" />
+    <option name="comma" path="Code Conversion" hit="Add a comma after last argument in function call" />
+    <option name="function" path="Code Conversion" hit="Add a comma after last argument in function call" />
+    <option name="in" path="Code Conversion" hit="Add a comma after last argument in function call" />
+    <option name="last" path="Code Conversion" hit="Add a comma after last argument in function call" />
+    <option name="a" path="Code Conversion" hit="Add a comma after last element in multiline array" />
+    <option name="add" path="Code Conversion" hit="Add a comma after last element in multiline array" />
+    <option name="after" path="Code Conversion" hit="Add a comma after last element in multiline array" />
+    <option name="array" path="Code Conversion" hit="Add a comma after last element in multiline array" />
+    <option name="comma" path="Code Conversion" hit="Add a comma after last element in multiline array" />
+    <option name="element" path="Code Conversion" hit="Add a comma after last element in multiline array" />
+    <option name="in" path="Code Conversion" hit="Add a comma after last element in multiline array" />
+    <option name="last" path="Code Conversion" hit="Add a comma after last element in multiline array" />
+    <option name="multiline" path="Code Conversion" hit="Add a comma after last element in multiline array" />
+    <option name="a" path="Code Conversion" hit="Add a comma after last match arm" />
+    <option name="add" path="Code Conversion" hit="Add a comma after last match arm" />
+    <option name="after" path="Code Conversion" hit="Add a comma after last match arm" />
+    <option name="arm" path="Code Conversion" hit="Add a comma after last match arm" />
+    <option name="comma" path="Code Conversion" hit="Add a comma after last match arm" />
+    <option name="last" path="Code Conversion" hit="Add a comma after last match arm" />
+    <option name="match" path="Code Conversion" hit="Add a comma after last match arm" />
+    <option name="a" path="Code Conversion" hit="Add a comma after last parameter in parameter list" />
+    <option name="add" path="Code Conversion" hit="Add a comma after last parameter in parameter list" />
+    <option name="after" path="Code Conversion" hit="Add a comma after last parameter in parameter list" />
+    <option name="comma" path="Code Conversion" hit="Add a comma after last parameter in parameter list" />
+    <option name="in" path="Code Conversion" hit="Add a comma after last parameter in parameter list" />
+    <option name="last" path="Code Conversion" hit="Add a comma after last parameter in parameter list" />
+    <option name="list" path="Code Conversion" hit="Add a comma after last parameter in parameter list" />
+    <option name="parameter" path="Code Conversion" hit="Add a comma after last parameter in parameter list" />
+    <option name="a" path="Code Conversion" hit="Add a comma after last variable in closure use list" />
+    <option name="add" path="Code Conversion" hit="Add a comma after last variable in closure use list" />
+    <option name="after" path="Code Conversion" hit="Add a comma after last variable in closure use list" />
+    <option name="closure" path="Code Conversion" hit="Add a comma after last variable in closure use list" />
+    <option name="comma" path="Code Conversion" hit="Add a comma after last variable in closure use list" />
+    <option name="in" path="Code Conversion" hit="Add a comma after last variable in closure use list" />
+    <option name="last" path="Code Conversion" hit="Add a comma after last variable in closure use list" />
+    <option name="list" path="Code Conversion" hit="Add a comma after last variable in closure use list" />
+    <option name="use" path="Code Conversion" hit="Add a comma after last variable in closure use list" />
+    <option name="variable" path="Code Conversion" hit="Add a comma after last variable in closure use list" />
+    <option name="a" path="Code Generation" hit="Add a space at line comment start" />
+    <option name="add" path="Code Generation" hit="Add a space at line comment start" />
+    <option name="at" path="Code Generation" hit="Add a space at line comment start" />
+    <option name="comment" path="Code Generation" hit="Add a space at line comment start" />
+    <option name="line" path="Code Generation" hit="Add a space at line comment start" />
+    <option name="space" path="Code Generation" hit="Add a space at line comment start" />
+    <option name="start" path="Code Generation" hit="Add a space at line comment start" />
+    <option name="add" path="Code Generation" hit="Add spaces around block comments" />
+    <option name="around" path="Code Generation" hit="Add spaces around block comments" />
+    <option name="block" path="Code Generation" hit="Add spaces around block comments" />
+    <option name="comments" path="Code Generation" hit="Add spaces around block comments" />
+    <option name="spaces" path="Code Generation" hit="Add spaces around block comments" />
+    <option name="after" path="Blank Lines" hit="After 'use' statements:" />
+    <option name="statements" path="Blank Lines" hit="After 'use' statements:" />
+    <option name="use" path="Blank Lines" hit="After 'use' statements:" />
+    <option name="after" path="Blank Lines" hit="After '{':" />
+    <option name="after" path="Blank Lines" hit="After class body:" />
+    <option name="body" path="Blank Lines" hit="After class body:" />
+    <option name="class" path="Blank Lines" hit="After class body:" />
+    <option name="after" path="Blank Lines" hit="After function:" />
+    <option name="function" path="Blank Lines" hit="After function:" />
+    <option name="after" path="Blank Lines" hit="After namespace:" />
+    <option name="namespace" path="Blank Lines" hit="After namespace:" />
+    <option name="after" path="Blank Lines" hit="After opening tag:" />
+    <option name="opening" path="Blank Lines" hit="After opening tag:" />
+    <option name="tag" path="Blank Lines" hit="After opening tag:" />
+    <option name="align" path="PHPDoc" hit="Align parameter/property names" />
+    <option name="names" path="PHPDoc" hit="Align parameter/property names" />
+    <option name="parameter" path="PHPDoc" hit="Align parameter/property names" />
+    <option name="property" path="PHPDoc" hit="Align parameter/property names" />
+    <option name="align" path="PHPDoc" hit="Align tag comments" />
+    <option name="comments" path="PHPDoc" hit="Align tag comments" />
+    <option name="tag" path="PHPDoc" hit="Align tag comments" />
+    <option name="alphabetically" path="Code Conversion" hit="Alphabetically" />
+    <option name="around" path="Blank Lines" hit="Around class constants:" />
+    <option name="class" path="Blank Lines" hit="Around class constants:" />
+    <option name="constants" path="Blank Lines" hit="Around class constants:" />
+    <option name="around" path="Blank Lines" hit="Around class:" />
+    <option name="class" path="Blank Lines" hit="Around class:" />
+    <option name="around" path="Blank Lines" hit="Around enum cases:" />
+    <option name="cases" path="Blank Lines" hit="Around enum cases:" />
+    <option name="enum" path="Blank Lines" hit="Around enum cases:" />
+    <option name="around" path="Blank Lines" hit="Around method:" />
+    <option name="method" path="Blank Lines" hit="Around method:" />
+    <option name="around" path="Blank Lines" hit="Around property:" />
+    <option name="property" path="Blank Lines" hit="Around property:" />
+    <option name="arrangement" path="Arrangement" hit="Arrangement" />
+    <option name="array" path="Code Conversion" hit="Array/List Declaration Style" />
+    <option name="declaration" path="Code Conversion" hit="Array/List Declaration Style" />
+    <option name="list" path="Code Conversion" hit="Array/List Declaration Style" />
+    <option name="style" path="Code Conversion" hit="Array/List Declaration Style" />
+    <option name="before" path="Blank Lines" hit="Before 'return' statement:" />
+    <option name="return" path="Blank Lines" hit="Before 'return' statement:" />
+    <option name="statement" path="Blank Lines" hit="Before 'return' statement:" />
+    <option name="before" path="Blank Lines" hit="Before 'use' statements:" />
+    <option name="statements" path="Blank Lines" hit="Before 'use' statements:" />
+    <option name="use" path="Blank Lines" hit="Before 'use' statements:" />
+    <option name="before" path="Blank Lines" hit="Before '}':" />
+    <option name="before" path="Blank Lines" hit="Before class body:" />
+    <option name="body" path="Blank Lines" hit="Before class body:" />
+    <option name="class" path="Blank Lines" hit="Before class body:" />
+    <option name="before" path="Blank Lines" hit="Before method body:" />
+    <option name="body" path="Blank Lines" hit="Before method body:" />
+    <option name="method" path="Blank Lines" hit="Before method body:" />
+    <option name="before" path="Blank Lines" hit="Before namespace:" />
+    <option name="namespace" path="Blank Lines" hit="Before namespace:" />
+    <option name="between" path="Blank Lines" hit="Between group 'use' statements:" />
+    <option name="group" path="Blank Lines" hit="Between group 'use' statements:" />
+    <option name="statements" path="Blank Lines" hit="Between group 'use' statements:" />
+    <option name="use" path="Blank Lines" hit="Between group 'use' statements:" />
+    <option name="and" path="PHPDoc" hit="Between name and description:" />
+    <option name="between" path="PHPDoc" hit="Between name and description:" />
+    <option name="description" path="PHPDoc" hit="Between name and description:" />
+    <option name="name" path="PHPDoc" hit="Between name and description:" />
+    <option name="and" path="PHPDoc" hit="Between tag and type:" />
+    <option name="between" path="PHPDoc" hit="Between tag and type:" />
+    <option name="tag" path="PHPDoc" hit="Between tag and type:" />
+    <option name="type" path="PHPDoc" hit="Between tag and type:" />
+    <option name="and" path="PHPDoc" hit="Between type and name:" />
+    <option name="between" path="PHPDoc" hit="Between type and name:" />
+    <option name="name" path="PHPDoc" hit="Between type and name:" />
+    <option name="type" path="PHPDoc" hit="Between type and name:" />
+    <option name="blank" path="Blank Lines" hit="Blank Lines" />
+    <option name="lines" path="Blank Lines" hit="Blank Lines" />
+    <option name="before" path="PHPDoc" hit="Blank line before the first tag" />
+    <option name="blank" path="PHPDoc" hit="Blank line before the first tag" />
+    <option name="first" path="PHPDoc" hit="Blank line before the first tag" />
+    <option name="line" path="PHPDoc" hit="Blank line before the first tag" />
+    <option name="tag" path="PHPDoc" hit="Blank line before the first tag" />
+    <option name="the" path="PHPDoc" hit="Blank line before the first tag" />
+    <option name="around" path="PHPDoc" hit="Blank lines around parameters" />
+    <option name="blank" path="PHPDoc" hit="Blank lines around parameters" />
+    <option name="lines" path="PHPDoc" hit="Blank lines around parameters" />
+    <option name="parameters" path="PHPDoc" hit="Blank lines around parameters" />
+    <option name="at" path="Code Generation" hit="Block comment at first column" />
+    <option name="block" path="Code Generation" hit="Block comment at first column" />
+    <option name="column" path="Code Generation" hit="Block comment at first column" />
+    <option name="comment" path="Code Generation" hit="Block comment at first column" />
+    <option name="first" path="Code Generation" hit="Block comment at first column" />
+    <option name="by" path="Code Conversion" hit="By length" />
+    <option name="length" path="Code Conversion" hit="By length" />
+    <option name="code" path="Code Conversion" hit="Code Conversion" />
+    <option name="conversion" path="Code Conversion" hit="Code Conversion" />
+    <option name="code" path="Code Generation" hit="Code Generation" />
+    <option name="generation" path="Code Generation" hit="Code Generation" />
+    <option name="code" path="Code Generation" hit="Comment Code" />
+    <option name="comment" path="Code Generation" hit="Comment Code" />
+    <option name="continuation" path="Tabs and Indents" hit="Continuation indent:" />
+    <option name="indent" path="Tabs and Indents" hit="Continuation indent:" />
+    <option name="case" path="Code Conversion" hit="Convert Keywords to lower case" />
+    <option name="convert" path="Code Conversion" hit="Convert Keywords to lower case" />
+    <option name="keywords" path="Code Conversion" hit="Convert Keywords to lower case" />
+    <option name="lower" path="Code Conversion" hit="Convert Keywords to lower case" />
+    <option name="to" path="Code Conversion" hit="Convert Keywords to lower case" />
+    <option name="constant" path="Code Conversion" hit="Convert Null constant to:" />
+    <option name="convert" path="Code Conversion" hit="Convert Null constant to:" />
+    <option name="null" path="Code Conversion" hit="Convert Null constant to:" />
+    <option name="to" path="Code Conversion" hit="Convert Null constant to:" />
+    <option name="constants" path="Code Conversion" hit="Convert True/False constants to:" />
+    <option name="convert" path="Code Conversion" hit="Convert True/False constants to:" />
+    <option name="false" path="Code Conversion" hit="Convert True/False constants to:" />
+    <option name="to" path="Code Conversion" hit="Convert True/False constants to:" />
+    <option name="true" path="Code Conversion" hit="Convert True/False constants to:" />
+    <option name="convert" path="Code Conversion" hit="Convert else if/elseif to:" />
+    <option name="else" path="Code Conversion" hit="Convert else if/elseif to:" />
+    <option name="elseif" path="Code Conversion" hit="Convert else if/elseif to:" />
+    <option name="if" path="Code Conversion" hit="Convert else if/elseif to:" />
+    <option name="to" path="Code Conversion" hit="Convert else if/elseif to:" />
+    <option name="disable" hit="Disable" />
+    <option name="enforce" path="Code Generation" hit="Enforce on reformat" />
+    <option name="on" path="Code Generation" hit="Enforce on reformat" />
+    <option name="reformat" path="Code Generation" hit="Enforce on reformat" />
+    <option name="declaration" path="Code Conversion" hit="Force short declaration style" />
+    <option name="force" path="Code Conversion" hit="Force short declaration style" />
+    <option name="short" path="Code Conversion" hit="Force short declaration style" />
+    <option name="style" path="Code Conversion" hit="Force short declaration style" />
+    <option name="generated" path="PHPDoc" hit="Generated PHPDoc tags" />
+    <option name="phpdoc" path="PHPDoc" hit="Generated PHPDoc tags" />
+    <option name="tags" path="PHPDoc" hit="Generated PHPDoc tags" />
+    <option name="getters" path="Code Generation" hit="Getters/Setters order:" />
+    <option name="order" path="Code Generation" hit="Getters/Setters order:" />
+    <option name="setters" path="Code Generation" hit="Getters/Setters order:" />
+    <option name="getters" path="Code Generation" hit="Getters/Setters style" />
+    <option name="setters" path="Code Generation" hit="Getters/Setters style" />
+    <option name="style" path="Code Generation" hit="Getters/Setters style" />
+    <option name="grouping" path="Arrangement" hit="Grouping rules:" />
+    <option name="rules" path="Arrangement" hit="Grouping rules:" />
+    <option name="code" path="Blank Lines" hit="In code:" />
+    <option name="in" path="Blank Lines" hit="In code:" />
+    <option name="declarations" path="Blank Lines" hit="In declarations:" />
+    <option name="in" path="Blank Lines" hit="In declarations:" />
+    <option name="beginning" path="PHPDoc" hit="In the beginning" />
+    <option name="in" path="PHPDoc" hit="In the beginning" />
+    <option name="the" path="PHPDoc" hit="In the beginning" />
+    <option name="end" path="PHPDoc" hit="In the end" />
+    <option name="in" path="PHPDoc" hit="In the end" />
+    <option name="the" path="PHPDoc" hit="In the end" />
+    <option name="code" path="Tabs and Indents" hit="Indent code in PHP tags" />
+    <option name="in" path="Tabs and Indents" hit="Indent code in PHP tags" />
+    <option name="indent" path="Tabs and Indents" hit="Indent code in PHP tags" />
+    <option name="php" path="Tabs and Indents" hit="Indent code in PHP tags" />
+    <option name="tags" path="Tabs and Indents" hit="Indent code in PHP tags" />
+    <option name="indent" path="Tabs and Indents" hit="Indent:" />
+    <option name="blank" path="PHPDoc" hit="Keep blank lines" />
+    <option name="keep" path="PHPDoc" hit="Keep blank lines" />
+    <option name="lines" path="PHPDoc" hit="Keep blank lines" />
+    <option name="empty" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="indents" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="keep" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="lines" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="on" path="Tabs and Indents" hit="Keep indents on empty lines" />
+    <option name="blank" path="Blank Lines" hit="Keep maximum blank lines" />
+    <option name="keep" path="Blank Lines" hit="Keep maximum blank lines" />
+    <option name="lines" path="Blank Lines" hit="Keep maximum blank lines" />
+    <option name="maximum" path="Blank Lines" hit="Keep maximum blank lines" />
+    <option name="at" path="Code Generation" hit="Line comment at first column" />
+    <option name="column" path="Code Generation" hit="Line comment at first column" />
+    <option name="comment" path="Code Generation" hit="Line comment at first column" />
+    <option name="first" path="Code Generation" hit="Line comment at first column" />
+    <option name="line" path="Code Generation" hit="Line comment at first column" />
+    <option name="loading" hit="Loading..." />
+    <option name="case" path="Code Conversion" hit="Lower case" />
+    <option name="lower" path="Code Conversion" hit="Lower case" />
+    <option name="matching" path="Arrangement" hit="Matching rules:" />
+    <option name="rules" path="Arrangement" hit="Matching rules:" />
+    <option name="blank" path="Blank Lines" hit="Minimum blank lines" />
+    <option name="lines" path="Blank Lines" hit="Minimum blank lines" />
+    <option name="minimum" path="Blank Lines" hit="Minimum blank lines" />
+    <option name="mixed" path="Code Generation" hit="Mixed" />
+    <option name="naming" path="Code Generation" hit="Naming style:" />
+    <option name="style" path="Code Generation" hit="Naming style:" />
+    <option name="php" hit="PHP" />
+    <option name="phpdoc" path="PHPDoc" hit="PHPDoc" />
+    <option name="param" path="PHPDoc" hit="PHPDoc '@param' spaces" />
+    <option name="phpdoc" path="PHPDoc" hit="PHPDoc '@param' spaces" />
+    <option name="spaces" path="PHPDoc" hit="PHPDoc '@param' spaces" />
+    <option name="order" path="PHPDoc" hit="PHPDoc tags order" />
+    <option name="phpdoc" path="PHPDoc" hit="PHPDoc tags order" />
+    <option name="tags" path="PHPDoc" hit="PHPDoc tags order" />
+    <option name="in" path="PHPDoc" hit="Place  null  in types:" />
+    <option name="null" path="PHPDoc" hit="Place  null  in types:" />
+    <option name="place" path="PHPDoc" hit="Place  null  in types:" />
+    <option name="types" path="PHPDoc" hit="Place  null  in types:" />
+    <option name="default" path="Code Generation" hit="Properties Default Visibility" />
+    <option name="properties" path="Code Generation" hit="Properties Default Visibility" />
+    <option name="visibility" path="Code Generation" hit="Properties Default Visibility" />
+    <option name="scheme" hit="Scheme:" />
+    <option name="from" hit="Set from..." />
+    <option name="set" hit="Set from..." />
+    <option name="smart" path="Tabs and Indents" hit="Smart tabs" />
+    <option name="tabs" path="Tabs and Indents" hit="Smart tabs" />
+    <option name="sort" path="Code Conversion" hit="Sort 'use' statements:" />
+    <option name="statements" path="Code Conversion" hit="Sort 'use' statements:" />
+    <option name="use" path="Code Conversion" hit="Sort 'use' statements:" />
+    <option name="phpdoc" path="PHPDoc" hit="Sort PHPDoc tags" />
+    <option name="sort" path="PHPDoc" hit="Sort PHPDoc tags" />
+    <option name="tags" path="PHPDoc" hit="Sort PHPDoc tags" />
+    <option name="spaces" path="Spaces" hit="Spaces" />
+    <option name="size" path="Tabs and Indents" hit="Tab size:" />
+    <option name="tab" path="Tabs and Indents" hit="Tab size:" />
+    <option name="and" path="Tabs and Indents" hit="Tabs and Indents" />
+    <option name="indents" path="Tabs and Indents" hit="Tabs and Indents" />
+    <option name="tabs" path="Tabs and Indents" hit="Tabs and Indents" />
+    <option name="case" path="Code Conversion" hit="Upper case" />
+    <option name="upper" path="Code Conversion" hit="Upper case" />
+    <option name="class" path="PHPDoc" hit="Use fully qualified class names" />
+    <option name="fully" path="PHPDoc" hit="Use fully qualified class names" />
+    <option name="names" path="PHPDoc" hit="Use fully qualified class names" />
+    <option name="qualified" path="PHPDoc" hit="Use fully qualified class names" />
+    <option name="use" path="PHPDoc" hit="Use fully qualified class names" />
+    <option name="character" path="Tabs and Indents" hit="Use tab character" />
+    <option name="tab" path="Tabs and Indents" hit="Use tab character" />
+    <option name="use" path="Tabs and Indents" hit="Use tab character" />
+    <option name="naming" path="Code Generation" hit="Variable Naming Style" />
+    <option name="style" path="Code Generation" hit="Variable Naming Style" />
+    <option name="variable" path="Code Generation" hit="Variable Naming Style" />
+    <option name="lines" path="PHPDoc" hit="Wrap long lines" />
+    <option name="long" path="PHPDoc" hit="Wrap long lines" />
+    <option name="wrap" path="PHPDoc" hit="Wrap long lines" />
+    <option name="and" path="Wrapping and Braces" hit="Wrapping and Braces" />
+    <option name="braces" path="Wrapping and Braces" hit="Wrapping and Braces" />
+    <option name="wrapping" path="Wrapping and Braces" hit="Wrapping and Braces" />
+    <option name="camelcase" path="Code Generation" hit="camelCase" />
+    <option name="else" path="Code Conversion" hit="else if" />
+    <option name="if" path="Code Conversion" hit="else if" />
+    <option name="elseif" path="Code Conversion" hit="elseif" />
+    <option name="first" path="Code Generation" hit="getters first" />
+    <option name="getters" path="Code Generation" hit="getters first" />
+    <option name="private" path="Code Generation" hit="private" />
+    <option name="protected" path="Code Generation" hit="protected" />
+    <option name="public" path="Code Generation" hit="public" />
+    <option name="first" path="Code Generation" hit="setters first" />
+    <option name="setters" path="Code Generation" hit="setters first" />
+    <option name="case" path="Code Generation" hit="snake_case" />
+    <option name="snake" path="Code Generation" hit="snake_case" />
+    <option name="" path="Wrapping and Braces" hit="':' signs on next line" />
+    <option name="line" path="Wrapping and Braces" hit="':' signs on next line" />
+    <option name="next" path="Wrapping and Braces" hit="':' signs on next line" />
+    <option name="on" path="Wrapping and Braces" hit="':' signs on next line" />
+    <option name="signs" path="Wrapping and Braces" hit="':' signs on next line" />
+    <option name="" path="Wrapping and Braces" hit="'?' and ':' signs on next line" />
+    <option name="and" path="Wrapping and Braces" hit="'?' and ':' signs on next line" />
+    <option name="line" path="Wrapping and Braces" hit="'?' and ':' signs on next line" />
+    <option name="next" path="Wrapping and Braces" hit="'?' and ':' signs on next line" />
+    <option name="on" path="Wrapping and Braces" hit="'?' and ':' signs on next line" />
+    <option name="signs" path="Wrapping and Braces" hit="'?' and ':' signs on next line" />
+    <option name="" path="Spaces" hit="'catch' keyword" />
+    <option name="catch" path="Spaces" hit="'catch' keyword" />
+    <option name="keyword" path="Spaces" hit="'catch' keyword" />
+    <option name="" path="Spaces" hit="'catch' left brace" />
+    <option name="brace" path="Spaces" hit="'catch' left brace" />
+    <option name="catch" path="Spaces" hit="'catch' left brace" />
+    <option name="left" path="Spaces" hit="'catch' left brace" />
+    <option name="" path="Wrapping and Braces" hit="'catch' on new line" />
+    <option name="catch" path="Wrapping and Braces" hit="'catch' on new line" />
+    <option name="line" path="Wrapping and Braces" hit="'catch' on new line" />
+    <option name="new" path="Wrapping and Braces" hit="'catch' on new line" />
+    <option name="on" path="Wrapping and Braces" hit="'catch' on new line" />
+    <option name="" path="Spaces" hit="'catch' parentheses" />
+    <option name="catch" path="Spaces" hit="'catch' parentheses" />
+    <option name="parentheses" path="Spaces" hit="'catch' parentheses" />
+    <option name="" path="Wrapping and Braces" hit="'do ... while()' statement" />
+    <option name="do" path="Wrapping and Braces" hit="'do ... while()' statement" />
+    <option name="statement" path="Wrapping and Braces" hit="'do ... while()' statement" />
+    <option name="while" path="Wrapping and Braces" hit="'do ... while()' statement" />
+    <option name="" path="Spaces" hit="'do' left brace" />
+    <option name="brace" path="Spaces" hit="'do' left brace" />
+    <option name="do" path="Spaces" hit="'do' left brace" />
+    <option name="left" path="Spaces" hit="'do' left brace" />
+    <option name="" path="Spaces" hit="'else' keyword" />
+    <option name="else" path="Spaces" hit="'else' keyword" />
+    <option name="keyword" path="Spaces" hit="'else' keyword" />
+    <option name="" path="Spaces" hit="'else' left brace" />
+    <option name="brace" path="Spaces" hit="'else' left brace" />
+    <option name="else" path="Spaces" hit="'else' left brace" />
+    <option name="left" path="Spaces" hit="'else' left brace" />
+    <option name="" path="Wrapping and Braces" hit="'else' on new line" />
+    <option name="else" path="Wrapping and Braces" hit="'else' on new line" />
+    <option name="line" path="Wrapping and Braces" hit="'else' on new line" />
+    <option name="new" path="Wrapping and Braces" hit="'else' on new line" />
+    <option name="on" path="Wrapping and Braces" hit="'else' on new line" />
+    <option name="" path="Spaces" hit="'finally' keyword" />
+    <option name="finally" path="Spaces" hit="'finally' keyword" />
+    <option name="keyword" path="Spaces" hit="'finally' keyword" />
+    <option name="" path="Spaces" hit="'finally' left brace" />
+    <option name="brace" path="Spaces" hit="'finally' left brace" />
+    <option name="finally" path="Spaces" hit="'finally' left brace" />
+    <option name="left" path="Spaces" hit="'finally' left brace" />
+    <option name="" path="Wrapping and Braces" hit="'finally' on new line" />
+    <option name="finally" path="Wrapping and Braces" hit="'finally' on new line" />
+    <option name="line" path="Wrapping and Braces" hit="'finally' on new line" />
+    <option name="new" path="Wrapping and Braces" hit="'finally' on new line" />
+    <option name="on" path="Wrapping and Braces" hit="'finally' on new line" />
+    <option name="" path="Spaces" hit="'for' left brace" />
+    <option name="brace" path="Spaces" hit="'for' left brace" />
+    <option name="for" path="Spaces" hit="'for' left brace" />
+    <option name="left" path="Spaces" hit="'for' left brace" />
+    <option name="" path="Spaces" hit="'for' parentheses" />
+    <option name="for" path="Spaces" hit="'for' parentheses" />
+    <option name="parentheses" path="Spaces" hit="'for' parentheses" />
+    <option name="" path="Wrapping and Braces" hit="'for()' statement" />
+    <option name="for" path="Wrapping and Braces" hit="'for()' statement" />
+    <option name="statement" path="Wrapping and Braces" hit="'for()' statement" />
+    <option name="" path="Spaces" hit="'if' left brace" />
+    <option name="brace" path="Spaces" hit="'if' left brace" />
+    <option name="if" path="Spaces" hit="'if' left brace" />
+    <option name="left" path="Spaces" hit="'if' left brace" />
+    <option name="" path="Spaces" hit="'if' parentheses" />
+    <option name="if" path="Spaces" hit="'if' parentheses" />
+    <option name="parentheses" path="Spaces" hit="'if' parentheses" />
+    <option name="" path="Wrapping and Braces" hit="'if()' statement" />
+    <option name="if" path="Wrapping and Braces" hit="'if()' statement" />
+    <option name="statement" path="Wrapping and Braces" hit="'if()' statement" />
+    <option name="" path="Wrapping and Braces" hit="'match' expression" />
+    <option name="expression" path="Wrapping and Braces" hit="'match' expression" />
+    <option name="match" path="Wrapping and Braces" hit="'match' expression" />
+    <option name="" path="Spaces" hit="'switch' left brace" />
+    <option name="brace" path="Spaces" hit="'switch' left brace" />
+    <option name="left" path="Spaces" hit="'switch' left brace" />
+    <option name="switch" path="Spaces" hit="'switch' left brace" />
+    <option name="" path="Spaces" hit="'switch' parentheses" />
+    <option name="parentheses" path="Spaces" hit="'switch' parentheses" />
+    <option name="switch" path="Spaces" hit="'switch' parentheses" />
+    <option name="" path="Wrapping and Braces" hit="'switch' statement" />
+    <option name="statement" path="Wrapping and Braces" hit="'switch' statement" />
+    <option name="switch" path="Wrapping and Braces" hit="'switch' statement" />
+    <option name="" path="Spaces" hit="'try' left brace" />
+    <option name="brace" path="Spaces" hit="'try' left brace" />
+    <option name="left" path="Spaces" hit="'try' left brace" />
+    <option name="try" path="Spaces" hit="'try' left brace" />
+    <option name="" path="Wrapping and Braces" hit="'try' statement" />
+    <option name="statement" path="Wrapping and Braces" hit="'try' statement" />
+    <option name="try" path="Wrapping and Braces" hit="'try' statement" />
+    <option name="" path="Wrapping and Braces" hit="'try-with-resources'" />
+    <option name="try-with-resources" path="Wrapping and Braces" hit="'try-with-resources'" />
+    <option name="" path="Spaces" hit="'while' keyword" />
+    <option name="keyword" path="Spaces" hit="'while' keyword" />
+    <option name="while" path="Spaces" hit="'while' keyword" />
+    <option name="" path="Spaces" hit="'while' left brace" />
+    <option name="brace" path="Spaces" hit="'while' left brace" />
+    <option name="left" path="Spaces" hit="'while' left brace" />
+    <option name="while" path="Spaces" hit="'while' left brace" />
+    <option name="" path="Wrapping and Braces" hit="'while' on new line" />
+    <option name="line" path="Wrapping and Braces" hit="'while' on new line" />
+    <option name="new" path="Wrapping and Braces" hit="'while' on new line" />
+    <option name="on" path="Wrapping and Braces" hit="'while' on new line" />
+    <option name="while" path="Wrapping and Braces" hit="'while' on new line" />
+    <option name="" path="Spaces" hit="'while' parentheses" />
+    <option name="parentheses" path="Spaces" hit="'while' parentheses" />
+    <option name="while" path="Spaces" hit="'while' parentheses" />
+    <option name="" path="Wrapping and Braces" hit="'while()' statement" />
+    <option name="statement" path="Wrapping and Braces" hit="'while()' statement" />
+    <option name="while" path="Wrapping and Braces" hit="'while()' statement" />
+    <option name="" path="Spaces" hit="&lt;?= and ?&gt;" />
+    <option name="and" path="Spaces" hit="&lt;?= and ?&gt;" />
+    <option name="+" path="Spaces" hit="Additive operators (+, -)" />
+    <option name="-" path="Spaces" hit="Additive operators (+, -)" />
+    <option name="additive" path="Spaces" hit="Additive operators (+, -)" />
+    <option name="operators" path="Spaces" hit="Additive operators (+, -)" />
+    <option name="after" path="Spaces" hit="After ':'" />
+    <option name="after" path="Spaces" hit="After '?'" />
+    <option name="after" path="Spaces" hit="After 'for' semicolon" />
+    <option name="for" path="Spaces" hit="After 'for' semicolon" />
+    <option name="semicolon" path="Spaces" hit="After 'for' semicolon" />
+    <option name="after" path="Spaces" hit="After colon in named argument" />
+    <option name="argument" path="Spaces" hit="After colon in named argument" />
+    <option name="colon" path="Spaces" hit="After colon in named argument" />
+    <option name="in" path="Spaces" hit="After colon in named argument" />
+    <option name="named" path="Spaces" hit="After colon in named argument" />
+    <option name="after" path="Spaces" hit="After colon in return type" />
+    <option name="colon" path="Spaces" hit="After colon in return type" />
+    <option name="in" path="Spaces" hit="After colon in return type" />
+    <option name="return" path="Spaces" hit="After colon in return type" />
+    <option name="type" path="Spaces" hit="After colon in return type" />
+    <option name="after" path="Spaces" hit="After colon next to type declaration in backed enum" />
+    <option name="backed" path="Spaces" hit="After colon next to type declaration in backed enum" />
+    <option name="colon" path="Spaces" hit="After colon next to type declaration in backed enum" />
+    <option name="declaration" path="Spaces" hit="After colon next to type declaration in backed enum" />
+    <option name="enum" path="Spaces" hit="After colon next to type declaration in backed enum" />
+    <option name="in" path="Spaces" hit="After colon next to type declaration in backed enum" />
+    <option name="next" path="Spaces" hit="After colon next to type declaration in backed enum" />
+    <option name="to" path="Spaces" hit="After colon next to type declaration in backed enum" />
+    <option name="type" path="Spaces" hit="After colon next to type declaration in backed enum" />
+    <option name="after" path="Spaces" hit="After comma" />
+    <option name="comma" path="Spaces" hit="After comma" />
+    <option name="after" path="Spaces" hit="After type cast" />
+    <option name="cast" path="Spaces" hit="After type cast" />
+    <option name="type" path="Spaces" hit="After type cast" />
+    <option name="after" path="Spaces" hit="After unary Not (!)" />
+    <option name="not" path="Spaces" hit="After unary Not (!)" />
+    <option name="unary" path="Spaces" hit="After unary Not (!)" />
+    <option name="align" path="Wrapping and Braces" hit="Align 'match' arm bodies" />
+    <option name="arm" path="Wrapping and Braces" hit="Align 'match' arm bodies" />
+    <option name="bodies" path="Wrapping and Braces" hit="Align 'match' arm bodies" />
+    <option name="match" path="Wrapping and Braces" hit="Align 'match' arm bodies" />
+    <option name="align" path="Wrapping and Braces" hit="Align 'throws' to method start" />
+    <option name="method" path="Wrapping and Braces" hit="Align 'throws' to method start" />
+    <option name="start" path="Wrapping and Braces" hit="Align 'throws' to method start" />
+    <option name="throws" path="Wrapping and Braces" hit="Align 'throws' to method start" />
+    <option name="to" path="Wrapping and Braces" hit="Align 'throws' to method start" />
+    <option name="align" path="Wrapping and Braces" hit="Align assignments in columns" />
+    <option name="assignments" path="Wrapping and Braces" hit="Align assignments in columns" />
+    <option name="columns" path="Wrapping and Braces" hit="Align assignments in columns" />
+    <option name="in" path="Wrapping and Braces" hit="Align assignments in columns" />
+    <option name="align" path="Wrapping and Braces" hit="Align consecutive assignments" />
+    <option name="assignments" path="Wrapping and Braces" hit="Align consecutive assignments" />
+    <option name="consecutive" path="Wrapping and Braces" hit="Align consecutive assignments" />
+    <option name="align" path="Wrapping and Braces" hit="Align constants" />
+    <option name="constants" path="Wrapping and Braces" hit="Align constants" />
+    <option name="align" path="Wrapping and Braces" hit="Align enum cases" />
+    <option name="cases" path="Wrapping and Braces" hit="Align enum cases" />
+    <option name="enum" path="Wrapping and Braces" hit="Align enum cases" />
+    <option name="align" path="Wrapping and Braces" hit="Align fields in columns" />
+    <option name="columns" path="Wrapping and Braces" hit="Align fields in columns" />
+    <option name="fields" path="Wrapping and Braces" hit="Align fields in columns" />
+    <option name="in" path="Wrapping and Braces" hit="Align fields in columns" />
+    <option name="align" path="Wrapping and Braces" hit="Align inline comments" />
+    <option name="comments" path="Wrapping and Braces" hit="Align inline comments" />
+    <option name="inline" path="Wrapping and Braces" hit="Align inline comments" />
+    <option name="align" path="Wrapping and Braces" hit="Align key-value pairs" />
+    <option name="key-value" path="Wrapping and Braces" hit="Align key-value pairs" />
+    <option name="pairs" path="Wrapping and Braces" hit="Align key-value pairs" />
+    <option name="align" path="Wrapping and Braces" hit="Align named arguments" />
+    <option name="arguments" path="Wrapping and Braces" hit="Align named arguments" />
+    <option name="named" path="Wrapping and Braces" hit="Align named arguments" />
+    <option name="align" path="Wrapping and Braces" hit="Align parenthesised when multiline" />
+    <option name="multiline" path="Wrapping and Braces" hit="Align parenthesised when multiline" />
+    <option name="parenthesised" path="Wrapping and Braces" hit="Align parenthesised when multiline" />
+    <option name="when" path="Wrapping and Braces" hit="Align parenthesised when multiline" />
+    <option name="align" path="Wrapping and Braces" hit="Align simple methods in columns" />
+    <option name="columns" path="Wrapping and Braces" hit="Align simple methods in columns" />
+    <option name="in" path="Wrapping and Braces" hit="Align simple methods in columns" />
+    <option name="methods" path="Wrapping and Braces" hit="Align simple methods in columns" />
+    <option name="simple" path="Wrapping and Braces" hit="Align simple methods in columns" />
+    <option name="align" path="Wrapping and Braces" hit="Align variables in columns" />
+    <option name="columns" path="Wrapping and Braces" hit="Align variables in columns" />
+    <option name="in" path="Wrapping and Braces" hit="Align variables in columns" />
+    <option name="variables" path="Wrapping and Braces" hit="Align variables in columns" />
+    <option name="align" path="Wrapping and Braces" hit="Align when multiline" />
+    <option name="multiline" path="Wrapping and Braces" hit="Align when multiline" />
+    <option name="when" path="Wrapping and Braces" hit="Align when multiline" />
+    <option name="anonymous" path="Spaces" hit="Anonymous function parentheses" />
+    <option name="function" path="Spaces" hit="Anonymous function parentheses" />
+    <option name="parentheses" path="Spaces" hit="Anonymous function parentheses" />
+    <option name="around" path="Spaces" hit="Around operators" />
+    <option name="operators" path="Spaces" hit="Around operators" />
+    <option name="around" path="Spaces" hit="Around | in union type" />
+    <option name="in" path="Spaces" hit="Around | in union type" />
+    <option name="type" path="Spaces" hit="Around | in union type" />
+    <option name="union" path="Spaces" hit="Around | in union type" />
+    <option name="array" path="Wrapping and Braces" hit="Array initializer" />
+    <option name="initializer" path="Wrapping and Braces" hit="Array initializer" />
+    <option name="array" path="Spaces" hit="Array initializer parentheses" />
+    <option name="initializer" path="Spaces" hit="Array initializer parentheses" />
+    <option name="parentheses" path="Spaces" hit="Array initializer parentheses" />
+    <option name="arrow" path="Spaces" hit="Arrow function parentheses" />
+    <option name="function" path="Spaces" hit="Arrow function parentheses" />
+    <option name="parentheses" path="Spaces" hit="Arrow function parentheses" />
+    <option name="assert" path="Wrapping and Braces" hit="Assert statement" />
+    <option name="statement" path="Wrapping and Braces" hit="Assert statement" />
+    <option name="assignment" path="Spaces" hit="Assignment in declare statement" />
+    <option name="declare" path="Spaces" hit="Assignment in declare statement" />
+    <option name="in" path="Spaces" hit="Assignment in declare statement" />
+    <option name="statement" path="Spaces" hit="Assignment in declare statement" />
+    <option name="+" path="Spaces" hit="Assignment operators (=, +=, ...)" />
+    <option name="assignment" path="Spaces" hit="Assignment operators (=, +=, ...)" />
+    <option name="operators" path="Spaces" hit="Assignment operators (=, +=, ...)" />
+    <option name="assignment" path="Wrapping and Braces" hit="Assignment sign on next line" />
+    <option name="line" path="Wrapping and Braces" hit="Assignment sign on next line" />
+    <option name="next" path="Wrapping and Braces" hit="Assignment sign on next line" />
+    <option name="on" path="Wrapping and Braces" hit="Assignment sign on next line" />
+    <option name="sign" path="Wrapping and Braces" hit="Assignment sign on next line" />
+    <option name="assignment" path="Wrapping and Braces" hit="Assignment statement" />
+    <option name="statement" path="Wrapping and Braces" hit="Assignment statement" />
+    <option name="attributes" path="Wrapping and Braces" hit="Attributes" />
+    <option name="attributes" path="Wrapping and Braces" hit="Attributes for parameters" />
+    <option name="for" path="Wrapping and Braces" hit="Attributes for parameters" />
+    <option name="parameters" path="Wrapping and Braces" hit="Attributes for parameters" />
+    <option name="before" path="Spaces" hit="Before ':'" />
+    <option name="before" path="Spaces" hit="Before '?'" />
+    <option name="before" path="Spaces" hit="Before 'for' semicolon" />
+    <option name="for" path="Spaces" hit="Before 'for' semicolon" />
+    <option name="semicolon" path="Spaces" hit="Before 'for' semicolon" />
+    <option name="argument" path="Spaces" hit="Before colon in named argument" />
+    <option name="before" path="Spaces" hit="Before colon in named argument" />
+    <option name="colon" path="Spaces" hit="Before colon in named argument" />
+    <option name="in" path="Spaces" hit="Before colon in named argument" />
+    <option name="named" path="Spaces" hit="Before colon in named argument" />
+    <option name="before" path="Spaces" hit="Before colon in return type" />
+    <option name="colon" path="Spaces" hit="Before colon in return type" />
+    <option name="in" path="Spaces" hit="Before colon in return type" />
+    <option name="return" path="Spaces" hit="Before colon in return type" />
+    <option name="type" path="Spaces" hit="Before colon in return type" />
+    <option name="backed" path="Spaces" hit="Before colon next to type declaration in backed enum" />
+    <option name="before" path="Spaces" hit="Before colon next to type declaration in backed enum" />
+    <option name="colon" path="Spaces" hit="Before colon next to type declaration in backed enum" />
+    <option name="declaration" path="Spaces" hit="Before colon next to type declaration in backed enum" />
+    <option name="enum" path="Spaces" hit="Before colon next to type declaration in backed enum" />
+    <option name="in" path="Spaces" hit="Before colon next to type declaration in backed enum" />
+    <option name="next" path="Spaces" hit="Before colon next to type declaration in backed enum" />
+    <option name="to" path="Spaces" hit="Before colon next to type declaration in backed enum" />
+    <option name="type" path="Spaces" hit="Before colon next to type declaration in backed enum" />
+    <option name="before" path="Spaces" hit="Before comma" />
+    <option name="comma" path="Spaces" hit="Before comma" />
+    <option name="before" path="Spaces" hit="Before keywords" />
+    <option name="keywords" path="Spaces" hit="Before keywords" />
+    <option name="before" path="Spaces" hit="Before left brace" />
+    <option name="brace" path="Spaces" hit="Before left brace" />
+    <option name="left" path="Spaces" hit="Before left brace" />
+    <option name="before" path="Spaces" hit="Before parentheses" />
+    <option name="parentheses" path="Spaces" hit="Before parentheses" />
+    <option name="before" path="Spaces" hit="Before unary Not (!)" />
+    <option name="not" path="Spaces" hit="Before unary Not (!)" />
+    <option name="unary" path="Spaces" hit="Before unary Not (!)" />
+    <option name="and" path="Spaces" hit="Between '?' and ':'" />
+    <option name="between" path="Spaces" hit="Between '?' and ':'" />
+    <option name="binary" path="Wrapping and Braces" hit="Binary expressions" />
+    <option name="expressions" path="Wrapping and Braces" hit="Binary expressions" />
+    <option name="bitwise" path="Spaces" hit="Bitwise operators (&amp;, |, ^)" />
+    <option name="operators" path="Spaces" hit="Bitwise operators (&amp;, |, ^)" />
+    <option name="braces" path="Wrapping and Braces" hit="Braces placement" />
+    <option name="placement" path="Wrapping and Braces" hit="Braces placement" />
+    <option name="brackets" path="Spaces" hit="Brackets" />
+    <option name="around" path="Spaces" hit="Brackets around variable/expression" />
+    <option name="brackets" path="Spaces" hit="Brackets around variable/expression" />
+    <option name="expression" path="Spaces" hit="Brackets around variable/expression" />
+    <option name="variable" path="Spaces" hit="Brackets around variable/expression" />
+    <option name="builder" path="Wrapping and Braces" hit="Builder methods" />
+    <option name="methods" path="Wrapping and Braces" hit="Builder methods" />
+    <option name="calls" path="Wrapping and Braces" hit="Chained method calls" />
+    <option name="chained" path="Wrapping and Braces" hit="Chained method calls" />
+    <option name="method" path="Wrapping and Braces" hit="Chained method calls" />
+    <option name="annotations" path="Wrapping and Braces" hit="Class annotations" />
+    <option name="class" path="Wrapping and Braces" hit="Class annotations" />
+    <option name="brace" path="Spaces" hit="Class left brace" />
+    <option name="class" path="Spaces" hit="Class left brace" />
+    <option name="left" path="Spaces" hit="Class left brace" />
+    <option name="at" path="Wrapping and Braces" hit="Comment at first column" />
+    <option name="column" path="Wrapping and Braces" hit="Comment at first column" />
+    <option name="comment" path="Wrapping and Braces" hit="Comment at first column" />
+    <option name="first" path="Wrapping and Braces" hit="Comment at first column" />
+    <option name="comments" path="Wrapping and Braces" hit="Comments" />
+    <option name="concatenation" path="Spaces" hit="Concatenation (.)" />
+    <option name="control" path="Wrapping and Braces" hit="Control statement in one line" />
+    <option name="in" path="Wrapping and Braces" hit="Control statement in one line" />
+    <option name="line" path="Wrapping and Braces" hit="Control statement in one line" />
+    <option name="one" path="Wrapping and Braces" hit="Control statement in one line" />
+    <option name="statement" path="Wrapping and Braces" hit="Control statement in one line" />
+    <option name="a" path="Wrapping and Braces" hit="Each 'case' on a separate line" />
+    <option name="case" path="Wrapping and Braces" hit="Each 'case' on a separate line" />
+    <option name="each" path="Wrapping and Braces" hit="Each 'case' on a separate line" />
+    <option name="line" path="Wrapping and Braces" hit="Each 'case' on a separate line" />
+    <option name="on" path="Wrapping and Braces" hit="Each 'case' on a separate line" />
+    <option name="separate" path="Wrapping and Braces" hit="Each 'case' on a separate line" />
+    <option name="ensure" path="Wrapping and Braces" hit="Ensure right margin is not exceeded" />
+    <option name="exceeded" path="Wrapping and Braces" hit="Ensure right margin is not exceeded" />
+    <option name="is" path="Wrapping and Braces" hit="Ensure right margin is not exceeded" />
+    <option name="margin" path="Wrapping and Braces" hit="Ensure right margin is not exceeded" />
+    <option name="not" path="Wrapping and Braces" hit="Ensure right margin is not exceeded" />
+    <option name="right" path="Wrapping and Braces" hit="Ensure right margin is not exceeded" />
+    <option name="constants" path="Wrapping and Braces" hit="Enum constants" />
+    <option name="enum" path="Wrapping and Braces" hit="Enum constants" />
+    <option name="equality" path="Spaces" hit="Equality operators (==, !=)" />
+    <option name="operators" path="Spaces" hit="Equality operators (==, !=)" />
+    <option name="extends" path="Wrapping and Braces" hit="Extends/implements/permits keyword" />
+    <option name="implements" path="Wrapping and Braces" hit="Extends/implements/permits keyword" />
+    <option name="keyword" path="Wrapping and Braces" hit="Extends/implements/permits keyword" />
+    <option name="permits" path="Wrapping and Braces" hit="Extends/implements/permits keyword" />
+    <option name="extends" path="Wrapping and Braces" hit="Extends/implements/permits list" />
+    <option name="implements" path="Wrapping and Braces" hit="Extends/implements/permits list" />
+    <option name="list" path="Wrapping and Braces" hit="Extends/implements/permits list" />
+    <option name="permits" path="Wrapping and Braces" hit="Extends/implements/permits list" />
+    <option name="annotations" path="Wrapping and Braces" hit="Field annotations" />
+    <option name="field" path="Wrapping and Braces" hit="Field annotations" />
+    <option name="braces" path="Wrapping and Braces" hit="Force braces" />
+    <option name="force" path="Wrapping and Braces" hit="Force braces" />
+    <option name="call" path="Spaces" hit="Function call parentheses" />
+    <option name="function" path="Spaces" hit="Function call parentheses" />
+    <option name="parentheses" path="Spaces" hit="Function call parentheses" />
+    <option name="declaration" path="Spaces" hit="Function declaration parentheses" />
+    <option name="function" path="Spaces" hit="Function declaration parentheses" />
+    <option name="parentheses" path="Spaces" hit="Function declaration parentheses" />
+    <option name="brace" path="Spaces" hit="Function left brace" />
+    <option name="function" path="Spaces" hit="Function left brace" />
+    <option name="left" path="Spaces" hit="Function left brace" />
+    <option name="function" path="Wrapping and Braces" hit="Function return type" />
+    <option name="return" path="Wrapping and Braces" hit="Function return type" />
+    <option name="type" path="Wrapping and Braces" hit="Function return type" />
+    <option name="group" path="Wrapping and Braces" hit="Group 'use'" />
+    <option name="use" path="Wrapping and Braces" hit="Group 'use'" />
+    <option name="declarations" path="Wrapping and Braces" hit="Group declarations" />
+    <option name="group" path="Wrapping and Braces" hit="Group declarations" />
+    <option name="grouping" path="Spaces" hit="Grouping parentheses" />
+    <option name="parentheses" path="Spaces" hit="Grouping parentheses" />
+    <option name="at" path="Wrapping and Braces" hit="Hard wrap at:" />
+    <option name="hard" path="Wrapping and Braces" hit="Hard wrap at:" />
+    <option name="wrap" path="Wrapping and Braces" hit="Hard wrap at:" />
+    <option name="anonymous" path="Wrapping and Braces" hit="In anonymous class declaration" />
+    <option name="class" path="Wrapping and Braces" hit="In anonymous class declaration" />
+    <option name="declaration" path="Wrapping and Braces" hit="In anonymous class declaration" />
+    <option name="in" path="Wrapping and Braces" hit="In anonymous class declaration" />
+    <option name="class" path="Wrapping and Braces" hit="In class declaration" />
+    <option name="declaration" path="Wrapping and Braces" hit="In class declaration" />
+    <option name="in" path="Wrapping and Braces" hit="In class declaration" />
+    <option name="declaration" path="Wrapping and Braces" hit="In lambda declaration" />
+    <option name="in" path="Wrapping and Braces" hit="In lambda declaration" />
+    <option name="lambda" path="Wrapping and Braces" hit="In lambda declaration" />
+    <option name="declaration" path="Wrapping and Braces" hit="In method declaration" />
+    <option name="in" path="Wrapping and Braces" hit="In method declaration" />
+    <option name="method" path="Wrapping and Braces" hit="In method declaration" />
+    <option name="in" path="Wrapping and Braces" hit="In namespace" />
+    <option name="namespace" path="Wrapping and Braces" hit="In namespace" />
+    <option name="in" path="Spaces" hit="In ternary operator (?:)" />
+    <option name="operator" path="Spaces" hit="In ternary operator (?:)" />
+    <option name="ternary" path="Spaces" hit="In ternary operator (?:)" />
+    <option name="break" path="Wrapping and Braces" hit="Indent 'break' from 'case'" />
+    <option name="case" path="Wrapping and Braces" hit="Indent 'break' from 'case'" />
+    <option name="from" path="Wrapping and Braces" hit="Indent 'break' from 'case'" />
+    <option name="indent" path="Wrapping and Braces" hit="Indent 'break' from 'case'" />
+    <option name="branches" path="Wrapping and Braces" hit="Indent 'case' branches" />
+    <option name="case" path="Wrapping and Braces" hit="Indent 'case' branches" />
+    <option name="indent" path="Wrapping and Braces" hit="Indent 'case' branches" />
+    <option name="and" path="Wrapping and Braces" hit="Keep ')' and '{' on one line" />
+    <option name="keep" path="Wrapping and Braces" hit="Keep ')' and '{' on one line" />
+    <option name="line" path="Wrapping and Braces" hit="Keep ')' and '{' on one line" />
+    <option name="on" path="Wrapping and Braces" hit="Keep ')' and '{' on one line" />
+    <option name="one" path="Wrapping and Braces" hit="Keep ')' and '{' on one line" />
+    <option name="builder" path="Wrapping and Braces" hit="Keep builder methods indents" />
+    <option name="indents" path="Wrapping and Braces" hit="Keep builder methods indents" />
+    <option name="keep" path="Wrapping and Braces" hit="Keep builder methods indents" />
+    <option name="methods" path="Wrapping and Braces" hit="Keep builder methods indents" />
+    <option name="keep" path="Wrapping and Braces" hit="Keep when reformatting" />
+    <option name="reformatting" path="Wrapping and Braces" hit="Keep when reformatting" />
+    <option name="when" path="Wrapping and Braces" hit="Keep when reformatting" />
+    <option name="breaks" path="Wrapping and Braces" hit="Line breaks" />
+    <option name="line" path="Wrapping and Braces" hit="Line breaks" />
+    <option name="annotations" path="Wrapping and Braces" hit="Local variable annotations" />
+    <option name="local" path="Wrapping and Braces" hit="Local variable annotations" />
+    <option name="variable" path="Wrapping and Braces" hit="Local variable annotations" />
+    <option name="logical" path="Spaces" hit="Logical operators (&amp;&amp;, ||)" />
+    <option name="operators" path="Spaces" hit="Logical operators (&amp;&amp;, ||)" />
+    <option name="annotations" path="Wrapping and Braces" hit="Method annotations" />
+    <option name="method" path="Wrapping and Braces" hit="Method annotations" />
+    <option name="arguments" path="Wrapping and Braces" hit="Method call arguments" />
+    <option name="call" path="Wrapping and Braces" hit="Method call arguments" />
+    <option name="method" path="Wrapping and Braces" hit="Method call arguments" />
+    <option name="declaration" path="Wrapping and Braces" hit="Method declaration parameters" />
+    <option name="method" path="Wrapping and Braces" hit="Method declaration parameters" />
+    <option name="parameters" path="Wrapping and Braces" hit="Method declaration parameters" />
+    <option name="method" path="Wrapping and Braces" hit="Method parentheses" />
+    <option name="parentheses" path="Wrapping and Braces" hit="Method parentheses" />
+    <option name="list" path="Wrapping and Braces" hit="Modifier list" />
+    <option name="modifier" path="Wrapping and Braces" hit="Modifier list" />
+    <option name="expressions" path="Wrapping and Braces" hit="Multiple expressions in one line" />
+    <option name="in" path="Wrapping and Braces" hit="Multiple expressions in one line" />
+    <option name="line" path="Wrapping and Braces" hit="Multiple expressions in one line" />
+    <option name="multiple" path="Wrapping and Braces" hit="Multiple expressions in one line" />
+    <option name="one" path="Wrapping and Braces" hit="Multiple expressions in one line" />
+    <option name="multiplicative" path="Spaces" hit="Multiplicative operators (*, /, %, **)" />
+    <option name="operators" path="Spaces" hit="Multiplicative operators (*, /, %, **)" />
+    <option name="after" path="Wrapping and Braces" hit="New line after '('" />
+    <option name="line" path="Wrapping and Braces" hit="New line after '('" />
+    <option name="new" path="Wrapping and Braces" hit="New line after '('" />
+    <option name="after" path="Wrapping and Braces" hit="New line after '&lt;?php' tag" />
+    <option name="line" path="Wrapping and Braces" hit="New line after '&lt;?php' tag" />
+    <option name="new" path="Wrapping and Braces" hit="New line after '&lt;?php' tag" />
+    <option name="php" path="Wrapping and Braces" hit="New line after '&lt;?php' tag" />
+    <option name="tag" path="Wrapping and Braces" hit="New line after '&lt;?php' tag" />
+    <option name="after" path="Wrapping and Braces" hit="New line after '{'" />
+    <option name="line" path="Wrapping and Braces" hit="New line after '{'" />
+    <option name="new" path="Wrapping and Braces" hit="New line after '{'" />
+    <option name="after" path="Wrapping and Braces" hit="New line after last element" />
+    <option name="element" path="Wrapping and Braces" hit="New line after last element" />
+    <option name="last" path="Wrapping and Braces" hit="New line after last element" />
+    <option name="line" path="Wrapping and Braces" hit="New line after last element" />
+    <option name="new" path="Wrapping and Braces" hit="New line after last element" />
+    <option name="before" path="Wrapping and Braces" hit="New line before first element" />
+    <option name="element" path="Wrapping and Braces" hit="New line before first element" />
+    <option name="first" path="Wrapping and Braces" hit="New line before first element" />
+    <option name="line" path="Wrapping and Braces" hit="New line before first element" />
+    <option name="new" path="Wrapping and Braces" hit="New line before first element" />
+    <option name="coalescing" path="Spaces" hit="Null coalescing operator (??)" />
+    <option name="null" path="Spaces" hit="Null coalescing operator (??)" />
+    <option name="operator" path="Spaces" hit="Null coalescing operator (??)" />
+    <option name="-" path="Spaces" hit="Object access operator (-&gt;)" />
+    <option name="access" path="Spaces" hit="Object access operator (-&gt;)" />
+    <option name="object" path="Spaces" hit="Object access operator (-&gt;)" />
+    <option name="operator" path="Spaces" hit="Object access operator (-&gt;)" />
+    <option name="line" path="Wrapping and Braces" hit="Operation sign on next line" />
+    <option name="next" path="Wrapping and Braces" hit="Operation sign on next line" />
+    <option name="on" path="Wrapping and Braces" hit="Operation sign on next line" />
+    <option name="operation" path="Wrapping and Braces" hit="Operation sign on next line" />
+    <option name="sign" path="Wrapping and Braces" hit="Operation sign on next line" />
+    <option name="other" path="Wrapping and Braces" hit="Other" />
+    <option name="opening" path="Wrapping and Braces" hit="PHP opening tag" />
+    <option name="php" path="Wrapping and Braces" hit="PHP opening tag" />
+    <option name="tag" path="Wrapping and Braces" hit="PHP opening tag" />
+    <option name="annotations" path="Wrapping and Braces" hit="Parameter annotations" />
+    <option name="parameter" path="Wrapping and Braces" hit="Parameter annotations" />
+    <option name="constructor" path="Wrapping and Braces" hit="Place '()' for constructor" />
+    <option name="for" path="Wrapping and Braces" hit="Place '()' for constructor" />
+    <option name="place" path="Wrapping and Braces" hit="Place '()' for constructor" />
+    <option name="line" path="Wrapping and Braces" hit="Place ')' on new line" />
+    <option name="new" path="Wrapping and Braces" hit="Place ')' on new line" />
+    <option name="on" path="Wrapping and Braces" hit="Place ')' on new line" />
+    <option name="place" path="Wrapping and Braces" hit="Place ')' on new line" />
+    <option name="line" path="Wrapping and Braces" hit="Place ';' on new line" />
+    <option name="new" path="Wrapping and Braces" hit="Place ';' on new line" />
+    <option name="on" path="Wrapping and Braces" hit="Place ';' on new line" />
+    <option name="place" path="Wrapping and Braces" hit="Place ';' on new line" />
+    <option name="line" path="Wrapping and Braces" hit="Place '}' on new line" />
+    <option name="new" path="Wrapping and Braces" hit="Place '}' on new line" />
+    <option name="on" path="Wrapping and Braces" hit="Place '}' on new line" />
+    <option name="place" path="Wrapping and Braces" hit="Place '}' on new line" />
+    <option name="braces" path="Wrapping and Braces" hit="Place braces for empty functions/methods on one line" />
+    <option name="empty" path="Wrapping and Braces" hit="Place braces for empty functions/methods on one line" />
+    <option name="for" path="Wrapping and Braces" hit="Place braces for empty functions/methods on one line" />
+    <option name="functions" path="Wrapping and Braces" hit="Place braces for empty functions/methods on one line" />
+    <option name="line" path="Wrapping and Braces" hit="Place braces for empty functions/methods on one line" />
+    <option name="methods" path="Wrapping and Braces" hit="Place braces for empty functions/methods on one line" />
+    <option name="on" path="Wrapping and Braces" hit="Place braces for empty functions/methods on one line" />
+    <option name="one" path="Wrapping and Braces" hit="Place braces for empty functions/methods on one line" />
+    <option name="place" path="Wrapping and Braces" hit="Place braces for empty functions/methods on one line" />
+    <option name="operators" path="Spaces" hit="Relational operators (&lt;, &gt;, &lt;=, &gt;=, &lt;=&gt;)" />
+    <option name="relational" path="Spaces" hit="Relational operators (&lt;, &gt;, &lt;=, &gt;=, &lt;=&gt;)" />
+    <option name="line" path="Wrapping and Braces" hit="Return type on new line" />
+    <option name="new" path="Wrapping and Braces" hit="Return type on new line" />
+    <option name="on" path="Wrapping and Braces" hit="Return type on new line" />
+    <option name="return" path="Wrapping and Braces" hit="Return type on new line" />
+    <option name="type" path="Wrapping and Braces" hit="Return type on new line" />
+    <option name="operators" path="Spaces" hit="Shift operators (&lt;&lt;,&gt;&gt;)" />
+    <option name="shift" path="Spaces" hit="Shift operators (&lt;&lt;,&gt;&gt;)" />
+    <option name="blocks" path="Wrapping and Braces" hit="Simple blocks in one line" />
+    <option name="in" path="Wrapping and Braces" hit="Simple blocks in one line" />
+    <option name="line" path="Wrapping and Braces" hit="Simple blocks in one line" />
+    <option name="one" path="Wrapping and Braces" hit="Simple blocks in one line" />
+    <option name="simple" path="Wrapping and Braces" hit="Simple blocks in one line" />
+    <option name="classes" path="Wrapping and Braces" hit="Simple classes in one line" />
+    <option name="in" path="Wrapping and Braces" hit="Simple classes in one line" />
+    <option name="line" path="Wrapping and Braces" hit="Simple classes in one line" />
+    <option name="one" path="Wrapping and Braces" hit="Simple classes in one line" />
+    <option name="simple" path="Wrapping and Braces" hit="Simple classes in one line" />
+    <option name="in" path="Wrapping and Braces" hit="Simple lambdas in one line" />
+    <option name="lambdas" path="Wrapping and Braces" hit="Simple lambdas in one line" />
+    <option name="line" path="Wrapping and Braces" hit="Simple lambdas in one line" />
+    <option name="one" path="Wrapping and Braces" hit="Simple lambdas in one line" />
+    <option name="simple" path="Wrapping and Braces" hit="Simple lambdas in one line" />
+    <option name="in" path="Wrapping and Braces" hit="Simple methods in one line" />
+    <option name="line" path="Wrapping and Braces" hit="Simple methods in one line" />
+    <option name="methods" path="Wrapping and Braces" hit="Simple methods in one line" />
+    <option name="one" path="Wrapping and Braces" hit="Simple methods in one line" />
+    <option name="simple" path="Wrapping and Braces" hit="Simple methods in one line" />
+    <option name="else" path="Wrapping and Braces" hit="Special 'else if' treatment" />
+    <option name="if" path="Wrapping and Braces" hit="Special 'else if' treatment" />
+    <option name="special" path="Wrapping and Braces" hit="Special 'else if' treatment" />
+    <option name="treatment" path="Wrapping and Braces" hit="Special 'else if' treatment" />
+    <option name="call" path="Wrapping and Braces" hit="Take priority over call chain wrapping" />
+    <option name="chain" path="Wrapping and Braces" hit="Take priority over call chain wrapping" />
+    <option name="over" path="Wrapping and Braces" hit="Take priority over call chain wrapping" />
+    <option name="priority" path="Wrapping and Braces" hit="Take priority over call chain wrapping" />
+    <option name="take" path="Wrapping and Braces" hit="Take priority over call chain wrapping" />
+    <option name="wrapping" path="Wrapping and Braces" hit="Take priority over call chain wrapping" />
+    <option name="operation" path="Wrapping and Braces" hit="Ternary operation" />
+    <option name="ternary" path="Wrapping and Braces" hit="Ternary operation" />
+    <option name="keyword" path="Wrapping and Braces" hit="Throws keyword" />
+    <option name="throws" path="Wrapping and Braces" hit="Throws keyword" />
+    <option name="list" path="Wrapping and Braces" hit="Throws list" />
+    <option name="throws" path="Wrapping and Braces" hit="Throws list" />
+    <option name="anonymous" path="Wrapping and Braces" hit="Treat multiline arrays/anonymous functions as multiline arguments" />
+    <option name="arguments" path="Wrapping and Braces" hit="Treat multiline arrays/anonymous functions as multiline arguments" />
+    <option name="arrays" path="Wrapping and Braces" hit="Treat multiline arrays/anonymous functions as multiline arguments" />
+    <option name="as" path="Wrapping and Braces" hit="Treat multiline arrays/anonymous functions as multiline arguments" />
+    <option name="functions" path="Wrapping and Braces" hit="Treat multiline arrays/anonymous functions as multiline arguments" />
+    <option name="multiline" path="Wrapping and Braces" hit="Treat multiline arrays/anonymous functions as multiline arguments" />
+    <option name="treat" path="Wrapping and Braces" hit="Treat multiline arrays/anonymous functions as multiline arguments" />
+    <option name="+" path="Spaces" hit="Unary additive operators (+,-,++,--)" />
+    <option name="++" path="Spaces" hit="Unary additive operators (+,-,++,--)" />
+    <option name="-" path="Spaces" hit="Unary additive operators (+,-,++,--)" />
+    <option name="--" path="Spaces" hit="Unary additive operators (+,-,++,--)" />
+    <option name="additive" path="Spaces" hit="Unary additive operators (+,-,++,--)" />
+    <option name="operators" path="Spaces" hit="Unary additive operators (+,-,++,--)" />
+    <option name="unary" path="Spaces" hit="Unary additive operators (+,-,++,--)" />
+    <option name="guides" path="Wrapping and Braces" hit="Visual guides" />
+    <option name="visual" path="Wrapping and Braces" hit="Visual guides" />
+    <option name="within" path="Spaces" hit="Within" />
+    <option name="after" path="Wrapping and Braces" hit="Wrap after modifier list" />
+    <option name="list" path="Wrapping and Braces" hit="Wrap after modifier list" />
+    <option name="modifier" path="Wrapping and Braces" hit="Wrap after modifier list" />
+    <option name="wrap" path="Wrapping and Braces" hit="Wrap after modifier list" />
+    <option name="at" path="Wrapping and Braces" hit="Wrap at right margin" />
+    <option name="margin" path="Wrapping and Braces" hit="Wrap at right margin" />
+    <option name="right" path="Wrapping and Braces" hit="Wrap at right margin" />
+    <option name="wrap" path="Wrapping and Braces" hit="Wrap at right margin" />
+    <option name="call" path="Wrapping and Braces" hit="Wrap first call" />
+    <option name="first" path="Wrapping and Braces" hit="Wrap first call" />
+    <option name="wrap" path="Wrapping and Braces" hit="Wrap first call" />
+    <option name="on" path="Wrapping and Braces" hit="Wrap on typing" />
+    <option name="typing" path="Wrapping and Braces" hit="Wrap on typing" />
+    <option name="wrap" path="Wrapping and Braces" hit="Wrap on typing" />
+  </configurable>
+  <configurable id="copyright.filetypes.PHP" configurable_name="PHP">
+    <option name="a" hit="Add blank line after" />
+    <option name="after" hit="Add blank line after" />
+    <option name="blank" hit="Add blank line after" />
+    <option name="dd" hit="Add blank line after" />
+    <option name="line" hit="Add blank line after" />
+    <option name="add" hit="Add blank line before" />
+    <option name="before" hit="Add blank line before" />
+    <option name="blank" hit="Add blank line before" />
+    <option name="line" hit="Add blank line before" />
+    <option name="afte" hit="After other comments" />
+    <option name="comments" hit="After other comments" />
+    <option name="other" hit="After other comments" />
+    <option name="r" hit="After other comments" />
+    <option name="bef" hit="Before other comments" />
+    <option name="comments" hit="Before other comments" />
+    <option name="ore" hit="Before other comments" />
+    <option name="other" hit="Before other comments" />
+    <option name="borders" hit="Borders" />
+    <option name="box" hit="Box" />
+    <option name="comment" hit="Comment Type" />
+    <option name="type" hit="Comment Type" />
+    <option name="length" hit="Length:" />
+    <option name="copyright" hit="No copyright" />
+    <option name="no" hit="No copyright" />
+    <option name="php" hit="PHP" />
+    <option name="each" hit="Prefix each line" />
+    <option name="line" hit="Prefix each line" />
+    <option name="prefix" hit="Prefix each line" />
+    <option name="location" hit="Relative Location" />
+    <option name="relative" hit="Relative Location" />
+    <option name="after" hit="Separator after" />
+    <option name="separator" hit="Separator after" />
+    <option name="before" hit="Separator before" />
+    <option name="separator" hit="Separator before" />
+    <option name="separator" hit="Separator:" />
+    <option name="block" hit="Use block comment" />
+    <option name="comment" hit="Use block comment" />
+    <option name="use" hit="Use block comment" />
+    <option name="custom" hit="Use custom formatting options" />
+    <option name="formatting" hit="Use custom formatting options" />
+    <option name="options" hit="Use custom formatting options" />
+    <option name="use" hit="Use custom formatting options" />
+    <option name="default" hit="Use default settings" />
+    <option name="settings" hit="Use default settings" />
+    <option name="use" hit="Use default settings" />
+    <option name="comment" hit="Use line comment" />
+    <option name="line" hit="Use line comment" />
+    <option name="use" hit="Use line comment" />
+  </configurable>
+  <configurable id="reference.webide.settings.project.settings.php" configurable_name="PHP">
+    <option name="" path="PHP Runtime" hit=" Note: core extensions are part of the PHP core and cannot be left out of a PHP binary with compilation options." />
+    <option name="a" path="PHP Runtime" hit=" Note: core extensions are part of the PHP core and cannot be left out of a PHP binary with compilation options." />
+    <option name="and" path="PHP Runtime" hit=" Note: core extensions are part of the PHP core and cannot be left out of a PHP binary with compilation options." />
+    <option name="are" path="PHP Runtime" hit=" Note: core extensions are part of the PHP core and cannot be left out of a PHP binary with compilation options." />
+    <option name="be" path="PHP Runtime" hit=" Note: core extensions are part of the PHP core and cannot be left out of a PHP binary with compilation options." />
+    <option name="binary" path="PHP Runtime" hit=" Note: core extensions are part of the PHP core and cannot be left out of a PHP binary with compilation options." />
+    <option name="cannot" path="PHP Runtime" hit=" Note: core extensions are part of the PHP core and cannot be left out of a PHP binary with compilation options." />
+    <option name="compilation" path="PHP Runtime" hit=" Note: core extensions are part of the PHP core and cannot be left out of a PHP binary with compilation options." />
+    <option name="core" path="PHP Runtime" hit=" Note: core extensions are part of the PHP core and cannot be left out of a PHP binary with compilation options." />
+    <option name="extensions" path="PHP Runtime" hit=" Note: core extensions are part of the PHP core and cannot be left out of a PHP binary with compilation options." />
+    <option name="left" path="PHP Runtime" hit=" Note: core extensions are part of the PHP core and cannot be left out of a PHP binary with compilation options." />
+    <option name="note" path="PHP Runtime" hit=" Note: core extensions are part of the PHP core and cannot be left out of a PHP binary with compilation options." />
+    <option name="of" path="PHP Runtime" hit=" Note: core extensions are part of the PHP core and cannot be left out of a PHP binary with compilation options." />
+    <option name="options" path="PHP Runtime" hit=" Note: core extensions are part of the PHP core and cannot be left out of a PHP binary with compilation options." />
+    <option name="out" path="PHP Runtime" hit=" Note: core extensions are part of the PHP core and cannot be left out of a PHP binary with compilation options." />
+    <option name="part" path="PHP Runtime" hit=" Note: core extensions are part of the PHP core and cannot be left out of a PHP binary with compilation options." />
+    <option name="php" path="PHP Runtime" hit=" Note: core extensions are part of the PHP core and cannot be left out of a PHP binary with compilation options." />
+    <option name="the" path="PHP Runtime" hit=" Note: core extensions are part of the PHP core and cannot be left out of a PHP binary with compilation options." />
+    <option name="with" path="PHP Runtime" hit=" Note: core extensions are part of the PHP core and cannot be left out of a PHP binary with compilation options." />
+    <option name="" path="Analysis" hit="$_SERVER['DOCUMENT_ROOT']" />
+    <option name="document" path="Analysis" hit="$_SERVER['DOCUMENT_ROOT']" />
+    <option name="root" path="Analysis" hit="$_SERVER['DOCUMENT_ROOT']" />
+    <option name="server" path="Analysis" hit="$_SERVER['DOCUMENT_ROOT']" />
+    <option name="0" path="Analysis" hit="0" />
+    <option name="1" path="Analysis" hit="1" />
+    <option name="2" path="Analysis" hit="2" />
+    <option name="3" path="Analysis" hit="3" />
+    <option name="ad" path="PHP Runtime" hit="Advanced settings" />
+    <option name="settings" path="PHP Runtime" hit="Advanced settings" />
+    <option name="vanced" path="PHP Runtime" hit="Advanced settings" />
+    <option name="analysis" path="Analysis" hit="Analysis" />
+    <option name="cli" hit="CLI Interpreter:" />
+    <option name="interpreter" hit="CLI Interpreter:" />
+    <option name="analysis" path="Analysis" hit="Call tree analysis depth:" />
+    <option name="call" path="Analysis" hit="Call tree analysis depth:" />
+    <option name="depth" path="Analysis" hit="Call tree analysis depth:" />
+    <option name="tree" path="Analysis" hit="Call tree analysis depth:" />
+    <option name="composer" path="Composer Files" hit="Composer Files" />
+    <option name="files" path="Composer Files" hit="Composer Files" />
+    <option name="custom" path="Analysis" hit="Custom Format Functions" />
+    <option name="format" path="Analysis" hit="Custom Format Functions" />
+    <option name="functions" path="Analysis" hit="Custom Format Functions" />
+    <option name="" path="PHP Runtime" hit="Default stubs path:" />
+    <option name="default" path="PHP Runtime" hit="Default stubs path:" />
+    <option name="path" path="PHP Runtime" hit="Default stubs path:" />
+    <option name="stubs" path="PHP Runtime" hit="Default stubs path:" />
+    <option name="analysis" path="Analysis" hit="Exception Analysis" />
+    <option name="exception" path="Analysis" hit="Exception Analysis" />
+    <option name="analysis" path="Analysis" hit="Include Analysis" />
+    <option name="include" path="Analysis" hit="Include Analysis" />
+    <option name="include" path="Include Path" hit="Include Path" />
+    <option name="path" path="Include Path" hit="Include Path" />
+    <option name="php" hit="PHP" />
+    <option name="php" path="PHP Runtime" hit="PHP Runtime" />
+    <option name="runtime" path="PHP Runtime" hit="PHP Runtime" />
+    <option name="language" hit="PHP language level:" />
+    <option name="level" hit="PHP language level:" />
+    <option name="php" hit="PHP language level:" />
+    <option name="calls" path="Analysis" hit="Skip calls with constant params" />
+    <option name="constant" path="Analysis" hit="Skip calls with constant params" />
+    <option name="params" path="Analysis" hit="Skip calls with constant params" />
+    <option name="skip" path="Analysis" hit="Skip calls with constant params" />
+    <option name="with" path="Analysis" hit="Skip calls with constant params" />
+    <option name="extensions" path="PHP Runtime" hit="Sync Extensions with Interpreter" />
+    <option name="interpreter" path="PHP Runtime" hit="Sync Extensions with Interpreter" />
+    <option name="sync" path="PHP Runtime" hit="Sync Extensions with Interpreter" />
+    <option name="with" path="PHP Runtime" hit="Sync Extensions with Interpreter" />
+    <option name="exceptions" path="Analysis" hit="Unchecked Exceptions:" />
+    <option name="unchecked" path="Analysis" hit="Unchecked Exceptions:" />
+  </configurable>
+  <configurable id="reference.webide.settings.project.settings.smarty" configurable_name="Smarty">
+    <option name="changes" hit="Reopen editor for changes to take effect" />
+    <option name="editor" hit="Reopen editor for changes to take effect" />
+    <option name="effect" hit="Reopen editor for changes to take effect" />
+    <option name="for" hit="Reopen editor for changes to take effect" />
+    <option name="reopen" hit="Reopen editor for changes to take effect" />
+    <option name="take" hit="Reopen editor for changes to take effect" />
+    <option name="to" hit="Reopen editor for changes to take effect" />
+    <option name="smarty" hit="Smarty" />
+    <option name="delimiter" hit="Smarty left delimiter:" />
+    <option name="left" hit="Smarty left delimiter:" />
+    <option name="smarty" hit="Smarty left delimiter:" />
+    <option name="delimiter" hit="Smarty right delimiter:" />
+    <option name="right" hit="Smarty right delimiter:" />
+    <option name="smarty" hit="Smarty right delimiter:" />
+    <option name="policy" hit="Use Smarty3 whitespaces policy" />
+    <option name="smarty3" hit="Use Smarty3 whitespaces policy" />
+    <option name="use" hit="Use Smarty3 whitespaces policy" />
+    <option name="whitespaces" hit="Use Smarty3 whitespaces policy" />
+  </configurable>
+  <configurable id="settings.php.debug.servers" configurable_name="Servers">
+    <option name="servers" hit="Servers" />
+  </configurable>
+  <configurable id="php.test.frameworks.configurable" configurable_name="Test Frameworks">
+    <option name="frameworks" hit="Test Frameworks" />
+    <option name="test" hit="Test Frameworks" />
+  </configurable>
+  <configurable id="reference.webide.settings.project.settings.php.debug" configurable_name="Debug">
+    <option name="1" hit="1. Install" />
+    <option name="install" hit="1. Install" />
+    <option name="2" hit="2. Install" />
+    <option name="install" hit="2. Install" />
+    <option name="3" hit="3. Enable listening for PHP Debug Connections:" />
+    <option name="connections" hit="3. Enable listening for PHP Debug Connections:" />
+    <option name="debug" hit="3. Enable listening for PHP Debug Connections:" />
+    <option name="enable" hit="3. Enable listening for PHP Debug Connections:" />
+    <option name="for" hit="3. Enable listening for PHP Debug Connections:" />
+    <option name="listening" hit="3. Enable listening for PHP Debug Connections:" />
+    <option name="php" hit="3. Enable listening for PHP Debug Connections:" />
+    <option name="4" hit="4. Start debug session in browser with the toolbar or bookmarklets." />
+    <option name="bookmarklets" hit="4. Start debug session in browser with the toolbar or bookmarklets." />
+    <option name="browser" hit="4. Start debug session in browser with the toolbar or bookmarklets." />
+    <option name="debug" hit="4. Start debug session in browser with the toolbar or bookmarklets." />
+    <option name="in" hit="4. Start debug session in browser with the toolbar or bookmarklets." />
+    <option name="or" hit="4. Start debug session in browser with the toolbar or bookmarklets." />
+    <option name="session" hit="4. Start debug session in browser with the toolbar or bookmarklets." />
+    <option name="start" hit="4. Start debug session in browser with the toolbar or bookmarklets." />
+    <option name="the" hit="4. Start debug session in browser with the toolbar or bookmarklets." />
+    <option name="toolbar" hit="4. Start debug session in browser with the toolbar or bookmarklets." />
+    <option name="with" hit="4. Start debug session in browser with the toolbar or bookmarklets." />
+    <option name="automatically" hit="Automatically detect IDE IP:" />
+    <option name="detect" hit="Automatically detect IDE IP:" />
+    <option name="ide" hit="Automatically detect IDE IP:" />
+    <option name="ip" hit="Automatically detect IDE IP:" />
+    <option name="at" hit="Break at first line in PHP scripts" />
+    <option name="break" hit="Break at first line in PHP scripts" />
+    <option name="first" hit="Break at first line in PHP scripts" />
+    <option name="in" hit="Break at first line in PHP scripts" />
+    <option name="line" hit="Break at first line in PHP scripts" />
+    <option name="php" hit="Break at first line in PHP scripts" />
+    <option name="scripts" hit="Break at first line in PHP scripts" />
+    <option name="accept" hit="Can accept external connections" />
+    <option name="can" hit="Can accept external connections" />
+    <option name="connections" hit="Can accept external connections" />
+    <option name="external" hit="Can accept external connections" />
+    <option name="debug" hit="Debug" />
+    <option name="debug" hit="Debug port:" />
+    <option name="port" hit="Debug port:" />
+    <option name="configurations" hit="Detect path mappings from deployment configurations" />
+    <option name="deployment" hit="Detect path mappings from deployment configurations" />
+    <option name="detect" hit="Detect path mappings from deployment configurations" />
+    <option name="from" hit="Detect path mappings from deployment configurations" />
+    <option name="mappings" hit="Detect path mappings from deployment configurations" />
+    <option name="path" hit="Detect path mappings from deployment configurations" />
+    <option name="and" hit="Enable '... Navigate' links for class and member references" />
+    <option name="class" hit="Enable '... Navigate' links for class and member references" />
+    <option name="enable" hit="Enable '... Navigate' links for class and member references" />
+    <option name="for" hit="Enable '... Navigate' links for class and member references" />
+    <option name="links" hit="Enable '... Navigate' links for class and member references" />
+    <option name="member" hit="Enable '... Navigate' links for class and member references" />
+    <option name="navigate" hit="Enable '... Navigate' links for class and member references" />
+    <option name="references" hit="Enable '... Navigate' links for class and member references" />
+    <option name="enable" hit="Enable '__toString' object view" />
+    <option name="object" hit="Enable '__toString' object view" />
+    <option name="tostring" hit="Enable '__toString' object view" />
+    <option name="view" hit="Enable '__toString' object view" />
+    <option name="2+" hit="Enable return function value debugging (Xdebug 3.2+)" />
+    <option name="3" hit="Enable return function value debugging (Xdebug 3.2+)" />
+    <option name="debugging" hit="Enable return function value debugging (Xdebug 3.2+)" />
+    <option name="enable" hit="Enable return function value debugging (Xdebug 3.2+)" />
+    <option name="function" hit="Enable return function value debugging (Xdebug 3.2+)" />
+    <option name="return" hit="Enable return function value debugging (Xdebug 3.2+)" />
+    <option name="value" hit="Enable return function value debugging (Xdebug 3.2+)" />
+    <option name="xdebug" hit="Enable return function value debugging (Xdebug 3.2+)" />
+    <option name="evaluation" hit="Evaluation" />
+    <option name="connections" hit="External connections" />
+    <option name="external" hit="External connections" />
+    <option name="follow" hit="For more information follow" />
+    <option name="for" hit="For more information follow" />
+    <option name="information" hit="For more information follow" />
+    <option name="more" hit="For more information follow" />
+    <option name="a" hit="Force break at first line when a script is outside the project" />
+    <option name="at" hit="Force break at first line when a script is outside the project" />
+    <option name="break" hit="Force break at first line when a script is outside the project" />
+    <option name="first" hit="Force break at first line when a script is outside the project" />
+    <option name="force" hit="Force break at first line when a script is outside the project" />
+    <option name="is" hit="Force break at first line when a script is outside the project" />
+    <option name="line" hit="Force break at first line when a script is outside the project" />
+    <option name="outside" hit="Force break at first line when a script is outside the project" />
+    <option name="project" hit="Force break at first line when a script is outside the project" />
+    <option name="script" hit="Force break at first line when a script is outside the project" />
+    <option name="the" hit="Force break at first line when a script is outside the project" />
+    <option name="when" hit="Force break at first line when a script is outside the project" />
+    <option name="at" hit="Force break at first line when no path mapping specified" />
+    <option name="break" hit="Force break at first line when no path mapping specified" />
+    <option name="first" hit="Force break at first line when no path mapping specified" />
+    <option name="force" hit="Force break at first line when no path mapping specified" />
+    <option name="line" hit="Force break at first line when no path mapping specified" />
+    <option name="mapping" hit="Force break at first line when no path mapping specified" />
+    <option name="no" hit="Force break at first line when no path mapping specified" />
+    <option name="path" hit="Force break at first line when no path mapping specified" />
+    <option name="specified" hit="Force break at first line when no path mapping specified" />
+    <option name="when" hit="Force break at first line when no path mapping specified" />
+    <option name="are" hit="Gray out blocks of code that are predicted to be unreachable" />
+    <option name="be" hit="Gray out blocks of code that are predicted to be unreachable" />
+    <option name="blocks" hit="Gray out blocks of code that are predicted to be unreachable" />
+    <option name="code" hit="Gray out blocks of code that are predicted to be unreachable" />
+    <option name="gray" hit="Gray out blocks of code that are predicted to be unreachable" />
+    <option name="of" hit="Gray out blocks of code that are predicted to be unreachable" />
+    <option name="out" hit="Gray out blocks of code that are predicted to be unreachable" />
+    <option name="predicted" hit="Gray out blocks of code that are predicted to be unreachable" />
+    <option name="that" hit="Gray out blocks of code that are predicted to be unreachable" />
+    <option name="to" hit="Gray out blocks of code that are predicted to be unreachable" />
+    <option name="unreachable" hit="Gray out blocks of code that are predicted to be unreachable" />
+    <option name="ignore" hit="Ignore Z-Ray system requests" />
+    <option name="requests" hit="Ignore Z-Ray system requests" />
+    <option name="system" hit="Ignore Z-Ray system requests" />
+    <option name="z-ray" hit="Ignore Z-Ray system requests" />
+    <option name="configurations" hit="Ignore external connections through unregistered server configurations" />
+    <option name="connections" hit="Ignore external connections through unregistered server configurations" />
+    <option name="external" hit="Ignore external connections through unregistered server configurations" />
+    <option name="ignore" hit="Ignore external connections through unregistered server configurations" />
+    <option name="server" hit="Ignore external connections through unregistered server configurations" />
+    <option name="through" hit="Ignore external connections through unregistered server configurations" />
+    <option name="unregistered" hit="Ignore external connections through unregistered server configurations" />
+    <option name="and" hit="Import namespace and 'use' statements from evaluation context" />
+    <option name="context" hit="Import namespace and 'use' statements from evaluation context" />
+    <option name="evaluation" hit="Import namespace and 'use' statements from evaluation context" />
+    <option name="from" hit="Import namespace and 'use' statements from evaluation context" />
+    <option name="import" hit="Import namespace and 'use' statements from evaluation context" />
+    <option name="namespace" hit="Import namespace and 'use' statements from evaluation context" />
+    <option name="statements" hit="Import namespace and 'use' statements from evaluation context" />
+    <option name="use" hit="Import namespace and 'use' statements from evaluation context" />
+    <option name="connections" hit="Max. simultaneous connections:" />
+    <option name="max" hit="Max. simultaneous connections:" />
+    <option name="simultaneous" hit="Max. simultaneous connections:" />
+    <option name="breakpoint" hit="Move breakpoint to resolved position if it's different from the source" />
+    <option name="different" hit="Move breakpoint to resolved position if it's different from the source" />
+    <option name="from" hit="Move breakpoint to resolved position if it's different from the source" />
+    <option name="if" hit="Move breakpoint to resolved position if it's different from the source" />
+    <option name="it" hit="Move breakpoint to resolved position if it's different from the source" />
+    <option name="move" hit="Move breakpoint to resolved position if it's different from the source" />
+    <option name="position" hit="Move breakpoint to resolved position if it's different from the source" />
+    <option name="resolved" hit="Move breakpoint to resolved position if it's different from the source" />
+    <option name="s" hit="Move breakpoint to resolved position if it's different from the source" />
+    <option name="source" hit="Move breakpoint to resolved position if it's different from the source" />
+    <option name="the" hit="Move breakpoint to resolved position if it's different from the source" />
+    <option name="to" hit="Move breakpoint to resolved position if it's different from the source" />
+    <option name="2" hit="Notify if breakpoint was resolved to a different line (Xdebug 2.8+)" />
+    <option name="8+" hit="Notify if breakpoint was resolved to a different line (Xdebug 2.8+)" />
+    <option name="a" hit="Notify if breakpoint was resolved to a different line (Xdebug 2.8+)" />
+    <option name="breakpoint" hit="Notify if breakpoint was resolved to a different line (Xdebug 2.8+)" />
+    <option name="different" hit="Notify if breakpoint was resolved to a different line (Xdebug 2.8+)" />
+    <option name="if" hit="Notify if breakpoint was resolved to a different line (Xdebug 2.8+)" />
+    <option name="line" hit="Notify if breakpoint was resolved to a different line (Xdebug 2.8+)" />
+    <option name="notify" hit="Notify if breakpoint was resolved to a different line (Xdebug 2.8+)" />
+    <option name="resolved" hit="Notify if breakpoint was resolved to a different line (Xdebug 2.8+)" />
+    <option name="to" hit="Notify if breakpoint was resolved to a different line (Xdebug 2.8+)" />
+    <option name="was" hit="Notify if breakpoint was resolved to a different line (Xdebug 2.8+)" />
+    <option name="xdebug" hit="Notify if breakpoint was resolved to a different line (Xdebug 2.8+)" />
+    <option name="being" hit="Notify if debug session was finished without being paused" />
+    <option name="debug" hit="Notify if debug session was finished without being paused" />
+    <option name="finished" hit="Notify if debug session was finished without being paused" />
+    <option name="if" hit="Notify if debug session was finished without being paused" />
+    <option name="notify" hit="Notify if debug session was finished without being paused" />
+    <option name="paused" hit="Notify if debug session was finished without being paused" />
+    <option name="session" hit="Notify if debug session was finished without being paused" />
+    <option name="was" hit="Notify if debug session was finished without being paused" />
+    <option name="without" hit="Notify if debug session was finished without being paused" />
+    <option name="command" hit="Pass required configuration options through command line (still need to enable debug extension manually)" />
+    <option name="configuration" hit="Pass required configuration options through command line (still need to enable debug extension manually)" />
+    <option name="debug" hit="Pass required configuration options through command line (still need to enable debug extension manually)" />
+    <option name="enable" hit="Pass required configuration options through command line (still need to enable debug extension manually)" />
+    <option name="extension" hit="Pass required configuration options through command line (still need to enable debug extension manually)" />
+    <option name="line" hit="Pass required configuration options through command line (still need to enable debug extension manually)" />
+    <option name="manually" hit="Pass required configuration options through command line (still need to enable debug extension manually)" />
+    <option name="need" hit="Pass required configuration options through command line (still need to enable debug extension manually)" />
+    <option name="options" hit="Pass required configuration options through command line (still need to enable debug extension manually)" />
+    <option name="pass" hit="Pass required configuration options through command line (still need to enable debug extension manually)" />
+    <option name="required" hit="Pass required configuration options through command line (still need to enable debug extension manually)" />
+    <option name="still" hit="Pass required configuration options through command line (still need to enable debug extension manually)" />
+    <option name="through" hit="Pass required configuration options through command line (still need to enable debug extension manually)" />
+    <option name="to" hit="Pass required configuration options through command line (still need to enable debug extension manually)" />
+    <option name="pre-configuration" hit="Pre-configuration" />
+    <option name="analyzing" hit="Predict future condition values analyzing program data flow" />
+    <option name="condition" hit="Predict future condition values analyzing program data flow" />
+    <option name="data" hit="Predict future condition values analyzing program data flow" />
+    <option name="flow" hit="Predict future condition values analyzing program data flow" />
+    <option name="future" hit="Predict future condition values analyzing program data flow" />
+    <option name="predict" hit="Predict future condition values analyzing program data flow" />
+    <option name="program" hit="Predict future condition values analyzing program data flow" />
+    <option name="values" hit="Predict future condition values analyzing program data flow" />
+    <option name="2" hit="Resolve breakpoint if it's not available on the current line (Xdebug 2.8+)" />
+    <option name="8+" hit="Resolve breakpoint if it's not available on the current line (Xdebug 2.8+)" />
+    <option name="available" hit="Resolve breakpoint if it's not available on the current line (Xdebug 2.8+)" />
+    <option name="breakpoint" hit="Resolve breakpoint if it's not available on the current line (Xdebug 2.8+)" />
+    <option name="current" hit="Resolve breakpoint if it's not available on the current line (Xdebug 2.8+)" />
+    <option name="if" hit="Resolve breakpoint if it's not available on the current line (Xdebug 2.8+)" />
+    <option name="it" hit="Resolve breakpoint if it's not available on the current line (Xdebug 2.8+)" />
+    <option name="line" hit="Resolve breakpoint if it's not available on the current line (Xdebug 2.8+)" />
+    <option name="not" hit="Resolve breakpoint if it's not available on the current line (Xdebug 2.8+)" />
+    <option name="on" hit="Resolve breakpoint if it's not available on the current line (Xdebug 2.8+)" />
+    <option name="resolve" hit="Resolve breakpoint if it's not available on the current line (Xdebug 2.8+)" />
+    <option name="s" hit="Resolve breakpoint if it's not available on the current line (Xdebug 2.8+)" />
+    <option name="the" hit="Resolve breakpoint if it's not available on the current line (Xdebug 2.8+)" />
+    <option name="xdebug" hit="Resolve breakpoint if it's not available on the current line (Xdebug 2.8+)" />
+    <option name="and" hit="Safe evaluation mode in value hints and Watches Frame" />
+    <option name="evaluation" hit="Safe evaluation mode in value hints and Watches Frame" />
+    <option name="frame" hit="Safe evaluation mode in value hints and Watches Frame" />
+    <option name="hints" hit="Safe evaluation mode in value hints and Watches Frame" />
+    <option name="in" hit="Safe evaluation mode in value hints and Watches Frame" />
+    <option name="mode" hit="Safe evaluation mode in value hints and Watches Frame" />
+    <option name="safe" hit="Safe evaluation mode in value hints and Watches Frame" />
+    <option name="value" hit="Safe evaluation mode in value hints and Watches Frame" />
+    <option name="watches" hit="Safe evaluation mode in value hints and Watches Frame" />
+    <option name="" hit="Settings" />
+    <option name="settings" hit="Settings" />
+    <option name="broadcasting" hit="Settings broadcasting port:" />
+    <option name="port" hit="Settings broadcasting port:" />
+    <option name="settings" hit="Settings broadcasting port:" />
+    <option name="and" hit="Show array and object children in Debug Console" />
+    <option name="array" hit="Show array and object children in Debug Console" />
+    <option name="children" hit="Show array and object children in Debug Console" />
+    <option name="console" hit="Show array and object children in Debug Console" />
+    <option name="debug" hit="Show array and object children in Debug Console" />
+    <option name="in" hit="Show array and object children in Debug Console" />
+    <option name="object" hit="Show array and object children in Debug Console" />
+    <option name="show" hit="Show array and object children in Debug Console" />
+    <option name="listening" hit="Start Listening" />
+    <option name="start" hit="Start Listening" />
+    <option name="validate" hit="Validate" />
+    <option name="xdebug" hit="Xdebug" />
+    <option name="debugger" hit="Zend Debugger" />
+    <option name="zend" hit="Zend Debugger" />
+    <option name="debugging" hit="Zero-configuration Debugging tutorial" />
+    <option name="tutorial" hit="Zero-configuration Debugging tutorial" />
+    <option name="zero-configuration" hit="Zero-configuration Debugging tutorial" />
+    <option name="bookmarklets" hit="browser toolbar or bookmarklets." />
+    <option name="browser" hit="browser toolbar or bookmarklets." />
+    <option name="or" hit="browser toolbar or bookmarklets." />
+    <option name="toolbar" hit="browser toolbar or bookmarklets." />
+    <option name="configuration" hit="debugger configuration on the Web Server." />
+    <option name="debugger" hit="debugger configuration on the Web Server." />
+    <option name="on" hit="debugger configuration on the Web Server." />
+    <option name="server" hit="debugger configuration on the Web Server." />
+    <option name="the" hit="debugger configuration on the Web Server." />
+    <option name="web" hit="debugger configuration on the Web Server." />
+    <option name="on" hit="on the Web Server." />
+    <option name="server" hit="on the Web Server." />
+    <option name="the" hit="on the Web Server." />
+    <option name="web" hit="on the Web Server." />
+    <option name="or" hit="or" />
+  </configurable>
+  <configurable id="settings.php.frameworks" configurable_name="Frameworks">
+    <option name="" hit=" Please specify a valid Joomla! root directory" />
+    <option name="a" hit=" Please specify a valid Joomla! root directory" />
+    <option name="directory" hit=" Please specify a valid Joomla! root directory" />
+    <option name="joomla" hit=" Please specify a valid Joomla! root directory" />
+    <option name="please" hit=" Please specify a valid Joomla! root directory" />
+    <option name="root" hit=" Please specify a valid Joomla! root directory" />
+    <option name="specify" hit=" Please specify a valid Joomla! root directory" />
+    <option name="valid" hit=" Please specify a valid Joomla! root directory" />
+    <option name="" hit=" Please specify valid Drupal root directory (directory should contain 'modules' and 'sites' subdirectories)" />
+    <option name="and" hit=" Please specify valid Drupal root directory (directory should contain 'modules' and 'sites' subdirectories)" />
+    <option name="contain" hit=" Please specify valid Drupal root directory (directory should contain 'modules' and 'sites' subdirectories)" />
+    <option name="directory" hit=" Please specify valid Drupal root directory (directory should contain 'modules' and 'sites' subdirectories)" />
+    <option name="drupal" hit=" Please specify valid Drupal root directory (directory should contain 'modules' and 'sites' subdirectories)" />
+    <option name="modules" hit=" Please specify valid Drupal root directory (directory should contain 'modules' and 'sites' subdirectories)" />
+    <option name="please" hit=" Please specify valid Drupal root directory (directory should contain 'modules' and 'sites' subdirectories)" />
+    <option name="root" hit=" Please specify valid Drupal root directory (directory should contain 'modules' and 'sites' subdirectories)" />
+    <option name="should" hit=" Please specify valid Drupal root directory (directory should contain 'modules' and 'sites' subdirectories)" />
+    <option name="sites" hit=" Please specify valid Drupal root directory (directory should contain 'modules' and 'sites' subdirectories)" />
+    <option name="specify" hit=" Please specify valid Drupal root directory (directory should contain 'modules' and 'sites' subdirectories)" />
+    <option name="subdirectories" hit=" Please specify valid Drupal root directory (directory should contain 'modules' and 'sites' subdirectories)" />
+    <option name="valid" hit=" Please specify valid Drupal root directory (directory should contain 'modules' and 'sites' subdirectories)" />
+    <option name="" hit=" Please specify valid WordPress root directory (directory should contain 'wp-admin' and 'wp-includes' subdirectories)" />
+    <option name="and" hit=" Please specify valid WordPress root directory (directory should contain 'wp-admin' and 'wp-includes' subdirectories)" />
+    <option name="contain" hit=" Please specify valid WordPress root directory (directory should contain 'wp-admin' and 'wp-includes' subdirectories)" />
+    <option name="directory" hit=" Please specify valid WordPress root directory (directory should contain 'wp-admin' and 'wp-includes' subdirectories)" />
+    <option name="please" hit=" Please specify valid WordPress root directory (directory should contain 'wp-admin' and 'wp-includes' subdirectories)" />
+    <option name="root" hit=" Please specify valid WordPress root directory (directory should contain 'wp-admin' and 'wp-includes' subdirectories)" />
+    <option name="should" hit=" Please specify valid WordPress root directory (directory should contain 'wp-admin' and 'wp-includes' subdirectories)" />
+    <option name="specify" hit=" Please specify valid WordPress root directory (directory should contain 'wp-admin' and 'wp-includes' subdirectories)" />
+    <option name="subdirectories" hit=" Please specify valid WordPress root directory (directory should contain 'wp-admin' and 'wp-includes' subdirectories)" />
+    <option name="valid" hit=" Please specify valid WordPress root directory (directory should contain 'wp-admin' and 'wp-includes' subdirectories)" />
+    <option name="wordpress" hit=" Please specify valid WordPress root directory (directory should contain 'wp-admin' and 'wp-includes' subdirectories)" />
+    <option name="wp-admin" hit=" Please specify valid WordPress root directory (directory should contain 'wp-admin' and 'wp-includes' subdirectories)" />
+    <option name="wp-includes" hit=" Please specify valid WordPress root directory (directory should contain 'wp-admin' and 'wp-includes' subdirectories)" />
+    <option name="6" hit="6" />
+    <option name="7" hit="7" />
+    <option name="8" hit="8" />
+    <option name="9" hit="9" />
+    <option name="" hit="Drupal" />
+    <option name="drupal" hit="Drupal" />
+    <option name="drupal" hit="Drupal installation path:" />
+    <option name="installation" hit="Drupal installation path:" />
+    <option name="path" hit="Drupal installation path:" />
+    <option name="empty" hit="Empty Joomla! project" />
+    <option name="joomla" hit="Empty Joomla! project" />
+    <option name="project" hit="Empty Joomla! project" />
+    <option name="drupal" hit="Enable Drupal integration" />
+    <option name="enable" hit="Enable Drupal integration" />
+    <option name="integration" hit="Enable Drupal integration" />
+    <option name="enable" hit="Enable Joomla! integration" />
+    <option name="integration" hit="Enable Joomla! integration" />
+    <option name="joomla" hit="Enable Joomla! integration" />
+    <option name="enable" hit="Enable WordPress integration" />
+    <option name="integration" hit="Enable WordPress integration" />
+    <option name="wordpress" hit="Enable WordPress integration" />
+    <option name="fix" hit="Fix" />
+    <option name="frameworks" hit="Frameworks" />
+    <option name="install" hit="Install plugin" />
+    <option name="plugin" hit="Install plugin" />
+    <option name="installation" hit="Joomla installation path" />
+    <option name="joomla" hit="Joomla installation path" />
+    <option name="path" hit="Joomla installation path" />
+    <option name="" hit="Joomla!" />
+    <option name="joomla" hit="Joomla!" />
+    <option name="component" hit="Joomla! Component" />
+    <option name="joomla" hit="Joomla! Component" />
+    <option name="joomla" hit="Joomla! Module" />
+    <option name="module" hit="Joomla! Module" />
+    <option name="joomla" hit="Joomla! Plugin" />
+    <option name="plugin" hit="Joomla! Plugin" />
+    <option name="joomla" hit="Joomla! Template" />
+    <option name="template" hit="Joomla! Template" />
+    <option name="4" hit="Joomla! v.4 Component" />
+    <option name="component" hit="Joomla! v.4 Component" />
+    <option name="joomla" hit="Joomla! v.4 Component" />
+    <option name="v" hit="Joomla! v.4 Component" />
+    <option name="" hit="Laravel Idea" />
+    <option name="idea" hit="Laravel Idea" />
+    <option name="laravel" hit="Laravel Idea" />
+    <option name="jconfig" hit="Path to JConfig" />
+    <option name="path" hit="Path to JConfig" />
+    <option name="to" hit="Path to JConfig" />
+    <option name="project" hit="Project type" />
+    <option name="type" hit="Project type" />
+    <option name="include" hit="Set up PHP | Include paths" />
+    <option name="paths" hit="Set up PHP | Include paths" />
+    <option name="php" hit="Set up PHP | Include paths" />
+    <option name="set" hit="Set up PHP | Include paths" />
+    <option name="up" hit="Set up PHP | Include paths" />
+    <option name="" hit="Symfony" />
+    <option name="symfony" hit="Symfony" />
+    <option name="version" hit="Version:" />
+    <option name="" hit="WordPress" />
+    <option name="wordpress" hit="WordPress" />
+    <option name="installation" hit="WordPress installation path:" />
+    <option name="path" hit="WordPress installation path:" />
+    <option name="wordpress" hit="WordPress installation path:" />
+  </configurable>
+  <configurable id="settings.php.quality.tools" configurable_name="Quality Tools">
+    <option name="external" hit="External Formatters" />
+    <option name="formatters" hit="External Formatters" />
+    <option name="laravel" hit="Laravel Pint" />
+    <option name="pint" hit="Laravel Pint" />
+    <option name="external" hit="No External Formatter" />
+    <option name="formatter" hit="No External Formatter" />
+    <option name="no" hit="No External Formatter" />
+    <option name="cs" hit="PHP CS Fixer" />
+    <option name="fixer" hit="PHP CS Fixer" />
+    <option name="php" hit="PHP CS Fixer" />
+    <option name="and" hit="PHP Code Beautifier and Fixer" />
+    <option name="beautifier" hit="PHP Code Beautifier and Fixer" />
+    <option name="code" hit="PHP Code Beautifier and Fixer" />
+    <option name="fixer" hit="PHP Code Beautifier and Fixer" />
+    <option name="php" hit="PHP Code Beautifier and Fixer" />
+    <option name="quality" hit="Quality Tools" />
+    <option name="tools" hit="Quality Tools" />
+  </configurable>
+  <configurable id="settings.php.quality.tools.php.code.sniffer" configurable_name="PHP_CodeSniffer">
+    <option name="check" hit="Check files with extensions:" />
+    <option name="extensions" hit="Check files with extensions:" />
+    <option name="files" hit="Check files with extensions:" />
+    <option name="with" hit="Check files with extensions:" />
+    <option name="coding" hit="Coding standard:" />
+    <option name="standard" hit="Coding standard:" />
+    <option name="configuration" hit="Configuration:" />
+    <option name="consideration" hit="Consideration" />
+    <option name="error" hit="Error" />
+    <option name="info" hit="Info" />
+    <option name="installed" hit="Installed standards path:" />
+    <option name="path" hit="Installed standards path:" />
+    <option name="standards" hit="Installed standards path:" />
+    <option name="available" hit="No highlighting (fix available)" />
+    <option name="fix" hit="No highlighting (fix available)" />
+    <option name="highlighting" hit="No highlighting (fix available)" />
+    <option name="no" hit="No highlighting (fix available)" />
+    <option name="options" hit="Options" />
+    <option name="codesniffer" hit="PHP_CodeSniffer" />
+    <option name="php" hit="PHP_CodeSniffer" />
+    <option name="codesniffer" hit="PHP_CodeSniffer path is empty for selected configuration" />
+    <option name="configuration" hit="PHP_CodeSniffer path is empty for selected configuration" />
+    <option name="empty" hit="PHP_CodeSniffer path is empty for selected configuration" />
+    <option name="for" hit="PHP_CodeSniffer path is empty for selected configuration" />
+    <option name="is" hit="PHP_CodeSniffer path is empty for selected configuration" />
+    <option name="path" hit="PHP_CodeSniffer path is empty for selected configuration" />
+    <option name="php" hit="PHP_CodeSniffer path is empty for selected configuration" />
+    <option name="selected" hit="PHP_CodeSniffer path is empty for selected configuration" />
+    <option name="psr2" hit="PSR2" />
+    <option name="problem" hit="Server Problem" />
+    <option name="server" hit="Server Problem" />
+    <option name="files" hit="Show ignored files" />
+    <option name="ignored" hit="Show ignored files" />
+    <option name="show" hit="Show ignored files" />
+    <option name="name" hit="Show sniff name" />
+    <option name="show" hit="Show sniff name" />
+    <option name="sniff" hit="Show sniff name" />
+    <option name="as" hit="Show warning as:" />
+    <option name="show" hit="Show warning as:" />
+    <option name="warning" hit="Show warning as:" />
+    <option name="warning" hit="Warning" />
+    <option name="warning" hit="Weak Warning" />
+    <option name="weak" hit="Weak Warning" />
+  </configurable>
+  <configurable id="settings.php.quality.tools.php.cs.fixer" configurable_name="PHP CS Fixer">
+    <option name="allow" hit="Allow risky rules for built-in rulesets" />
+    <option name="built-in" hit="Allow risky rules for built-in rulesets" />
+    <option name="for" hit="Allow risky rules for built-in rulesets" />
+    <option name="risky" hit="Allow risky rules for built-in rulesets" />
+    <option name="rules" hit="Allow risky rules for built-in rulesets" />
+    <option name="rulesets" hit="Allow risky rules for built-in rulesets" />
+    <option name="configuration" hit="Configuration:" />
+    <option name="options" hit="Options" />
+    <option name="cs" hit="PHP CS Fixer" />
+    <option name="fixer" hit="PHP CS Fixer" />
+    <option name="php" hit="PHP CS Fixer" />
+    <option name="configuration" hit="PHP CS Fixer path is empty for selected configuration" />
+    <option name="cs" hit="PHP CS Fixer path is empty for selected configuration" />
+    <option name="empty" hit="PHP CS Fixer path is empty for selected configuration" />
+    <option name="fixer" hit="PHP CS Fixer path is empty for selected configuration" />
+    <option name="for" hit="PHP CS Fixer path is empty for selected configuration" />
+    <option name="is" hit="PHP CS Fixer path is empty for selected configuration" />
+    <option name="path" hit="PHP CS Fixer path is empty for selected configuration" />
+    <option name="php" hit="PHP CS Fixer path is empty for selected configuration" />
+    <option name="selected" hit="PHP CS Fixer path is empty for selected configuration" />
+    <option name="psr2" hit="PSR2" />
+    <option name="ruleset" hit="Ruleset:" />
+    <option name="files" hit="Show ignored files" />
+    <option name="ignored" hit="Show ignored files" />
+    <option name="show" hit="Show ignored files" />
+  </configurable>
+  <configurable id="settings.php.quality.tools.laravel.pint" configurable_name="Laravel Pint">
+    <option name="configuration" hit="Configuration:" />
+    <option name="laravel" hit="Laravel Pint" />
+    <option name="pint" hit="Laravel Pint" />
+    <option name="configuration" hit="Laravel Pint path is empty for selected configuration" />
+    <option name="empty" hit="Laravel Pint path is empty for selected configuration" />
+    <option name="for" hit="Laravel Pint path is empty for selected configuration" />
+    <option name="is" hit="Laravel Pint path is empty for selected configuration" />
+    <option name="laravel" hit="Laravel Pint path is empty for selected configuration" />
+    <option name="path" hit="Laravel Pint path is empty for selected configuration" />
+    <option name="pint" hit="Laravel Pint path is empty for selected configuration" />
+    <option name="selected" hit="Laravel Pint path is empty for selected configuration" />
+    <option name="options" hit="Options" />
+    <option name="json" hit="Path to pint.json:" />
+    <option name="path" hit="Path to pint.json:" />
+    <option name="pint" hit="Path to pint.json:" />
+    <option name="to" hit="Path to pint.json:" />
+    <option name="files" hit="Reformat only uncommitted files" />
+    <option name="only" hit="Reformat only uncommitted files" />
+    <option name="reformat" hit="Reformat only uncommitted files" />
+    <option name="uncommitted" hit="Reformat only uncommitted files" />
+    <option name="ruleset" hit="Ruleset:" />
+    <option name="files" hit="Show ignored files" />
+    <option name="ignored" hit="Show ignored files" />
+    <option name="show" hit="Show ignored files" />
+    <option name="laravel" hit="laravel" />
+    <option name="psr12" hit="psr12" />
+    <option name="symfony" hit="symfony" />
+  </configurable>
+  <configurable id="settings.php.quality.tools.mess.detector" configurable_name="Mess Detector">
+    <option name="code" hit="Code Size Rules" />
+    <option name="rules" hit="Code Size Rules" />
+    <option name="size" hit="Code Size Rules" />
+    <option name="configuration" hit="Configuration:" />
+    <option name="controversial" hit="Controversial Rules" />
+    <option name="rules" hit="Controversial Rules" />
+    <option name="custom" hit="Custom rulesets:" />
+    <option name="rulesets" hit="Custom rulesets:" />
+    <option name="design" hit="Design Rules" />
+    <option name="rules" hit="Design Rules" />
+    <option name="detector" hit="Mess Detector" />
+    <option name="mess" hit="Mess Detector" />
+    <option name="configuration" hit="Mess Detector path is empty for selected configuration" />
+    <option name="detector" hit="Mess Detector path is empty for selected configuration" />
+    <option name="empty" hit="Mess Detector path is empty for selected configuration" />
+    <option name="for" hit="Mess Detector path is empty for selected configuration" />
+    <option name="is" hit="Mess Detector path is empty for selected configuration" />
+    <option name="mess" hit="Mess Detector path is empty for selected configuration" />
+    <option name="path" hit="Mess Detector path is empty for selected configuration" />
+    <option name="selected" hit="Mess Detector path is empty for selected configuration" />
+    <option name="naming" hit="Naming Rules" />
+    <option name="rules" hit="Naming Rules" />
+    <option name="options" hit="Options" />
+    <option name="files" hit="Show ignored files" />
+    <option name="ignored" hit="Show ignored files" />
+    <option name="show" hit="Show ignored files" />
+    <option name="code" hit="Unused Code Rules" />
+    <option name="rules" hit="Unused Code Rules" />
+    <option name="unused" hit="Unused Code Rules" />
+  </configurable>
+  <configurable id="settings.php.debug.templates" configurable_name="Templates">
+    <option name="" hit="Blade Debug" />
+    <option name="blade" hit="Blade Debug" />
+    <option name="debug" hit="Blade Debug" />
+    <option name="cache" hit="Cache path:" />
+    <option name="path" hit="Cache path:" />
+    <option name="templates" hit="Templates" />
+    <option name="" hit="Twig Debug" />
+    <option name="debug" hit="Twig Debug" />
+    <option name="twig" hit="Twig Debug" />
+  </configurable>
+  <configurable id="reference.webide.settings.project.settings.php.composer" configurable_name="Composer">
+    <option name="" hit="'composer' executable" />
+    <option name="composer" hit="'composer' executable" />
+    <option name="executable" hit="'composer' executable" />
+    <option name="add" hit="Add packages as libraries" />
+    <option name="as" hit="Add packages as libraries" />
+    <option name="libraries" hit="Add packages as libraries" />
+    <option name="packages" hit="Add packages as libraries" />
+    <option name="cli" hit="CLI Interpreter:" />
+    <option name="interpreter" hit="CLI Interpreter:" />
+    <option name="available" hit="Check for available package updates" />
+    <option name="check" hit="Check for available package updates" />
+    <option name="for" hit="Check for available package updates" />
+    <option name="package" hit="Check for available package updates" />
+    <option name="updates" hit="Check for available package updates" />
+    <option name="composer" hit="Composer" />
+    <option name="composer" hit="Composer Files" />
+    <option name="files" hit="Composer Files" />
+    <option name="composer" hit="Composer executable:" />
+    <option name="executable" hit="Composer executable:" />
+    <option name="composer-stable" hit="Download composer-stable.phar from getcomposer.org" />
+    <option name="download" hit="Download composer-stable.phar from getcomposer.org" />
+    <option name="from" hit="Download composer-stable.phar from getcomposer.org" />
+    <option name="getcomposer" hit="Download composer-stable.phar from getcomposer.org" />
+    <option name="org" hit="Download composer-stable.phar from getcomposer.org" />
+    <option name="phar" hit="Download composer-stable.phar from getcomposer.org" />
+    <option name="execution" hit="Execution" />
+    <option name="about" hit="Notify about missing 'vendor' directory" />
+    <option name="directory" hit="Notify about missing 'vendor' directory" />
+    <option name="missing" hit="Notify about missing 'vendor' directory" />
+    <option name="notify" hit="Notify about missing 'vendor' directory" />
+    <option name="vendor" hit="Notify about missing 'vendor' directory" />
+    <option name="editor" hit="Open In Editor" />
+    <option name="in" hit="Open In Editor" />
+    <option name="open" hit="Open In Editor" />
+    <option name="interpreter" hit="PHP interpreter:" />
+    <option name="php" hit="PHP interpreter:" />
+    <option name="composer" hit="Path to composer.json:" />
+    <option name="json" hit="Path to composer.json:" />
+    <option name="path" hit="Path to composer.json:" />
+    <option name="to" hit="Path to composer.json:" />
+    <option name="interpreter" hit="Remote Interpreter" />
+    <option name="remote" hit="Remote Interpreter" />
+    <option name="--ignore-platform-reqs" hit="Run install/update with --ignore-platform-reqs" />
+    <option name="install" hit="Run install/update with --ignore-platform-reqs" />
+    <option name="run" hit="Run install/update with --ignore-platform-reqs" />
+    <option name="update" hit="Run install/update with --ignore-platform-reqs" />
+    <option name="with" hit="Run install/update with --ignore-platform-reqs" />
+    <option name="actions" hit="Show composer.json top panel with quick actions" />
+    <option name="composer" hit="Show composer.json top panel with quick actions" />
+    <option name="json" hit="Show composer.json top panel with quick actions" />
+    <option name="panel" hit="Show composer.json top panel with quick actions" />
+    <option name="quick" hit="Show composer.json top panel with quick actions" />
+    <option name="show" hit="Show composer.json top panel with quick actions" />
+    <option name="top" hit="Show composer.json top panel with quick actions" />
+    <option name="with" hit="Show composer.json top panel with quick actions" />
+    <option name="composer" hit="Synchronize IDE Settings with composer.json" />
+    <option name="ide" hit="Synchronize IDE Settings with composer.json" />
+    <option name="json" hit="Synchronize IDE Settings with composer.json" />
+    <option name="settings" hit="Synchronize IDE Settings with composer.json" />
+    <option name="synchronize" hit="Synchronize IDE Settings with composer.json" />
+    <option name="with" hit="Synchronize IDE Settings with composer.json" />
+    <option name="be" hit="The settings (PHP Language Level, Directories) may be updated" />
+    <option name="directories" hit="The settings (PHP Language Level, Directories) may be updated" />
+    <option name="language" hit="The settings (PHP Language Level, Directories) may be updated" />
+    <option name="level" hit="The settings (PHP Language Level, Directories) may be updated" />
+    <option name="may" hit="The settings (PHP Language Level, Directories) may be updated" />
+    <option name="php" hit="The settings (PHP Language Level, Directories) may be updated" />
+    <option name="settings" hit="The settings (PHP Language Level, Directories) may be updated" />
+    <option name="the" hit="The settings (PHP Language Level, Directories) may be updated" />
+    <option name="updated" hit="The settings (PHP Language Level, Directories) may be updated" />
+    <option name="composer" hit="composer.phar" />
+    <option name="phar" hit="composer.phar" />
+  </configurable>
+  <configurable id="settings.php.debug.skipped.paths" configurable_name="Skipped Paths">
+    <option name="files" hit="Notify of skipped files" />
+    <option name="notify" hit="Notify of skipped files" />
+    <option name="of" hit="Notify of skipped files" />
+    <option name="skipped" hit="Notify of skipped files" />
+    <option name="paths" hit="Skipped Paths" />
+    <option name="skipped" hit="Skipped Paths" />
+  </configurable>
+  <configurable id="reference.settings.php.debug.xdebug.cloud" configurable_name="Xdebug Cloud">
+    <option name="cloud" hit="Cloud Host:" />
+    <option name="host" hit="Cloud Host:" />
+    <option name="cloud" hit="Cloud ID:" />
+    <option name="id" hit="Cloud ID:" />
+    <option name="cloud" hit="Cloud Port:" />
+    <option name="port" hit="Cloud Port:" />
+    <option name="cloud" hit="Connect to Xdebug Cloud" />
+    <option name="connect" hit="Connect to Xdebug Cloud" />
+    <option name="to" hit="Connect to Xdebug Cloud" />
+    <option name="xdebug" hit="Connect to Xdebug Cloud" />
+    <option name="cloud" hit="Connect to on-premise Xdebug Cloud" />
+    <option name="connect" hit="Connect to on-premise Xdebug Cloud" />
+    <option name="on-premise" hit="Connect to on-premise Xdebug Cloud" />
+    <option name="to" hit="Connect to on-premise Xdebug Cloud" />
+    <option name="xdebug" hit="Connect to on-premise Xdebug Cloud" />
+    <option name="cloud" hit="Xdebug Cloud" />
+    <option name="xdebug" hit="Xdebug Cloud" />
+  </configurable>
+  <configurable id="reference.settings.php.debug.xdebug.proxy" configurable_name="DBGp Proxy">
+    <option name="dbgp" hit="DBGp Proxy" />
+    <option name="proxy" hit="DBGp Proxy" />
+    <option name="host" hit="Host:" />
+    <option name="ide" hit="IDE key:" />
+    <option name="key" hit="IDE key:" />
+    <option name="port" hit="Port:" />
+  </configurable>
+  <configurable id="settings.php.debug.step.filters" configurable_name="Step Filters">
+    <option name="files" hit="Files" />
+    <option name="methods" hit="Methods" />
+    <option name="constructors" hit="Skip constructors" />
+    <option name="skip" hit="Skip constructors" />
+    <option name="magic" hit="Skip magic methods" />
+    <option name="methods" hit="Skip magic methods" />
+    <option name="skip" hit="Skip magic methods" />
+    <option name="filters" hit="Step Filters" />
+    <option name="step" hit="Step Filters" />
+  </configurable>
+</options>

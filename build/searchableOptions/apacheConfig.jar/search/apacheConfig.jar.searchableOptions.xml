@@ -1,0 +1,10 @@
+<options>
+  <configurable id="reference.settingsdialog.IDE.editor.colors.Apache Config" configurable_name="Apache Config">
+    <option name="apache" hit="Apache Config" />
+    <option name="config" hit="Apache Config" />
+    <option name="argument" hit="Argument" />
+    <option name="comment" hit="Comment" />
+    <option name="directive" hit="Directive name" />
+    <option name="name" hit="Directive name" />
+  </configurable>
+</options>

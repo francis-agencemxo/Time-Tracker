@@ -1,0 +1,56 @@
+<options>
+  <configurable id="fileTemplates" configurable_name="File and Code Templates">
+    <option name="class" hit="PHP Class Doc Comment" />
+    <option name="comment" hit="PHP Class Doc Comment" />
+    <option name="doc" hit="PHP Class Doc Comment" />
+    <option name="php" hit="PHP Class Doc Comment" />
+    <option name="constructor" hit="PHP Constructor" />
+    <option name="php" hit="PHP Constructor" />
+    <option name="file" hit="PHP File Header" />
+    <option name="header" hit="PHP File Header" />
+    <option name="php" hit="PHP File Header" />
+    <option name="fluent" hit="PHP Fluent Setter Method" />
+    <option name="method" hit="PHP Fluent Setter Method" />
+    <option name="php" hit="PHP Fluent Setter Method" />
+    <option name="setter" hit="PHP Fluent Setter Method" />
+    <option name="comment" hit="PHP Function Doc Comment" />
+    <option name="doc" hit="PHP Function Doc Comment" />
+    <option name="function" hit="PHP Function Doc Comment" />
+    <option name="php" hit="PHP Function Doc Comment" />
+    <option name="getter" hit="PHP Getter Method" />
+    <option name="method" hit="PHP Getter Method" />
+    <option name="php" hit="PHP Getter Method" />
+    <option name="body" hit="PHP Implemented Method Body" />
+    <option name="implemented" hit="PHP Implemented Method Body" />
+    <option name="method" hit="PHP Implemented Method Body" />
+    <option name="php" hit="PHP Implemented Method Body" />
+    <option name="comment" hit="PHP Interface Doc Comment" />
+    <option name="doc" hit="PHP Interface Doc Comment" />
+    <option name="interface" hit="PHP Interface Doc Comment" />
+    <option name="php" hit="PHP Interface Doc Comment" />
+    <option name="body" hit="PHP Overridden Method Body" />
+    <option name="method" hit="PHP Overridden Method Body" />
+    <option name="overridden" hit="PHP Overridden Method Body" />
+    <option name="php" hit="PHP Overridden Method Body" />
+    <option name="comment" hit="PHP Property Doc Comment" />
+    <option name="doc" hit="PHP Property Doc Comment" />
+    <option name="php" hit="PHP Property Doc Comment" />
+    <option name="property" hit="PHP Property Doc Comment" />
+    <option name="method" hit="PHP Setter Method" />
+    <option name="php" hit="PHP Setter Method" />
+    <option name="setter" hit="PHP Setter Method" />
+    <option name="comment" hit="PHP Trait Doc Comment" />
+    <option name="doc" hit="PHP Trait Doc Comment" />
+    <option name="php" hit="PHP Trait Doc Comment" />
+    <option name="trait" hit="PHP Trait Doc Comment" />
+    <option name="method" hit="PHPUnit SetUp Method" />
+    <option name="phpunit" hit="PHPUnit SetUp Method" />
+    <option name="setup" hit="PHPUnit SetUp Method" />
+    <option name="method" hit="PHPUnit TearDown Method" />
+    <option name="phpunit" hit="PHPUnit TearDown Method" />
+    <option name="teardown" hit="PHPUnit TearDown Method" />
+    <option name="method" hit="PHPUnit Test Method" />
+    <option name="phpunit" hit="PHPUnit Test Method" />
+    <option name="test" hit="PHPUnit Test Method" />
+  </configurable>
+</options>
