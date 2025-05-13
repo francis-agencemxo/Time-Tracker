@@ -88,6 +88,50 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
             weeklyTotalLabel.text = "Total cette semaine : ${if (totalH > 0) "${totalH}h${totalM}m" else "${totalM}m"}"
         }
 
+        val popupMenu = JPopupMenu()
+        val hideItem = JMenuItem("Hide")
+        val deleteItem = JMenuItem("Delete")
+
+        popupMenu.add(hideItem)
+        popupMenu.add(deleteItem)
+
+// Action handlers
+        hideItem.addActionListener {
+            val selectedRow = summaryTable.selectedRow
+            if (selectedRow >= 0) {
+                summaryTableModel.removeRow(summaryTable.convertRowIndexToModel(selectedRow))
+            }
+        }
+
+        deleteItem.addActionListener {
+            val selectedRow = summaryTable.selectedRow
+            if (selectedRow >= 0) {
+                val projectToDelete = summaryTableModel.getValueAt(summaryTable.convertRowIndexToModel(selectedRow), 0).toString()
+
+                val json = if (dataFile.exists()) JSONObject(dataFile.readText()) else JSONObject()
+                var changed = false
+
+                // Remove project from all days
+                for (key in json.keySet()) {
+                    if (key == "config") continue
+                    val dayData = json.optJSONObject(key)
+                    if (dayData?.has(projectToDelete) == true) {
+                        dayData.remove(projectToDelete)
+                        changed = true
+                    }
+                }
+
+                // Remove config
+                json.optJSONObject("config")?.remove(projectToDelete)
+
+                if (changed) {
+                    dataFile.writeText(json.toString(2))
+                    summaryTableModel.removeRow(summaryTable.convertRowIndexToModel(selectedRow))
+                }
+            }
+        }
+        summaryTable.componentPopupMenu = popupMenu
+
         fun getProjectData(date: String): JSONObject? {
             val json = if (dataFile.exists()) JSONObject(dataFile.readText()) else JSONObject()
             return json.optJSONObject(date)?.optJSONObject(projectName)
