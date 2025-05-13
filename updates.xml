@@ -1,10 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <plugins>
-    <plugin id="com.mxo.timetracker" url="https://github.com/francis-agencemxo/Time-Tracker/raw/refs/heads/main/build/distributions/phpstorm-time-tracker-ui-v7-1.10.01.zip" version="1.10.01">
-        <idea-version since-build="241" until-build="241.*"/>
+    <plugin
+            id="com.mxo.timetracker"
+            url="https://github.com/francis-agencemxo/Time-Tracker/raw/refs/heads/main/build/distributions/phpstorm-time-tracker-ui-v7-1.10.01.zip"
+            version="1.10.01">
         <name>MXO Time Tracker</name>
-        <description><![CDATA[
-      MXO Time Tracker plugin for PhpStorm.
-    ]]></description>
         <vendor>MXO</vendor>
+        <description>
+            <![CDATA[
+                Internal plugin by MXO.<br /><br />
+                Features:
+                <ul>
+                    <li>Logs Project working times Locally</li>
+                </ul>
+            ]]>
+        </description>
+        <idea-version since-build="193.0" until-build="241.*"/>
     </plugin>
 </plugins>

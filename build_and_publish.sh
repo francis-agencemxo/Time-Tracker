@@ -37,14 +37,24 @@ VERSION=$(grep -oPm1 "(?<=<version>)[^<]+" "$PLUGIN_XML_PATH")
 
 # Create the new XML
 cat > "$XML_PATH" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
 <plugins>
-    <plugin id="com.mxo.timetracker" url="${BASE_URL}/${ZIP_FILENAME}" version="${VERSION}">
-        <idea-version since-build="241" until-build="241.*"/>
+    <plugin
+            id="com.mxo.timetracker"
+            url="${BASE_URL}/${ZIP_FILENAME}"
+            version="${VERSION}">
         <name>MXO Time Tracker</name>
-        <description><![CDATA[
-      MXO Time Tracker plugin for PhpStorm.
-    ]]></description>
         <vendor>MXO</vendor>
+        <description>
+            <![CDATA[
+                Internal plugin by MXO.<br /><br />
+                Features:
+                <ul>
+                    <li>Logs Project working times Locally</li>
+                </ul>
+            ]]>
+        </description>
+        <idea-version since-build="193.0" until-build="241.*"/>
     </plugin>
 </plugins>
 EOF
