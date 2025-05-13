@@ -26,7 +26,7 @@ echo "Compiling tool..."
 PLUGIN_DIR="build/distributions"
 XML_PATH="updates.xml"
 PLUGIN_XML_PATH="src/main/resources/META-INF/plugin.xml"
-BASE_URL="https://dev.mxo.agency/mxo-utils/phpStormPlugins"
+BASE_URL="https://github.com/francis-agencemxo/Time-Tracker/raw/refs/heads/main/build/distributions"
 
 # Get the latest .zip file
 LATEST_ZIP=$(ls -t "$PLUGIN_DIR"/*.zip | head -n 1)
@@ -50,7 +50,7 @@ cat > "$XML_PATH" <<EOF
 EOF
 
 echo "✅ updates.xml generated with version $VERSION and zip $ZIP_FILENAME"
-
+exit;
 echo "Tagged new release: $VERSION"
 
 echo "Uploading new version to DEV server..."
