@@ -79,16 +79,16 @@
     <option name="work" path="ActionManager" hit="Work Offline" />
   </configurable>
   <configurable id="vcs.Perforce" configurable_name="Perforce">
-    <option name="" hit="'/home/francislabonte/Downloads/phpstorm-time-tracker-ui-v7-complete/build/idea-sandbox/system/log/p4output.log'" />
-    <option name="build" hit="'/home/francislabonte/Downloads/phpstorm-time-tracker-ui-v7-complete/build/idea-sandbox/system/log/p4output.log'" />
-    <option name="downloads" hit="'/home/francislabonte/Downloads/phpstorm-time-tracker-ui-v7-complete/build/idea-sandbox/system/log/p4output.log'" />
-    <option name="francislabonte" hit="'/home/francislabonte/Downloads/phpstorm-time-tracker-ui-v7-complete/build/idea-sandbox/system/log/p4output.log'" />
-    <option name="home" hit="'/home/francislabonte/Downloads/phpstorm-time-tracker-ui-v7-complete/build/idea-sandbox/system/log/p4output.log'" />
-    <option name="idea-sandbox" hit="'/home/francislabonte/Downloads/phpstorm-time-tracker-ui-v7-complete/build/idea-sandbox/system/log/p4output.log'" />
-    <option name="log" hit="'/home/francislabonte/Downloads/phpstorm-time-tracker-ui-v7-complete/build/idea-sandbox/system/log/p4output.log'" />
-    <option name="p4output" hit="'/home/francislabonte/Downloads/phpstorm-time-tracker-ui-v7-complete/build/idea-sandbox/system/log/p4output.log'" />
-    <option name="phpstorm-time-tracker-ui-v7-complete" hit="'/home/francislabonte/Downloads/phpstorm-time-tracker-ui-v7-complete/build/idea-sandbox/system/log/p4output.log'" />
-    <option name="system" hit="'/home/francislabonte/Downloads/phpstorm-time-tracker-ui-v7-complete/build/idea-sandbox/system/log/p4output.log'" />
+    <option name="" hit="'/home/francislabonte/workspace/mxo-timetracker/build/idea-sandbox/system/log/p4output.log'" />
+    <option name="build" hit="'/home/francislabonte/workspace/mxo-timetracker/build/idea-sandbox/system/log/p4output.log'" />
+    <option name="francislabonte" hit="'/home/francislabonte/workspace/mxo-timetracker/build/idea-sandbox/system/log/p4output.log'" />
+    <option name="home" hit="'/home/francislabonte/workspace/mxo-timetracker/build/idea-sandbox/system/log/p4output.log'" />
+    <option name="idea-sandbox" hit="'/home/francislabonte/workspace/mxo-timetracker/build/idea-sandbox/system/log/p4output.log'" />
+    <option name="log" hit="'/home/francislabonte/workspace/mxo-timetracker/build/idea-sandbox/system/log/p4output.log'" />
+    <option name="mxo-timetracker" hit="'/home/francislabonte/workspace/mxo-timetracker/build/idea-sandbox/system/log/p4output.log'" />
+    <option name="p4output" hit="'/home/francislabonte/workspace/mxo-timetracker/build/idea-sandbox/system/log/p4output.log'" />
+    <option name="system" hit="'/home/francislabonte/workspace/mxo-timetracker/build/idea-sandbox/system/log/p4output.log'" />
+    <option name="workspace" hit="'/home/francislabonte/workspace/mxo-timetracker/build/idea-sandbox/system/log/p4output.log'" />
     <option name="commands" hit="Dump Perforce Commands" />
     <option name="dump" hit="Dump Perforce Commands" />
     <option name="perforce" hit="Dump Perforce Commands" />

@@ -1,0 +1,95 @@
+{
+  "appInfo" : {
+    "build" : "233.11799.232",
+    "buildDate" : "2023-12-01T15:36:00Z[UTC]",
+    "productCode" : "PS",
+    "generated" : "2025-05-12T05:34:13.199648861Z",
+    "os" : "Linux 6.8.0-59-generic",
+    "runtime" : "JetBrains s.r.o. 17.0.9 17.0.9+7-b1087.7"
+  },
+  "runtimeInfo" : {
+    "maxMemory" : 2147483648,
+    "numberOfProcessors" : 14,
+    "maxNumberOfIndexingThreads" : 13,
+    "maxSizeOfFileForIntelliSense" : 2560000,
+    "maxSizeOfFileForContentLoading" : 20971520
+  },
+  "type" : "Scanning",
+  "projectIndexingActivityHistory" : {
+    "projectName" : "untitled7",
+    "times" : {
+      "scanningReason" : "Merged changes in: \"Custom kind roots from entity (mysql_xdevapi, tokenizer, filter, ..., empty)\" with changes in: \"Custom kind roots from entity (extensions, empty)\", \"Custom kind roots from entity (sass_functions.scss, sass_color.scss, sass_list.scss, ..., empty)\"",
+      "scanningType" : "PARTIAL",
+      "scanningId" : 1,
+      "creatingIteratorsTime" : 4047,
+      "concurrentHandlingWallTimeWithoutPauses" : 199562601,
+      "concurrentHandlingWallTimeWithPauses" : 199562601,
+      "concurrentHandlingSumOfThreadTimesWithPauses" : 248244533,
+      "concurrentIterationAndScannersApplicationSumOfThreadTimesWithPauses" : 102561757,
+      "concurrentFileCheckSumOfThreadTimesWithPauses" : 145312729,
+      "delayedPushPropertiesStageTime" : 10621,
+      "indexExtensionsTime" : 24471436,
+      "dumbModeStart" : "2025-05-12T05:34:12.611990703Z",
+      "dumbWallTimeWithPauses" : 200773180,
+      "dumbWallTimeWithoutPauses" : 200773483,
+      "updatingStart" : "2025-05-12T05:34:12.611193641Z",
+      "updatingEnd" : "2025-05-12T05:34:12.812763883Z",
+      "totalWallTimeWithPauses" : 201559912,
+      "wallTimeOnPause" : -303,
+      "wasInterrupted" : false,
+      "totalWallTimeWithoutPauses" : 201560215
+    },
+    "fileCount" : {
+      "numberOfFileProviders" : 3,
+      "numberOfScannedFiles" : 347,
+      "numberOfFilesIndexedByInfrastructureExtensionsDuringScan" : 0,
+      "numberOfFilesScheduledForIndexingAfterScan" : 347
+    },
+    "scanningStatistics" : [ {
+      "providerName" : "Custom kind roots from entity (mysql_xdevapi, tokenizer, filter, ..., empty)",
+      "numberOfScannedFiles" : 313,
+      "numberOfSkippedFiles" : 0,
+      "numberOfFilesForIndexing" : 313,
+      "numberOfFilesFullyIndexedByInfrastructureExtensions" : 0,
+      "filesFullyIndexedByInfrastructureExtensions" : [ ],
+      "statusTime" : 92922015,
+      "totalOneThreadTimeWithPauses" : 198662065,
+      "iterationAndScannersApplicationTime" : 88588507,
+      "filesCheckTime" : 109908897,
+      "timeProcessingUpToDateFiles" : 0,
+      "timeUpdatingContentLessIndexes" : 16148494,
+      "timeIndexingWithoutContentViaInfrastructureExtension" : 23510696,
+      "roots" : [ ]
+    }, {
+      "providerName" : "Custom kind roots from entity (extensions, empty)",
+      "numberOfScannedFiles" : 26,
+      "numberOfSkippedFiles" : 0,
+      "numberOfFilesForIndexing" : 26,
+      "numberOfFilesFullyIndexedByInfrastructureExtensions" : 0,
+      "filesFullyIndexedByInfrastructureExtensions" : [ ],
+      "statusTime" : 18926485,
+      "totalOneThreadTimeWithPauses" : 35441148,
+      "iterationAndScannersApplicationTime" : 13813112,
+      "filesCheckTime" : 21523342,
+      "timeProcessingUpToDateFiles" : 0,
+      "timeUpdatingContentLessIndexes" : 7003993,
+      "timeIndexingWithoutContentViaInfrastructureExtension" : 656326,
+      "roots" : [ ]
+    }, {
+      "providerName" : "Custom kind roots from entity (sass_functions.scss, sass_color.scss, sass_list.scss, ..., empty)",
+      "numberOfScannedFiles" : 8,
+      "numberOfSkippedFiles" : 0,
+      "numberOfFilesForIndexing" : 8,
+      "numberOfFilesFullyIndexedByInfrastructureExtensions" : 0,
+      "filesFullyIndexedByInfrastructureExtensions" : [ ],
+      "statusTime" : 12320790,
+      "totalOneThreadTimeWithPauses" : 14141320,
+      "iterationAndScannersApplicationTime" : 160138,
+      "filesCheckTime" : 13880490,
+      "timeProcessingUpToDateFiles" : 0,
+      "timeUpdatingContentLessIndexes" : 2988418,
+      "timeIndexingWithoutContentViaInfrastructureExtension" : 304414,
+      "roots" : [ ]
+    } ]
+  }
+}

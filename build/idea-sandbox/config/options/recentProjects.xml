@@ -1,0 +1,26 @@
+<application>
+  <component name="RecentProjectsManager">
+    <option name="additionalInfo">
+      <map>
+        <entry key="$USER_HOME$/PhpstormProjects/untitled7">
+          <value>
+            <RecentProjectMetaInfo frameTitle="untitled7" opened="true" projectWorkspaceId="2wyyLLhWMtj2Xp9rMjaxO2Hwlqr">
+              <option name="activationTimestamp" value="1747028061752" />
+              <option name="binFolder" value="$APPLICATION_HOME_DIR$/bin" />
+              <option name="build" value="PS-233.11799.232" />
+              <option name="buildTimestamp" value="1701444960000" />
+              <option name="colorInfo">
+                <RecentProjectColorInfo associatedIndex="6" />
+              </option>
+              <frame x="2180" y="53" width="1400" height="1000" />
+              <option name="productionCode" value="PS" />
+              <option name="projectOpenTimestamp" value="1747028051529" />
+            </RecentProjectMetaInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="lastOpenedProject" value="$USER_HOME$/PhpstormProjects/untitled7" />
+    <option name="lastProjectLocation" value="$USER_HOME$/PhpstormProjects" />
+  </component>
+</application>
