@@ -1,0 +1,7 @@
+<options>
+  <configurable id="fileTemplates" configurable_name="File and Code Templates">
+    <option name="method" hit="PHPSpec Test Method" />
+    <option name="phpspec" hit="PHPSpec Test Method" />
+    <option name="test" hit="PHPSpec Test Method" />
+  </configurable>
+</options>

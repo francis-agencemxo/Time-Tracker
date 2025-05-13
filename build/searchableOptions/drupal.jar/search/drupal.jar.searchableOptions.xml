@@ -1,0 +1,8 @@
+<options>
+  <configurable id="preferences.keymap" configurable_name="Keymap">
+    <option name="api" path="ActionManager" hit="Search in Drupal API" />
+    <option name="drupal" path="ActionManager" hit="Search in Drupal API" />
+    <option name="in" path="ActionManager" hit="Search in Drupal API" />
+    <option name="search" path="ActionManager" hit="Search in Drupal API" />
+  </configurable>
+</options>

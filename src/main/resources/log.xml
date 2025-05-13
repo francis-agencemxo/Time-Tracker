@@ -1,0 +1,7 @@
+<application>
+    <component name="Log4jConfiguration">
+        <debug>
+            <category name="com.mxo.timetracker"/>
+        </debug>
+    </component>
+</application>

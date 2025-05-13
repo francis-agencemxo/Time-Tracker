@@ -1,0 +1,12 @@
+<options>
+  <configurable id="fileTemplates" configurable_name="File and Code Templates">
+    <option name="codeception" hit="Codeception Functional Test Method" />
+    <option name="functional" hit="Codeception Functional Test Method" />
+    <option name="method" hit="Codeception Functional Test Method" />
+    <option name="test" hit="Codeception Functional Test Method" />
+    <option name="codeception" hit="Codeception Unit Test Method" />
+    <option name="method" hit="Codeception Unit Test Method" />
+    <option name="test" hit="Codeception Unit Test Method" />
+    <option name="unit" hit="Codeception Unit Test Method" />
+  </configurable>
+</options>
