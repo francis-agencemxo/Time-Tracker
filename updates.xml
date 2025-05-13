@@ -1,5 +1,5 @@
 <plugins>
-    <plugin id="com.mxo.timetracker" url="https://github.com/francis-agencemxo/Time-Tracker/raw/refs/heads/main/build/distributions/phpstorm-time-tracker-ui-v7-1.8.zip" version="1.8">
+    <plugin id="com.mxo.timetracker" url="https://github.com/francis-agencemxo/Time-Tracker/raw/refs/heads/main/build/distributions/phpstorm-time-tracker-ui-v7-1.9.zip" version="1.9">
         <idea-version since-build="241" until-build="241.*"/>
         <name>MXO Time Tracker</name>
         <description><![CDATA[
