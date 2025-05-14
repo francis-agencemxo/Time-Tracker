@@ -7,6 +7,8 @@
     <depends>com.jetbrains.php</depends>
     <depends>com.intellij.modules.phpstorm</depends>
 
+    <idea-version since-build="193.0" until-build="241.*"/>
+
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="MXO Time Tracker"
                     label="MXO Time Tracker"
