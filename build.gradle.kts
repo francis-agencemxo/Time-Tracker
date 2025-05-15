@@ -11,7 +11,7 @@ repositories {
 }
 
 intellij {
-    version.set("2023.3")
+    version.set("2024.1")
     type.set("PS")
     plugins.set(listOf("com.jetbrains.php"))
 }
@@ -23,7 +23,7 @@ dependencies {
 tasks {
     patchPluginXml {
         changeNotes.set("Auto-refresh duration every 60s for current day")
-        sinceBuild.set("251")
+        sinceBuild.set("241")
         untilBuild.set("999.*")
     }
 }
