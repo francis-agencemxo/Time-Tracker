@@ -39,7 +39,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.WeekFields
 import java.util.*
-import javax.imageio.ImageIO
 import javax.swing.Timer
 
 class ToggleHiddenProjectsAction(
@@ -97,11 +96,11 @@ class BackgroundImagePanel(private val backgroundImage: Image) : JPanel() {
     override fun paintComponent(g: Graphics) {
         super.paintComponent(g)
         val g2d = g.create() as Graphics2D
-        // Scale image to fill panel
         g2d.drawImage(backgroundImage, 0, 0, width, height, this)
         g2d.dispose()
     }
 }
+
 
 class TimeTrackerToolWindowFactory : ToolWindowFactory {
     private val dataFile = File(System.getProperty("user.home") + "/.cache/phpstorm-time-tracker/data.json")
@@ -127,22 +126,9 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
             }
         }
 
-        val imageStream = javaClass.getResource("/icons/bg.png")?.openStream()
-        val backgroundImage = ImageIO.read(imageStream)
-
-        val backgroundPanel = BackgroundImagePanel(backgroundImage)
-        backgroundPanel.layout = BorderLayout()
-
-        val contentFactory = ContentFactory.getInstance()
-        val content = contentFactory.createContent(backgroundPanel, "", false)
-        toolWindow.contentManager.addContent(content)
-
-
         val panel = JPanel(BorderLayout(10, 10))
-        // Add your UI components to backgroundPanel
-        backgroundPanel.add(panel, BorderLayout.CENTER)
-
-
+        val contentFactory = ContentFactory.getInstance()
+        val content = contentFactory.createContent(panel, "", false)
         toolWindow.contentManager.addContent(content)
 
         val initialLoadLength = 7
@@ -598,12 +584,17 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
         topPanel.layout = BoxLayout(topPanel, BoxLayout.Y_AXIS)
         topPanel.add(toolbarPanel)
 
-        val logoIcon = ImageIcon(javaClass.getResource("/icons/logo-mxo.png")) // Use PNG or supported format
-        val logoWrapper = JPanel(FlowLayout(FlowLayout.CENTER, 0, 0)).apply {
-            border = BorderFactory.createEmptyBorder(10, 10, 30, 10) // top, left, bottom, right
+        val bgImage = ImageIcon(javaClass.getResource("/icons/background-mxo.png")).image
+        val logoIcon = ImageIcon(javaClass.getResource("/icons/logo-mxo.png"))
+
+        val logoWithBg = BackgroundImagePanel(bgImage).apply {
+            layout = GridBagLayout() // ⬅️ centers child components
+            border = BorderFactory.createEmptyBorder(0, 0, 10, 0) // optional bottom spacing
+            preferredSize = Dimension(400, 100) // adjust to match image height
             add(JLabel(logoIcon))
         }
-        topPanel.add(logoWrapper)
+
+        topPanel.add(logoWithBg)
 
         //topPanel.add(JBLabel("Project: $projectName"), BorderLayout.WEST)
         topPanel.add(weeklyTotalLabel, BorderLayout.WEST)
