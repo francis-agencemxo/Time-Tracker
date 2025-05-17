@@ -41,7 +41,7 @@ sed -i"$SED_EXT" "s|<version>$CURRENT_VERSION</version>|<version>$NEW_VERSION</v
 
 # --- 4. Build plugin ---
 echo "⚙️ Building plugin..."
-./gradlew clean buildPlugin > /dev/null
+./gradlew clean buildPlugin > /dev/null 2>&1
 
 # --- 5. Move .zip to /releases ---
 ZIP_NAME="$ZIP_BASENAME-$NEW_VERSION.zip"
@@ -63,10 +63,10 @@ sed -i"$SED_EXT" -E "s|(https://.*/)$ZIP_BASENAME-[0-9]+\.[0-9]+\.[0-9]+\.zip|\1
 
 # --- 7. Git commit, tag, and push ---
 echo "🔀 Committing and tagging release..."
-git add . > /dev/null
-git commit -m "Release $NEW_VERSION" > /dev/null
-git tag -a "v$NEW_VERSION" -m "Release $NEW_VERSION" > /dev/null
-git push origin main > /dev/null
-git push origin "v$NEW_VERSION" > /dev/null
+git add . > /dev/null 2>&1
+git commit -m "Release $NEW_VERSION" > /dev/null 2>&1
+git tag -a "v$NEW_VERSION" -m "Release $NEW_VERSION" > /dev/null 2>&1
+git push origin main > /dev/null 2>&1
+git push origin "v$NEW_VERSION" > /dev/null 2>&1
 
 echo "✅ Release $NEW_VERSION ($BUMP_TYPE) complete!"
