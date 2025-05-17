@@ -1,8 +1,0 @@
-<options>
-  <configurable id="preferences.keymap" configurable_name="Keymap">
-    <option name="dataset" path="ActionManager" hit="Pest Dataset" />
-    <option name="pest" path="ActionManager" hit="Pest Dataset" />
-    <option name="pest" path="ActionManager" hit="Pest Test" />
-    <option name="test" path="ActionManager" hit="Pest Test" />
-  </configurable>
-</options>
