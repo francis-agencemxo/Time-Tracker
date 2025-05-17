@@ -45,7 +45,8 @@ class TrackingStartupActivity : ProjectActivity {
             if (seconds % 60 == 0) {
                 if (!UserActivityTracker.isIdle(project, 2 * 60 * 1000)) {
                     saveTime(project.name, 60, currentFile)
-                    println("+60s for ${project.name}, file: $currentFile")
+
+                    println("🕒 Added 60 seconds coding time to project '${project.name}', file: $currentFile")
                 } else {
                     println("Idle or unfocused - skipping increment for ${project.name}")
                 }
@@ -56,7 +57,6 @@ class TrackingStartupActivity : ProjectActivity {
 
     private fun saveTime(projectName: String, secondsToAdd: Int, filePath: String?) {
 
-        println("Saving time for project: $projectName, seconds: $secondsToAdd, filePath: $filePath");
         val today = LocalDate.now().toString()
         val json = if (dataFile.exists()) JSONObject(dataFile.readText()) else JSONObject()
 

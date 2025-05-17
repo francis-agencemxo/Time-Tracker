@@ -2,6 +2,7 @@ package com.mxo.timetracker
 
 import javax.swing.BorderFactory
 import com.intellij.icons.AllIcons
+import com.intellij.icons.ExpUiIcons
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.ActionUpdateThreadAware
@@ -10,6 +11,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.wm.ToolWindow
@@ -20,11 +22,14 @@ import com.intellij.ui.content.ContentFactory
 import org.json.JSONArray
 import org.json.JSONObject
 import com.intellij.util.ui.UIUtil
+import com.mxo.timetracker.settings.TimeTrackerSettingsConfigurable
 import javax.swing.table.DefaultTableModel
 import java.awt.*
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.io.File
+import java.net.InetSocketAddress
+import java.net.Socket
 import javax.swing.*
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.DefaultTreeCellRenderer
@@ -69,10 +74,48 @@ class EditUrlsAction(
     }
 }
 
+class OpenSettingsAction : AnAction("Settings", "Open Time Tracker settings", AllIcons.General.GearPlain) {
+    override fun actionPerformed(e: AnActionEvent) {
+        ShowSettingsUtil.getInstance().showSettingsDialog(e.project, TimeTrackerSettingsConfigurable::class.java)
+    }
+}
+
+class RefreshTreeAction(
+    private val onRefresh: () -> Unit
+) : AnAction("Refresh", "Refresh the project tree", AllIcons.Actions.Refresh), ActionUpdateThreadAware {
+    override fun actionPerformed(e: AnActionEvent) {
+        onRefresh()
+    }
+
+    override fun getActionUpdateThread(): ActionUpdateThread {
+        return ActionUpdateThread.EDT
+    }
+}
+
 class TimeTrackerToolWindowFactory : ToolWindowFactory {
     private val dataFile = File(System.getProperty("user.home") + "/.cache/phpstorm-time-tracker/data.json")
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
+
+        try {
+            BrowsingTrackerServer.start()
+        } catch (e: java.net.BindException) {
+            println("⚠️ Port already in use. Server may already be running.")
+        }
+
+        fun isBrowsingServerRunning(): Boolean {
+            return try {
+                Socket().apply {
+                    soTimeout = 500
+                    connect(InetSocketAddress("localhost", BrowsingTrackerServer.port), 500)
+                    close()
+                }
+                true
+            } catch (e: Exception) {
+                false
+            }
+        }
+
         val panel = JPanel(BorderLayout(10, 10))
         val contentFactory = ContentFactory.getInstance()
         val content = contentFactory.createContent(panel, "", false)
@@ -142,18 +185,17 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
                         text = label
 
                         icon = when {
+                            name.startsWith("http") -> AllIcons.Ide.External_link_arrow
                             name.contains("/") || name.contains(".") -> {
                                 val fileName = name.substringAfterLast("/")
                                 val fileType = com.intellij.openapi.fileTypes.FileTypeManager.getInstance()
                                     .getFileTypeByFileName(fileName)
                                 fileType.icon ?: AllIcons.FileTypes.Any_type
                             }
-                            name.matches(Regex("""\d{4}-\d{2}-\d{2}""")) -> {
-                                AllIcons.General.Layout
-                            }
-                            else -> {
-                                AllIcons.Nodes.Module
-                            }
+                            name.matches(Regex("""\d{4}-\d{2}-\d{2}""")) -> AllIcons.General.Layout
+                            name == "Browsing" -> AllIcons.General.Web // 🌍 closest globe-style icon
+                            name == "Coding" -> ExpUiIcons.Run.StepOutCodeBlock // 🧑‍💻 code icon (you can choose another)
+                            else -> AllIcons.Nodes.Module
                         }
                     }
                 }
@@ -250,16 +292,65 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
                         val dayNode = DefaultMutableTreeNode(Pair(day, dFormatted))
 
                         val projectObj = json.optJSONObject(day)?.optJSONObject(key)
+
+// 🧠 Wrap files under a "💻 Coding" node
                         val filesObj = projectObj?.optJSONObject("files")
                         if (filesObj != null) {
+                            var totalCodingSec = 0
+                            val codingNode = DefaultMutableTreeNode(Pair("💻 Coding", "💻"))
+
                             for (fileKey in filesObj.keySet()) {
                                 val fileTimeSec = filesObj.optInt(fileKey, 0)
                                 if (fileTimeSec > 0) {
+                                    totalCodingSec += fileTimeSec
                                     val fh = fileTimeSec / 3600
                                     val fm = (fileTimeSec % 3600) / 60
                                     val fileFormatted = if (fh > 0) "${fh}h${fm}m" else "${fm}m"
-                                    dayNode.add(DefaultMutableTreeNode(Pair(fileKey, fileFormatted)))
+                                    codingNode.add(DefaultMutableTreeNode(Pair(fileKey, fileFormatted)))
                                 }
+                            }
+
+                            if (codingNode.childCount > 0) {
+                                val totalH = totalCodingSec / 3600
+                                val totalM = (totalCodingSec % 3600) / 60
+                                val formattedTotal = if (totalH > 0) "${totalH}h${totalM}m" else "${totalM}m"
+                                codingNode.userObject = Pair("Coding", formattedTotal)
+                                dayNode.add(codingNode)
+                            }
+                        }
+
+
+                        val browsingObj = projectObj?.optJSONObject("browsing")
+                        if (browsingObj != null) {
+                            var totalBrowsingSec = 0
+                            val browsingNode = DefaultMutableTreeNode(Pair("Browsing", "🌐"))
+
+                            for (host in browsingObj.keySet()) {
+                                val hostNode = DefaultMutableTreeNode(host)
+
+                                val urls = browsingObj.getJSONObject(host)
+                                for (url in urls.keySet()) {
+                                    val sec = urls.optInt(url, 0)
+                                    if (sec > 0) {
+                                        totalBrowsingSec += sec
+                                        val bh = sec / 3600
+                                        val bm = (sec % 3600) / 60
+                                        val formatted = if (bh > 0) "${bh}h${bm}m" else "${bm}m"
+                                        hostNode.add(DefaultMutableTreeNode(Pair(url, formatted)))
+                                    }
+                                }
+
+                                if (hostNode.childCount > 0) {
+                                    browsingNode.add(hostNode)
+                                }
+                            }
+
+                            if (browsingNode.childCount > 0) {
+                                val totalH = totalBrowsingSec / 3600
+                                val totalM = (totalBrowsingSec % 3600) / 60
+                                val formattedTotal = if (totalH > 0) "${totalH}h${totalM}m" else "${totalM}m"
+                                browsingNode.userObject = Pair("Browsing", formattedTotal)
+                                dayNode.add(browsingNode)
                             }
                         }
 
@@ -307,6 +398,8 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
                     }
                 }
             })
+
+            //refreshTime(LocalDate.now().toString())
         }
 
         tree.componentPopupMenu = JPopupMenu().apply {
@@ -466,6 +559,8 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
                 }
             ))
             add(editUrlsAction)
+            add(RefreshTreeAction { updateSummary() })
+            add(OpenSettingsAction()) // 👈 Add this line
         }
         val actionToolbar = ActionManager.getInstance().createActionToolbar("MXO.TimeTracker.Toolbar", actionGroup, true)
         actionToolbar.setTargetComponent(tree)
@@ -543,5 +638,17 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
             updateSummary()
         }
         refreshTimer.start()
+
+        val serverWatchdogTimer = Timer(1 * 60 * 1000) { // Every 5 minutes
+            if (!isBrowsingServerRunning()) {
+                println("BrowsingTrackerServer is not running. Restarting...")
+                try {
+                    BrowsingTrackerServer.start()
+                } catch (ex: Exception) {
+                    println("Failed to restart BrowsingTrackerServer: ${ex.message}")
+                }
+            }
+        }
+        serverWatchdogTimer.start()
     }
 }

@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "MXO Browsing Tracker",
+  "version": "1.0",
+  "description": "Tracks active tab time and reports to PhpStorm server",
+  "permissions": ["tabs", "activeTab", "storage", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "MXO Tracker"
+  }
+}

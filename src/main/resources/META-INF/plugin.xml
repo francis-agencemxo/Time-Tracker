@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.mxo.timetracker</id>
     <name>MXO Time Tracker</name>
-    <version>1.10.02</version>
+    <version>1.10.03</version>
     <vendor>MXO</vendor>
 
     <depends>com.jetbrains.php</depends>
@@ -17,5 +17,10 @@
                     factoryClass="com.mxo.timetracker.TimeTrackerToolWindowFactory"
                     canCloseContents="false"/>
         <postStartupActivity implementation="com.mxo.timetracker.TrackingStartupActivity"/>
+        <notificationGroup id="MXO Time Tracker"
+                           displayType="BALLOON"
+                           isLogByDefault="true"/>
+        <projectConfigurable instance="com.mxo.timetracker.settings.TimeTrackerSettingsConfigurable"
+                             displayName="MXO Time Tracker"/>
     </extensions>
 </idea-plugin>
