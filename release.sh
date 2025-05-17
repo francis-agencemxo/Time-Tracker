@@ -40,8 +40,8 @@ sed -i"$SED_EXT" "s/version = \"$CURRENT_VERSION\"/version = \"$NEW_VERSION\"/" 
 sed -i"$SED_EXT" "s|<version>$CURRENT_VERSION</version>|<version>$NEW_VERSION</version>|" "$PLUGIN_XML" && rm -f "$PLUGIN_XML$SED_EXT"
 
 # --- 4. Build plugin ---
-echo "⚙️  Building plugin..."
-./gradlew clean buildPlugin
+echo "⚙️ Building plugin..."
+./gradlew clean buildPlugin > /dev/null
 
 # --- 5. Move .zip to /releases ---
 ZIP_NAME="$ZIP_BASENAME-$NEW_VERSION.zip"
