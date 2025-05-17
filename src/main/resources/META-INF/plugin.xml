@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.mxo.timetracker</id>
     <name>MXO Time Tracker</name>
-    <version>1.10.4</version>
+    <version>1.10.5</version>
     <vendor>MXO</vendor>
 
     <depends>com.jetbrains.php</depends>

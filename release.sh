@@ -38,6 +38,6 @@ mv "$ZIP_PATH" "$RELEASE_DIR/"
 # --- 6. Update updatePlugins.xml ---
 echo "📝 Updating updatePlugins.xml..."
 sed -i "s|<version>.*</version>|<version>$NEW_VERSION</version>|" "$UPDATE_XML"
-sed -i "s|<download-url>.*</download-url>|<download-url>https://raw.githubusercontent.com/francis-agencemxo/Time-Tracker/main/releases/$ZIP_NAME</download-url>|" "$UPDATE_XML"
+sed -i -E "s|(https://.*/)$ZIP_BASENAME-[0-9]+\.[0-9]+\.[0-9]+\.zip|\1$ZIP_NAME|" "$UPDATE_XML"
 
 echo "✅ Release $NEW_VERSION complete!"
