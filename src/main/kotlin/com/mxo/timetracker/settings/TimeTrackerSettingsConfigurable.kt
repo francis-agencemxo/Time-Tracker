@@ -1,47 +1,51 @@
 package com.mxo.timetracker.settings
 
 import com.intellij.openapi.options.Configurable
-import javax.swing.JComponent
-import javax.swing.JPanel
-import javax.swing.JCheckBox
-import javax.swing.BoxLayout
+import javax.swing.*
+import com.mxo.timetracker.settings.TimeTrackerSettings
 
 class TimeTrackerSettingsConfigurable : Configurable {
-    private var panel: JPanel? = null
-    private var autoStartCheckbox: JCheckBox? = null
-    private var showPopupCheckbox: JCheckBox? = null
+
+    private lateinit var panel: JPanel
+    private lateinit var autoStartCheckbox: JCheckBox
+    private lateinit var showPopupCheckbox: JCheckBox
+
+    private val settings = TimeTrackerSettings.getInstance()
 
     override fun getDisplayName(): String = "MXO Time Tracker"
 
     override fun createComponent(): JComponent {
-        println("MXO Settings UI loaded")
         panel = JPanel()
-        panel!!.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
+        panel.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
 
         autoStartCheckbox = JCheckBox("Automatically start browsing tracker")
         showPopupCheckbox = JCheckBox("Show popup when time is tracked")
 
-        panel!!.add(autoStartCheckbox)
-        panel!!.add(showPopupCheckbox)
+        panel.add(autoStartCheckbox)
+        panel.add(showPopupCheckbox)
 
-        return panel!!
+        return panel
     }
 
     override fun isModified(): Boolean {
-        return false // implement logic later
+        val state = settings.state
+        return autoStartCheckbox.isSelected != state.autoStart ||
+                showPopupCheckbox.isSelected != state.showPopup
     }
 
     override fun apply() {
-        // apply settings here
+        val state = settings.state
+        state.autoStart = autoStartCheckbox.isSelected
+        state.showPopup = showPopupCheckbox.isSelected
     }
 
     override fun reset() {
-        // reset values to stored settings
+        val state = settings.state
+        autoStartCheckbox.isSelected = state.autoStart
+        showPopupCheckbox.isSelected = state.showPopup
     }
 
     override fun disposeUIResources() {
-        panel = null
-        autoStartCheckbox = null
-        showPopupCheckbox = null
+        // Optional: clean up UI resources
     }
 }

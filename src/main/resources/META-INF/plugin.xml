@@ -26,7 +26,6 @@
     ]]></change-notes>
 
     <category>Productivity</category>
-    <homepage>https://github.com/francis-agencemxo/Time-Tracker</homepage>
 
     <depends>com.jetbrains.php</depends>
     <depends>com.intellij.modules.phpstorm</depends>
@@ -46,5 +45,6 @@
                            isLogByDefault="true"/>
         <projectConfigurable instance="com.mxo.timetracker.settings.TimeTrackerSettingsConfigurable"
                              displayName="MXO Time Tracker"/>
+        <applicationService serviceImplementation="com.mxo.timetracker.settings.TimeTrackerSettings"/>
     </extensions>
 </idea-plugin>

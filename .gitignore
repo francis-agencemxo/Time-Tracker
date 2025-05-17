@@ -1,6 +1,4 @@
-build/
-!build/distributions/*
-
+build
 .idea
 .gradle
 gradle

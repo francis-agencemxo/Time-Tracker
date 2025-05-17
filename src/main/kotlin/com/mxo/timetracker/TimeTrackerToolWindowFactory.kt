@@ -39,6 +39,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.WeekFields
 import java.util.*
+import javax.imageio.ImageIO
 import javax.swing.Timer
 
 class ToggleHiddenProjectsAction(
@@ -92,6 +93,16 @@ class RefreshTreeAction(
     }
 }
 
+class BackgroundImagePanel(private val backgroundImage: Image) : JPanel() {
+    override fun paintComponent(g: Graphics) {
+        super.paintComponent(g)
+        val g2d = g.create() as Graphics2D
+        // Scale image to fill panel
+        g2d.drawImage(backgroundImage, 0, 0, width, height, this)
+        g2d.dispose()
+    }
+}
+
 class TimeTrackerToolWindowFactory : ToolWindowFactory {
     private val dataFile = File(System.getProperty("user.home") + "/.cache/phpstorm-time-tracker/data.json")
 
@@ -116,9 +127,22 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
             }
         }
 
-        val panel = JPanel(BorderLayout(10, 10))
+        val imageStream = javaClass.getResource("/icons/bg.png")?.openStream()
+        val backgroundImage = ImageIO.read(imageStream)
+
+        val backgroundPanel = BackgroundImagePanel(backgroundImage)
+        backgroundPanel.layout = BorderLayout()
+
         val contentFactory = ContentFactory.getInstance()
-        val content = contentFactory.createContent(panel, "", false)
+        val content = contentFactory.createContent(backgroundPanel, "", false)
+        toolWindow.contentManager.addContent(content)
+
+
+        val panel = JPanel(BorderLayout(10, 10))
+        // Add your UI components to backgroundPanel
+        backgroundPanel.add(panel, BorderLayout.CENTER)
+
+
         toolWindow.contentManager.addContent(content)
 
         val initialLoadLength = 7

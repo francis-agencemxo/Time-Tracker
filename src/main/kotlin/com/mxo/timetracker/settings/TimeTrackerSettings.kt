@@ -1,23 +1,22 @@
 package com.mxo.timetracker.settings
 
-import com.intellij.openapi.components.*
+import com.intellij.openapi.components.PersistentStateComponent
+import com.intellij.openapi.components.Service
+import com.intellij.openapi.components.State
+import com.intellij.openapi.components.Storage
+import com.intellij.openapi.components.service
 
 @State(
-    name = "MXOTimeTrackerSettings",
+    name = "TimeTrackerSettings",
     storages = [Storage("mxo-time-tracker.xml")]
 )
-@Service(Service.Level.APP)
+@Service(Service.Level.APP) // <-- THIS IS CRUCIAL
 class TimeTrackerSettings : PersistentStateComponent<TimeTrackerSettings.State> {
 
-    companion object {
-        fun getInstance(): TimeTrackerSettings = service()
+    class State {
+        var autoStart: Boolean = false
+        var showPopup: Boolean = false
     }
-
-    data class State(
-        var serverPort: Int = 13337,
-        var autoStartServer: Boolean = true,
-        var showBrowsingPopup: Boolean = true
-    )
 
     private var state = State()
 
@@ -25,5 +24,9 @@ class TimeTrackerSettings : PersistentStateComponent<TimeTrackerSettings.State> 
 
     override fun loadState(state: State) {
         this.state = state
+    }
+
+    companion object {
+        fun getInstance(): TimeTrackerSettings = service()
     }
 }

@@ -41,3 +41,5 @@ sed -i "s|<version>.*</version>|<version>$NEW_VERSION</version>|" "$UPDATE_XML"
 sed -i -E "s|(https://.*/)$ZIP_BASENAME-[0-9]+\.[0-9]+\.[0-9]+\.zip|\1$ZIP_NAME|" "$UPDATE_XML"
 
 echo "✅ Release $NEW_VERSION complete!"
+
+git add ./releases/*
