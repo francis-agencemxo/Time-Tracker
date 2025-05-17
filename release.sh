@@ -63,10 +63,10 @@ sed -i"$SED_EXT" -E "s|(https://.*/)$ZIP_BASENAME-[0-9]+\.[0-9]+\.[0-9]+\.zip|\1
 
 # --- 7. Git commit, tag, and push ---
 echo "🔀 Committing and tagging release..."
-git add .
-git commit -m "Release $NEW_VERSION"
-git tag -a "v$NEW_VERSION" -m "Release $NEW_VERSION"
-git push origin main
-git push origin "v$NEW_VERSION"
+git add . > /dev/null
+git commit -m "Release $NEW_VERSION" > /dev/null
+git tag -a "v$NEW_VERSION" -m "Release $NEW_VERSION" > /dev/null
+git push origin main > /dev/null
+git push origin "v$NEW_VERSION" > /dev/null
 
 echo "✅ Release $NEW_VERSION ($BUMP_TYPE) complete!"
