@@ -42,4 +42,7 @@ sed -i -E "s|(https://.*/)$ZIP_BASENAME-[0-9]+\.[0-9]+\.[0-9]+\.zip|\1$ZIP_NAME|
 
 echo "✅ Release $NEW_VERSION complete!"
 
-git add ./releases/*
+git add .
+git commit -m "Release $NEW_VERSION"
+git tag -a "v$NEW_VERSION" -m "Release $NEW_VERSION"
+git push origin main

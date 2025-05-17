@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.mxo.timetracker"
-version = "1.10.8"
+version = "1.10.10"
 
 repositories {
     mavenCentral()
