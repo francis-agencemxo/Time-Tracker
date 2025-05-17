@@ -1,7 +1,7 @@
 <plugins>
     <plugin id="com.mxo.timetracker">
         <name>MXO Time Tracker</name>
-        <version>1.10.03</version>
+        <version>1.10.4</version>
         <idea-version since-build="241.0"/>
 
         <vendor>MXO</vendor>
