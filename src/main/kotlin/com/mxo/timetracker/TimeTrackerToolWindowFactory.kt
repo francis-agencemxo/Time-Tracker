@@ -210,6 +210,7 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
                 background = null
                 isOpaque = false
                 backgroundNonSelectionColor = null
+                borderSelectionColor = null
 
                 return this
             }
