@@ -144,7 +144,7 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
         val tree = JTree(treeModel)
         tree.isRootVisible = false
         val treeScrollPane = JBScrollPane(tree)
-        treeScrollPane.border = BorderFactory.createEmptyBorder(0, 0, 0, 0) // top, left, bottom, right
+        treeScrollPane.border = BorderFactory.createEmptyBorder(0, 0, 0, 10) // top, left, bottom, right
 
         val config = if (dataFile.exists()) JSONObject(dataFile.readText()).optJSONObject("config") ?: JSONObject() else JSONObject()
         val showHiddenInitially = config.optBoolean("showHidden", false)
