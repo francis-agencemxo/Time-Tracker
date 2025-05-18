@@ -588,7 +588,7 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
         val logoWithBg = BackgroundImagePanel(bgImage).apply {
             layout = GridBagLayout()
             border = BorderFactory.createEmptyBorder(10, 10, 0, 10)
-            preferredSize = Dimension(400, 200)
+            preferredSize = Dimension(400, 150)
             add(JLabel(logoIcon))
         }
 
