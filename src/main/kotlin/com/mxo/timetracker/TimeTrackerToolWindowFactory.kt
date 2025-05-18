@@ -135,13 +135,8 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
         val projectName = project.name
         val todayStr = LocalDate.now().toString()
 
-        //val dateField = JBTextField(todayStr)
-        //val loadButton = JButton("Afficher")
-        val resetButton = JButton("🔄 Reset")
-        val title = JLabel("🔄 TITLE")
         val durationLabel = JBLabel()
         val urlFooterLabel = JBLabel()
-        val editUrlsButton = JButton("✏️ Modifier URLs")
         val weeklyTotalLabel = JBLabel()
 
         val root = DefaultMutableTreeNode("Projets")
@@ -149,6 +144,7 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
         val tree = JTree(treeModel)
         tree.isRootVisible = false
         val treeScrollPane = JBScrollPane(tree)
+        treeScrollPane.border = BorderFactory.createEmptyBorder(0, 0, 0, 0) // top, left, bottom, right
 
         val config = if (dataFile.exists()) JSONObject(dataFile.readText()).optJSONObject("config") ?: JSONObject() else JSONObject()
         val showHiddenInitially = config.optBoolean("showHidden", false)
@@ -168,11 +164,11 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
         fun refreshTime(date: String) {
             val projectData = getProjectData(date)
             val duration = projectData?.optInt("duration", 0)?.div(60) ?: 0
-            durationLabel.text = "Time on $date: $duration min"
+            durationLabel.text = "Aujourd'hui: $duration min"
 
             val urls = getProjectUrls(projectName)
             val urlText = (0 until urls.length()).joinToString("<br>") { urls.getString(it) }
-            urlFooterLabel.text = "<html><i>URLs:</i><br>$urlText</html>"
+            urlFooterLabel.text = "<html><strong>URLs:</strong><br>$urlText</html>"
         }
 
         tree.cellRenderer = object : DefaultTreeCellRenderer() {
@@ -588,30 +584,42 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
         val logoIcon = ImageIcon(javaClass.getResource("/icons/logo-mxo.png"))
 
         val logoWithBg = BackgroundImagePanel(bgImage).apply {
-            layout = GridBagLayout() // ⬅️ centers child components
-            border = BorderFactory.createEmptyBorder(0, 0, 10, 0) // optional bottom spacing
-            preferredSize = Dimension(400, 100) // adjust to match image height
+            layout = GridBagLayout()
+            border = BorderFactory.createEmptyBorder(10, 10, 0, 10)
+            preferredSize = Dimension(400, 300)
             add(JLabel(logoIcon))
         }
 
         topPanel.add(logoWithBg)
 
-        //topPanel.add(JBLabel("Project: $projectName"), BorderLayout.WEST)
-        topPanel.add(weeklyTotalLabel, BorderLayout.WEST)
-        //topPanel.add(JBLabel("Enter date (YYYY-MM-DD):"))
-//        val dateRow = JPanel(BorderLayout())
-//        dateRow.add(dateField, BorderLayout.WEST)
-//        val buttons = JPanel(FlowLayout(FlowLayout.RIGHT)).apply {
-//            add(loadButton)
-//            add(resetButton)
-//        }
-//        dateRow.add(buttons, BorderLayout.EAST)
+        val statsPanel = JPanel()
+        statsPanel.layout = BoxLayout(statsPanel, BoxLayout.Y_AXIS)
+        statsPanel.border = BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        statsPanel.isOpaque = true
+        weeklyTotalLabel.font = UIUtil.getLabelFont().deriveFont(Font.BOLD, 12f)
+        durationLabel.foreground = JBColor.GRAY
+        durationLabel.font = UIUtil.getLabelFont().deriveFont(Font.PLAIN, 11f)
 
-        //topPanel.add(dateRow)
-        topPanel.add(durationLabel)
+        statsPanel.add(weeklyTotalLabel)
+        statsPanel.add(durationLabel)
 
-        val bottomPanel = JPanel(BorderLayout())
+        val bottomPanel = JPanel()
+        bottomPanel.layout = BoxLayout(bottomPanel, BoxLayout.Y_AXIS)
+        bottomPanel.border = BorderFactory.createEmptyBorder(0, 10, 10, 10)
+
+        urlFooterLabel.font = UIUtil.getLabelFont().deriveFont(Font.ITALIC, 11f)
+        urlFooterLabel.isOpaque = true
+
         bottomPanel.add(urlFooterLabel, BorderLayout.CENTER)
+
+        val bottomWrapper = JPanel()
+        bottomWrapper.layout = BoxLayout(bottomWrapper, BoxLayout.Y_AXIS)
+        bottomWrapper.add(statsPanel)
+        bottomWrapper.add(bottomPanel)
+
+        panel.add(topPanel, BorderLayout.NORTH)
+        panel.add(treeScrollPane, BorderLayout.CENTER)
+        panel.add(bottomWrapper, BorderLayout.SOUTH)
 
         fun showProjectUrlsInFooter(projectName: String) {
             val urls = getProjectUrls(projectName)
@@ -633,19 +641,13 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
                 else -> null
             }
 
-            if (projectName != null && selectedNode.level == 1) { // project node level
+            if (projectName != null && selectedNode.level == 1) {
                 showProjectUrlsInFooter(projectName)
             } else {
-                urlFooterLabel.text = "" // clear when not on a project
+                urlFooterLabel.text = ""
             }
         }
 
-        //bottomPanel.add(editUrlsButton, BorderLayout.EAST)
-
-        panel.add(topPanel, BorderLayout.NORTH)
-        panel.add(treeScrollPane, BorderLayout.CENTER)
-        panel.add(bottomPanel, BorderLayout.SOUTH)
-        println("REFRESH")
         refreshTime(todayStr)
         updateSummary()
 
@@ -654,7 +656,7 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
         }
         refreshTimer.start()
 
-        val serverWatchdogTimer = Timer(1 * 60 * 1000) { // Every 5 minutes
+        val serverWatchdogTimer = Timer(1 * 60 * 1000) {
             if (!isBrowsingServerRunning()) {
                 println("BrowsingTrackerServer is not running. Restarting...")
                 try {

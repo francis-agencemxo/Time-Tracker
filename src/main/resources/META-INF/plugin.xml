@@ -35,7 +35,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="MXO Time Tracker"
                     label="MXO Time Tracker"
-                    icon="/icons/logo-mxo.svg"
+                    icon="/icons/toolbar-icon.png"
                     anchor="right"
                     factoryClass="com.mxo.timetracker.TimeTrackerToolWindowFactory"
                     canCloseContents="false"/>
