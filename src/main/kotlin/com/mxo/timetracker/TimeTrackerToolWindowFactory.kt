@@ -209,6 +209,7 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
                 // ✅ Force transparent background after super + content logic
                 background = null
                 isOpaque = false
+                backgroundNonSelectionColor = null
 
                 return this
             }
