@@ -3,8 +3,8 @@ plugins {
     id("org.jetbrains.intellij") version "1.17.3"
 }
 
-group = "com.mxo.timetracker"
-version = "1.11.9"
+group = "com.codepulse.timetracker"
+version = "1.11.10"
 
 repositories {
     mavenCentral()

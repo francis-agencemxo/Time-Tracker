@@ -1,4 +1,4 @@
-package com.mxo.timetracker.settings
+package com.codepulse.timetracker.settings
 
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.Service
@@ -8,7 +8,7 @@ import com.intellij.openapi.components.service
 
 @State(
     name = "TimeTrackerSettings",
-    storages = [Storage("mxo-time-tracker.xml")]
+    storages = [Storage("codepulse-time-tracker.xml")]
 )
 @Service(Service.Level.APP) // <-- THIS IS CRUCIAL
 class TimeTrackerSettings : PersistentStateComponent<TimeTrackerSettings.State> {
@@ -16,6 +16,7 @@ class TimeTrackerSettings : PersistentStateComponent<TimeTrackerSettings.State> 
     class State {
         var autoStart: Boolean = false
         var showPopup: Boolean = false
+        var dailyGoalHours: Double = 8.0
     }
 
     private var state = State()

@@ -1,4 +1,4 @@
-package com.mxo.timetracker
+package com.codepulse.timetracker
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.WindowManager

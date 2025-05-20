@@ -1,4 +1,4 @@
-package com.mxo.timetracker
+package com.codepulse.timetracker
 
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler

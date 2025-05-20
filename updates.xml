@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugins>
     <plugin
-            id="com.mxo.timetracker"
-            url="https://github.com/francis-agencemxo/Time-Tracker/raw/refs/heads/main/build/distributions/phpstorm-time-tracker-ui-v7-1.10.01.zip"
+            id="com.codepulse.timetracker"
+            url="https://github.com/francis-agencecodepulse/Time-Tracker/raw/refs/heads/main/build/distributions/phpstorm-time-tracker-ui-v7-1.10.01.zip"
             version="1.10.01">
         <name>MXO Time Tracker</name>
         <vendor>MXO</vendor>

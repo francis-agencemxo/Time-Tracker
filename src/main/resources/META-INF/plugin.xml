@@ -1,11 +1,11 @@
 <idea-plugin>
-    <id>com.mxo.timetracker</id>
-    <name>MXO Time Tracker</name>
+    <id>com.codepulse.timetracker</id>
+    <name>CodePulse</name>
     <version>1.10.5</version>
-    <vendor email="dev@mxo.agency" url="https://mxo.agency">MXO</vendor>
+    <vendor email="info@francislabonte.com">MXO</vendor>
 
     <description><![CDATA[
-        <h2>MXO Time Tracker</h2>
+        <h2>CodePulse</h2>
         <p><b>Track developer productivity across coding and browsing activity.</b></p>
         <p>This plugin monitors project file activity in PhpStorm, as well as associated URLs opened in Chrome, allowing you to:</p>
         <ul>
@@ -33,18 +33,27 @@
     <idea-version since-build="193.0" until-build="999.*"/>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="MXO Time Tracker"
-                    label="MXO Time Tracker"
+        <toolWindow id="CodePulse Time Tracker"
+                    label="CodePulse Time Tracker"
                     icon="/icons/toolbar-icon.png"
                     anchor="right"
-                    factoryClass="com.mxo.timetracker.TimeTrackerToolWindowFactory"
+                    factoryClass="com.codepulse.timetracker.TimeTrackerToolWindowFactory"
                     canCloseContents="false"/>
-        <postStartupActivity implementation="com.mxo.timetracker.TrackingStartupActivity"/>
-        <notificationGroup id="MXO Time Tracker"
+        <toolWindow
+                id="CodePulse Timeline"
+                anchor="bottom"
+                factoryClass="com.codepulse.timetracker.timeline.TimelineToolWindowFactory"
+                secondary="true"
+                canCloseContents="true"
+                icon="/icons/toolbar-icon.png"
+        />
+
+        <postStartupActivity implementation="com.codepulse.timetracker.TrackingStartupActivity"/>
+        <notificationGroup id="CodePulse"
                            displayType="BALLOON"
                            isLogByDefault="true"/>
-        <projectConfigurable instance="com.mxo.timetracker.settings.TimeTrackerSettingsConfigurable"
-                             displayName="MXO Time Tracker"/>
-        <applicationService serviceImplementation="com.mxo.timetracker.settings.TimeTrackerSettings"/>
+        <projectConfigurable instance="com.codepulse.timetracker.settings.TimeTrackerSettingsConfigurable"
+                             displayName="CodePulse Time Tracker"/>
+        <applicationService serviceImplementation="com.codepulse.timetracker.settings.TimeTrackerSettings"/>
     </extensions>
 </idea-plugin>

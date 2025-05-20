@@ -1,4 +1,4 @@
-package com.mxo.timetracker
+package com.codepulse.timetracker
 
 import javax.swing.BorderFactory
 import com.intellij.icons.AllIcons
@@ -22,12 +22,13 @@ import com.intellij.ui.content.ContentFactory
 import org.json.JSONArray
 import org.json.JSONObject
 import com.intellij.util.ui.UIUtil
-import com.mxo.timetracker.settings.TimeTrackerSettingsConfigurable
-import javax.swing.table.DefaultTableModel
+import com.codepulse.timetracker.settings.TimeTrackerSettingsConfigurable
+import com.intellij.openapi.fileTypes.FileTypeManager
 import java.awt.*
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.io.File
+import java.net.BindException
 import java.net.InetSocketAddress
 import java.net.Socket
 import javax.swing.*
@@ -61,7 +62,7 @@ class EditUrlsAction(
         val projectName = getSelectedProject()
         if (projectName != null) {
             // Fix for modal access violations
-            com.intellij.openapi.application.ApplicationManager.getApplication().invokeLater {
+            ApplicationManager.getApplication().invokeLater {
                 openEditor(projectName)
             }
         } else {
@@ -109,7 +110,7 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
 
         try {
             BrowsingTrackerServer.start()
-        } catch (e: java.net.BindException) {
+        } catch (e: BindException) {
             println("⚠️ Port already in use. Server may already be running.")
         }
 
@@ -194,7 +195,7 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
                             name.startsWith("http") -> AllIcons.Ide.External_link_arrow
                             name.contains("/") || name.contains(".") -> {
                                 val fileName = name.substringAfterLast("/")
-                                val fileType = com.intellij.openapi.fileTypes.FileTypeManager.getInstance()
+                                val fileType = FileTypeManager.getInstance()
                                     .getFileTypeByFileName(fileName)
                                 fileType.icon ?: AllIcons.FileTypes.Any_type
                             }

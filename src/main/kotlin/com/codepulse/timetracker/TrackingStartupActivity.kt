@@ -1,7 +1,6 @@
-package com.mxo.timetracker
+package com.codepulse.timetracker
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.diagnostic.Logger
 import java.time.LocalDate
 import java.io.File
@@ -12,7 +11,8 @@ import org.json.JSONObject
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent
 import com.intellij.openapi.startup.ProjectActivity
-import com.intellij.openapi.vfs.VirtualFile
+import org.json.JSONArray
+import java.time.LocalDateTime
 
 class TrackingStartupActivity : ProjectActivity {
     private val logger = Logger.getInstance(TrackingStartupActivity::class.java)
@@ -56,8 +56,10 @@ class TrackingStartupActivity : ProjectActivity {
     }
 
     private fun saveTime(projectName: String, secondsToAdd: Int, filePath: String?) {
-
         val today = LocalDate.now().toString()
+        val now = LocalDateTime.now()
+        val start = now.minusSeconds(secondsToAdd.toLong())
+
         val json = if (dataFile.exists()) JSONObject(dataFile.readText()) else JSONObject()
 
         val dayData = json.optJSONObject(today) ?: JSONObject()
@@ -67,21 +69,32 @@ class TrackingStartupActivity : ProjectActivity {
         val current = projectData.optInt("duration", 0)
         projectData.put("duration", current + secondsToAdd)
 
-        // Track file-level time per date
+        // Track file-level time
         val filesObject = projectData.optJSONObject("files") ?: JSONObject()
-        val dateFiles = filesObject.optJSONObject(today) ?: JSONObject()
-
         if (filePath != null) {
-            val currentFileTime = dateFiles.optInt(filePath, 0)
+            val currentFileTime = filesObject.optInt(filePath, 0)
             filesObject.put(filePath, currentFileTime + secondsToAdd)
-            projectData.put("files", filesObject)
         }
+        projectData.put("files", filesObject)
 
+        // ➕ Add to history array
+        val historyArray = projectData.optJSONArray("history") ?: JSONArray()
+        val entry = JSONObject().apply {
+            put("start", start.toString())
+            put("end", now.toString())
+            put("type", "coding")
+            if (filePath != null) put("file", filePath)
+        }
+        historyArray.put(entry)
+        projectData.put("history", historyArray)
+
+        // Save everything
         dayData.put(projectName, projectData)
         json.put(today, dayData)
 
         dataFile.parentFile.mkdirs()
         FileWriter(dataFile).use { it.write(json.toString(2)) }
     }
+
 
 }
