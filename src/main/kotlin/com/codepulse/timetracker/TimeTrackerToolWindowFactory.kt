@@ -201,7 +201,7 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
                             }
                             name.matches(Regex("""\d{4}-\d{2}-\d{2}""")) -> AllIcons.General.Layout
                             name == "Browsing" -> AllIcons.General.Web // 🌍 closest globe-style icon
-                            name == "Coding" -> ExpUiIcons.Run.StepOutCodeBlock // 🧑‍💻 code icon (you can choose another)
+                            name == "Coding" -> AllIcons.Actions.Execute // 🧑‍💻 code icon (you can choose another)
                             else -> AllIcons.Nodes.Module
                         }
                     }
