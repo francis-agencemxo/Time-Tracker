@@ -106,6 +106,52 @@ class BackgroundImagePanel(private val backgroundImage: Image) : JPanel() {
 class TimeTrackerToolWindowFactory : ToolWindowFactory {
     private val dataFile = File(System.getProperty("user.home") + "/.cache/phpstorm-time-tracker/data.json")
 
+
+    private fun computeDetailedBreakdown(
+        history: JSONArray
+    ): Triple<Map<String, Int>, Map<String, Map<String, Int>>, Map<String, Int>> {
+        val typeDuration = mutableMapOf<String, Int>()
+        val browsingMap = mutableMapOf<String, MutableMap<String, Int>>()
+        val fileMap = mutableMapOf<String, Int>()
+
+        for (i in 0 until history.length()) {
+            val entry = history.getJSONObject(i)
+            val type = entry.optString("type", "unknown")
+            val start = entry.optString("start")
+            val end = entry.optString("end")
+
+            val startTime = try {
+                java.time.LocalDateTime.parse(start)
+            } catch (_: Exception) {
+                continue
+            }
+            val endTime = try {
+                java.time.LocalDateTime.parse(end)
+            } catch (_: Exception) {
+                continue
+            }
+
+            val seconds = java.time.Duration.between(startTime, endTime).seconds.toInt()
+            if (seconds <= 0) continue
+
+            typeDuration[type] = typeDuration.getOrDefault(type, 0) + seconds
+
+            if (type == "browsing") {
+                val host = entry.optString("host", "unknown")
+                val url = entry.optString("url", "unknown")
+                val urls = browsingMap.computeIfAbsent(host) { mutableMapOf() }
+                urls[url] = urls.getOrDefault(url, 0) + seconds
+            }
+
+            if (type == "coding" && entry.has("file")) {
+                val file = entry.optString("file")
+                fileMap[file] = fileMap.getOrDefault(file, 0) + seconds
+            }
+        }
+
+        return Triple(typeDuration, browsingMap, fileMap)
+    }
+
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
 
         try {
@@ -147,7 +193,8 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
         val treeScrollPane = JBScrollPane(tree)
         treeScrollPane.border = BorderFactory.createEmptyBorder(0, 0, 0, 10) // top, left, bottom, right
 
-        val config = if (dataFile.exists()) JSONObject(dataFile.readText()).optJSONObject("config") ?: JSONObject() else JSONObject()
+        val config = if (dataFile.exists()) JSONObject(dataFile.readText()).optJSONObject("config")
+            ?: JSONObject() else JSONObject()
         val showHiddenInitially = config.optBoolean("showHidden", false)
         var showHidden = showHiddenInitially
 
@@ -199,6 +246,7 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
                                     .getFileTypeByFileName(fileName)
                                 fileType.icon ?: AllIcons.FileTypes.Any_type
                             }
+
                             name.matches(Regex("""\d{4}-\d{2}-\d{2}""")) -> AllIcons.General.Layout
                             name == "Browsing" -> AllIcons.General.Web // 🌍 closest globe-style icon
                             name == "Coding" -> AllIcons.Actions.Execute // 🧑‍💻 code icon (you can choose another)
@@ -269,7 +317,11 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
 
                 for (dateKey in json.keySet()) {
                     if (dateKey == "config") continue
-                    val parsedDate = try { LocalDate.parse(dateKey, DateTimeFormatter.ISO_DATE) } catch (_: Exception) { continue }
+                    val parsedDate = try {
+                        LocalDate.parse(dateKey, DateTimeFormatter.ISO_DATE)
+                    } catch (_: Exception) {
+                        continue
+                    }
                     if (parsedDate.get(weekFields.weekOfWeekBasedYear()) == currentWeek && parsedDate.year == today.year) {
                         val dayData = json.optJSONObject(dateKey) ?: continue
                         for (key in dayData.keySet()) {
@@ -303,62 +355,53 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
                         val projectObj = json.optJSONObject(day)?.optJSONObject(key)
 
 // 🧠 Wrap files under a "💻 Coding" node
-                        val filesObj = projectObj?.optJSONObject("files")
-                        if (filesObj != null) {
-                            var totalCodingSec = 0
-                            val codingNode = DefaultMutableTreeNode(Pair("💻 Coding", "💻"))
 
-                            for (fileKey in filesObj.keySet()) {
-                                val fileTimeSec = filesObj.optInt(fileKey, 0)
-                                if (fileTimeSec > 0) {
-                                    totalCodingSec += fileTimeSec
-                                    val fh = fileTimeSec / 3600
-                                    val fm = (fileTimeSec % 3600) / 60
-                                    val fileFormatted = if (fh > 0) "${fh}h${fm}m" else "${fm}m"
-                                    codingNode.add(DefaultMutableTreeNode(Pair(fileKey, fileFormatted)))
+                        val history = projectObj?.optJSONArray("history")
+                        if (history != null) {
+                            val (durations, browsing, files) = computeDetailedBreakdown(history)
+
+                            durations.forEach { (type, seconds) ->
+                                if (type == "browsing") return@forEach
+                                val h = seconds / 3600
+                                val m = (seconds % 3600) / 60
+                                val formatted = if (h > 0) "${h}h${m}m" else "${m}m"
+                                val typeNode = DefaultMutableTreeNode(
+                                    Pair(
+                                        type.replaceFirstChar { it.uppercaseChar() },
+                                        formatted
+                                    )
+                                )
+
+                                // Show coding files under "Coding" node
+                                if (type == "coding" && files.isNotEmpty()) {
+                                    files.forEach { (file, sec) ->
+                                        val fh = sec / 3600
+                                        val fm = (sec % 3600) / 60
+                                        val fileFormatted = if (fh > 0) "${fh}h${fm}m" else "${fm}m"
+                                        typeNode.add(DefaultMutableTreeNode(Pair(file, fileFormatted)))
+                                    }
                                 }
+
+                                dayNode.add(typeNode)
                             }
 
-                            if (codingNode.childCount > 0) {
-                                val totalH = totalCodingSec / 3600
-                                val totalM = (totalCodingSec % 3600) / 60
-                                val formattedTotal = if (totalH > 0) "${totalH}h${totalM}m" else "${totalM}m"
-                                codingNode.userObject = Pair("Coding", formattedTotal)
-                                dayNode.add(codingNode)
-                            }
-                        }
+                            if (browsing.isNotEmpty()) {
+                                val totalBrowsingSec = browsing.values.sumOf { it.values.sum() }
+                                val bh = totalBrowsingSec / 3600
+                                val bm = (totalBrowsingSec % 3600) / 60
+                                val totalBrowsingFormatted = if (bh > 0) "${bh}h${bm}m" else "${bm}m"
+                                val browsingNode = DefaultMutableTreeNode(Pair("Browsing", totalBrowsingFormatted))
 
-
-                        val browsingObj = projectObj?.optJSONObject("browsing")
-                        if (browsingObj != null) {
-                            var totalBrowsingSec = 0
-                            val browsingNode = DefaultMutableTreeNode(Pair("Browsing", "🌐"))
-
-                            for (host in browsingObj.keySet()) {
-                                val hostNode = DefaultMutableTreeNode(host)
-
-                                val urls = browsingObj.getJSONObject(host)
-                                for (url in urls.keySet()) {
-                                    val sec = urls.optInt(url, 0)
-                                    if (sec > 0) {
-                                        totalBrowsingSec += sec
+                                browsing.forEach { (host, urlMap) ->
+                                    val hostNode = DefaultMutableTreeNode(host)
+                                    urlMap.forEach { (url, sec) ->
                                         val bh = sec / 3600
                                         val bm = (sec % 3600) / 60
                                         val formatted = if (bh > 0) "${bh}h${bm}m" else "${bm}m"
                                         hostNode.add(DefaultMutableTreeNode(Pair(url, formatted)))
                                     }
+                                    if (hostNode.childCount > 0) browsingNode.add(hostNode)
                                 }
-
-                                if (hostNode.childCount > 0) {
-                                    browsingNode.add(hostNode)
-                                }
-                            }
-
-                            if (browsingNode.childCount > 0) {
-                                val totalH = totalBrowsingSec / 3600
-                                val totalM = (totalBrowsingSec % 3600) / 60
-                                val formattedTotal = if (totalH > 0) "${totalH}h${totalM}m" else "${totalM}m"
-                                browsingNode.userObject = Pair("Browsing", formattedTotal)
                                 dayNode.add(browsingNode)
                             }
                         }
@@ -555,7 +598,8 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
         )
 
         val actionGroup = DefaultActionGroup().apply {
-            add(ToggleHiddenProjectsAction(
+            add(
+                ToggleHiddenProjectsAction(
                 stateProvider = { showHidden },
                 onToggle = {
                     showHidden = it
@@ -571,7 +615,8 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
             add(RefreshTreeAction { updateSummary() })
             add(OpenSettingsAction()) // 👈 Add this line
         }
-        val actionToolbar = ActionManager.getInstance().createActionToolbar("MXO.TimeTracker.Toolbar", actionGroup, true)
+        val actionToolbar =
+            ActionManager.getInstance().createActionToolbar("MXO.TimeTracker.Toolbar", actionGroup, true)
         actionToolbar.setTargetComponent(tree)
 
         val toolbarPanel = JPanel(BorderLayout()).apply {
@@ -637,7 +682,8 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
         }
 
         tree.addTreeSelectionListener { event ->
-            val selectedNode = event.path?.lastPathComponent as? DefaultMutableTreeNode ?: return@addTreeSelectionListener
+            val selectedNode =
+                event.path?.lastPathComponent as? DefaultMutableTreeNode ?: return@addTreeSelectionListener
             val userObj = selectedNode.userObject
             val projectName = when (userObj) {
                 is Pair<*, *> -> userObj.first as? String

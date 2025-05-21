@@ -14,6 +14,8 @@ import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
 import com.intellij.openapi.application.ApplicationManager
+import org.json.JSONArray
+import java.time.LocalDateTime
 
 object BrowsingTrackerServer {
 
@@ -88,20 +90,26 @@ object BrowsingTrackerServer {
 
             val dateNode = json.optJSONObject(dateKey) ?: JSONObject()
             val projectNode = dateNode.optJSONObject(projectName) ?: JSONObject()
-            val browsingNode = projectNode.optJSONObject("browsing") ?: JSONObject()
-            val hostNode = browsingNode.optJSONObject(host) ?: JSONObject()
-            val current = hostNode.optInt(fullUrl, 0)
-            hostNode.put(fullUrl, current + seconds)
-
-            browsingNode.put(host, hostNode)
-            projectNode.put("browsing", browsingNode)
 
             // Optionally also update "duration"
             projectNode.put("duration", projectNode.optInt("duration", 0) + seconds)
 
+            val now = LocalDateTime.now()
+            val start = now.minusSeconds(seconds)
+            // ➕ Add to history array
+            val historyArray = projectNode.optJSONArray("history") ?: JSONArray()
+            val entry = JSONObject().apply {
+                put("start", start.toString())
+                put("end", now.toString())
+                put("type", "browsing")
+                put("host", host)
+                put("url", fullUrl)
+            }
+            historyArray.put(entry)
+            projectNode.put("history", historyArray)
+
             dateNode.put(projectName, projectNode)
             json.put(dateKey, dateNode)
-
             dataFile.writeText(json.toString(2))
 
             ApplicationManager.getApplication().invokeLater {

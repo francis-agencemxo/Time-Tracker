@@ -69,14 +69,6 @@ class TrackingStartupActivity : ProjectActivity {
         val current = projectData.optInt("duration", 0)
         projectData.put("duration", current + secondsToAdd)
 
-        // Track file-level time
-        val filesObject = projectData.optJSONObject("files") ?: JSONObject()
-        if (filePath != null) {
-            val currentFileTime = filesObject.optInt(filePath, 0)
-            filesObject.put(filePath, currentFileTime + secondsToAdd)
-        }
-        projectData.put("files", filesObject)
-
         // ➕ Add to history array
         val historyArray = projectData.optJSONArray("history") ?: JSONArray()
         val entry = JSONObject().apply {
