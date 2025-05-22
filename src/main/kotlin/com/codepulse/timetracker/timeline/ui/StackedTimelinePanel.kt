@@ -13,6 +13,7 @@ import java.time.temporal.WeekFields
 import java.util.Locale
 import javax.swing.JPanel
 import com.codepulse.timetracker.settings.TimeTrackerSettings
+import com.codepulse.timetracker.timeline.util.ProjectColorManager
 
 class StackedTimelinePanel(
     historyArray: JSONArray,
@@ -21,16 +22,6 @@ class StackedTimelinePanel(
 
     private val projectColorMap = mutableMapOf<String, Color>()
     val dailyGoalHours = TimeTrackerSettings.getInstance().state.dailyGoalHours
-
-    private val colors = listOf(
-        Color(0x00393A), // Velours
-        Color(0x0A5D60), // Baumier
-        Color(0xA87B5C), // Cèdre
-        Color(0x893813), // Cognac
-        Color(0xBA68C8), // Bonus
-        Color(0xE57373), // Bonus
-        Color(0x64B5F6)  // Bonus
-    )
 
     private val data: MutableMap<String, MutableMap<String, Int>> = mutableMapOf()
     private val tooltipMap = mutableMapOf<Rectangle, String>()
@@ -78,7 +69,7 @@ class StackedTimelinePanel(
                 .merge(project, duration, Int::plus)
 
             if (!projectColorMap.containsKey(project)) {
-                val base = colors[colorIndex % colors.size]
+                val base = ProjectColorManager.getColor(project)
                 projectColorMap[project] = Color(base.red, base.green, base.blue, 180)
                 colorIndex++
             }

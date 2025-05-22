@@ -1,5 +1,6 @@
 package com.codepulse.timetracker.timeline
 
+import com.codepulse.timetracker.timeline.ui.DayTimelinePanel
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
@@ -21,6 +22,7 @@ class TimelineToolWindowFactory : ToolWindowFactory {
     private val dataFile = File(System.getProperty("user.home") + "/.cache/phpstorm-time-tracker/data.json")
     private var weekOffset = 0
     private lateinit var scrollPane: JBScrollPane
+    private lateinit var tabbedPane: JTabbedPane
     private lateinit var weekLabel: JLabel
 
     private fun generateFakeHistory(): JSONArray {
@@ -67,51 +69,105 @@ class TimelineToolWindowFactory : ToolWindowFactory {
         val contentFactory = ContentFactory.getInstance()
         val panel = JPanel(BorderLayout())
 
-        scrollPane = JBScrollPane()
-        weekLabel = JLabel()
-        weekLabel.horizontalAlignment = SwingConstants.CENTER
+        val tabbedPane = JTabbedPane()
+        var weekOffset = 0
+        var dayOffset = 0
 
-        val leftArrow = JButton("←")
-        val rightArrow = JButton("→")
-        val todayButton = JButton("Today")
+        val weekScrollPane = JBScrollPane()
+        val dayScrollPane = JBScrollPane()
+        val weekLabel = JLabel()
+        val dayLabel = JLabel()
 
         fun updateWeekLabel() {
             val now = LocalDate.now().plusWeeks(weekOffset.toLong())
             val start = now.with(WeekFields.of(Locale.getDefault()).dayOfWeek(), 1)
             val end = start.plusDays(6)
-
             val formatter = DateTimeFormatter.ofPattern("d MMMM", Locale.FRENCH)
             weekLabel.text = "${formatter.format(start)} au ${formatter.format(end)}"
         }
 
-        fun updateTimeline() {
-            val newHistory = loadFilteredHistory(project.name, weekOffset)
-            val newPanel = StackedTimelinePanel(newHistory, weekOffset)
-            //val newPanel = StackedTimelinePanel(generateFakeHistory(), weekOffset)
-            scrollPane.setViewportView(newPanel)
+        fun updateDayLabel() {
+            val date = LocalDate.now().plusDays(dayOffset.toLong())
+            val formatter = DateTimeFormatter.ofPattern("EEEE d MMMM", Locale.FRENCH)
+            dayLabel.text = formatter.format(date)
+        }
+
+        fun updateWeekTimeline() {
+            val weekHistory = loadFilteredHistory(project.name, weekOffset)
+            //weekScrollPane.setViewportView(StackedTimelinePanel(weekHistory, weekOffset))
+            weekScrollPane.setViewportView(StackedTimelinePanel(generateFakeHistory(), weekOffset))
             updateWeekLabel()
         }
 
-        leftArrow.addActionListener { weekOffset--; updateTimeline() }
-        rightArrow.addActionListener { weekOffset++; updateTimeline() }
-        todayButton.addActionListener { weekOffset = 0; updateTimeline() }
+        fun updateDayTimeline() {
+            val targetDate = LocalDate.now().plusDays(dayOffset.toLong()).toString()
+            val fullHistory = loadFilteredHistory(project.name, 0)
+            val todayHistory = JSONArray()
+            for (i in 0 until fullHistory.length()) {
+                val entry = fullHistory.getJSONObject(i)
+                if (entry.optString("date") == targetDate) {
+                    todayHistory.put(entry)
+                }
+            }
+            dayScrollPane.setViewportView(DayTimelinePanel(todayHistory))
+            updateDayLabel()
+        }
 
-        val toolbar = JPanel(BorderLayout())
-        val arrows = JPanel(FlowLayout(FlowLayout.LEFT))
-        arrows.add(leftArrow)
-        arrows.add(rightArrow)
-        arrows.add(todayButton)
-        toolbar.add(arrows, BorderLayout.WEST)
-        toolbar.add(weekLabel, BorderLayout.CENTER)
+        // Week navigation controls
+        val weekControls = JPanel(BorderLayout())
+        val weekNav = JPanel(FlowLayout(FlowLayout.LEFT))
+        val weekLeft = JButton("←")
+        val weekRight = JButton("→")
+        val weekToday = JButton("Aujourd'hui")
 
-        panel.add(toolbar, BorderLayout.NORTH)
-        panel.add(scrollPane, BorderLayout.CENTER)
+        weekLeft.addActionListener { weekOffset--; updateWeekTimeline() }
+        weekRight.addActionListener { weekOffset++; updateWeekTimeline() }
+        weekToday.addActionListener { weekOffset = 0; updateWeekTimeline() }
 
-        updateTimeline()
+        weekNav.add(weekLeft)
+        weekNav.add(weekRight)
+        weekNav.add(weekToday)
+        weekControls.add(weekNav, BorderLayout.WEST)
+        weekControls.add(weekLabel, BorderLayout.CENTER)
+
+        // Day navigation controls
+        val dayControls = JPanel(BorderLayout())
+        val dayNav = JPanel(FlowLayout(FlowLayout.LEFT))
+        val dayLeft = JButton("←")
+        val dayRight = JButton("→")
+        val dayToday = JButton("Aujourd'hui")
+
+        dayLeft.addActionListener { dayOffset--; updateDayTimeline() }
+        dayRight.addActionListener { dayOffset++; updateDayTimeline() }
+        dayToday.addActionListener { dayOffset = 0; updateDayTimeline() }
+
+        dayNav.add(dayLeft)
+        dayNav.add(dayRight)
+        dayNav.add(dayToday)
+        dayControls.add(dayNav, BorderLayout.WEST)
+        dayControls.add(dayLabel, BorderLayout.CENTER)
+
+        // Add both timelines with their toolbars
+        val weekView = JPanel(BorderLayout())
+        weekView.add(weekControls, BorderLayout.NORTH)
+        weekView.add(weekScrollPane, BorderLayout.CENTER)
+
+        val dayView = JPanel(BorderLayout())
+        dayView.add(dayControls, BorderLayout.NORTH)
+        dayView.add(dayScrollPane, BorderLayout.CENTER)
+
+        tabbedPane.addTab("Semaine", weekView)
+        tabbedPane.addTab("Aujourd'hui", dayView)
+
+        panel.add(tabbedPane, BorderLayout.CENTER)
+
+        updateWeekTimeline()
+        updateDayTimeline()
 
         val content = contentFactory.createContent(panel, "", false)
         toolWindow.contentManager.addContent(content)
     }
+
 
     private fun loadFilteredHistory(projectName: String, weekOffset: Int): JSONArray {
         val json = if (dataFile.exists()) JSONObject(dataFile.readText()) else JSONObject()
