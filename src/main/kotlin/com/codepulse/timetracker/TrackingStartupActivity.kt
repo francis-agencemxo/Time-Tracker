@@ -26,6 +26,16 @@ class TrackingStartupActivity : ProjectActivity {
         println("✅ Time Tracker started for: ${project.name}")
         UserActivityTracker.register()
 
+        val currentFileEditor = com.intellij.openapi.fileEditor.FileEditorManager.getInstance(project).selectedFiles.firstOrNull()
+        val projectBase = project.basePath ?: ""
+        val fullPath = currentFileEditor?.path
+        val relativePath = if (fullPath != null && fullPath.startsWith(projectBase)) {
+            fullPath.removePrefix(projectBase).removePrefix("/")
+        } else {
+            fullPath
+        }
+        currentFileMap[project] = relativePath
+
         // Listen to file switch events
         project.messageBus.connect().subscribe(
             FileEditorManagerListener.FILE_EDITOR_MANAGER,

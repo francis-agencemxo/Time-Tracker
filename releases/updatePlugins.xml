@@ -1,13 +1,13 @@
 <plugins>
     <plugin id="com.codepulse.timetracker">
         <name>CodePulse Time Tracker</name>
-        <version>1.11.14</version>
+        <version>1.11.15</version>
         <idea-version since-build="241.0"/>
 
         <vendor>CodePulse</vendor>
 
         <download-url>
-            https://raw.githubusercontent.com/francis-agencemxo/Time-Tracker/main/releases/phpstorm-time-tracker-ui-v7-1.11.14.zip
+            https://raw.githubusercontent.com/francis-agencemxo/Time-Tracker/main/releases/phpstorm-time-tracker-ui-v7-1.11.15.zip
         </download-url>
     </plugin>
 </plugins>
