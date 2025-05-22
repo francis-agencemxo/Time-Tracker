@@ -94,8 +94,8 @@ class TimelineToolWindowFactory : ToolWindowFactory {
 
         fun updateWeekTimeline() {
             val weekHistory = loadFilteredHistory(project.name, weekOffset)
-            //weekScrollPane.setViewportView(StackedTimelinePanel(weekHistory, weekOffset))
-            weekScrollPane.setViewportView(StackedTimelinePanel(generateFakeHistory(), weekOffset))
+            weekScrollPane.setViewportView(StackedTimelinePanel(weekHistory, weekOffset))
+            //weekScrollPane.setViewportView(StackedTimelinePanel(generateFakeHistory(), weekOffset))
             updateWeekLabel()
         }
 
