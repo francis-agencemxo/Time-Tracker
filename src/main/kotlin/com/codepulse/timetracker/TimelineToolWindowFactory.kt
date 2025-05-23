@@ -160,7 +160,7 @@ class TimelineToolWindowFactory : ToolWindowFactory {
         dayView.add(dayScrollPane, BorderLayout.CENTER)
 
         tabbedPane.addTab("Semaine", weekView)
-        tabbedPane.addTab("Aujourd'hui", dayView)
+        tabbedPane.addTab("Jour", dayView)
 
         panel.add(tabbedPane, BorderLayout.CENTER)
 

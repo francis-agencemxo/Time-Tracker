@@ -134,7 +134,7 @@ class StackedTimelinePanel(
     }
 
     override fun paintComponent(g: Graphics) {
-        val legendColumnWidth = 160
+        val legendColumnWidth = 240
         g.color = Color(30, 30, 30)
         g.fillRect(0, 0, legendColumnWidth, height)
         super.paintComponent(g)
@@ -232,11 +232,11 @@ class StackedTimelinePanel(
             val labelX = i * widthPerDay + legendColumnWidth + (widthPerDay - g2.fontMetrics.stringWidth(label)) / 2
             g2.drawString(label, labelX, height - 5)
         }
-
+//
         val legendX = 10
         val legendY = 10
         val legendRowHeight = 20
-        val legendBoxWidth = 150
+        val legendBoxWidth = 220
         val visibleProjects = sortedDates.flatMap { data[it]?.keys ?: emptySet() }.distinct().sorted()
         val legendBoxHeight = visibleProjects.size * legendRowHeight + 12
         g2.color = Color(0, 0, 0, 204)
