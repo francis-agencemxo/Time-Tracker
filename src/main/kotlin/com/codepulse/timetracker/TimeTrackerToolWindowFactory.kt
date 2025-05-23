@@ -152,7 +152,7 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
 
         val grouped = HistoryGrouper.groupCloseSessions(sorted)
 
-        for (entry in grouped) {
+        for (entry in sorted) {
             val type = entry.optString("type", "unknown")
             val start = try { LocalDateTime.parse(entry.getString("start")) } catch (_: Exception) { continue }
             val end = try { LocalDateTime.parse(entry.getString("end")) } catch (_: Exception) { continue }

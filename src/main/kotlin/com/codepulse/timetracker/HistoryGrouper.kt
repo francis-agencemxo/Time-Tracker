@@ -52,6 +52,7 @@ object HistoryGrouper {
         }
 
         flushGroup()
+
         return result
     }
 }

@@ -112,6 +112,11 @@ class TimelineToolWindowFactory : ToolWindowFactory {
                     todayHistory.put(entry)
                 }
             }
+
+            println(project.name)
+            println(todayHistory)
+
+
             dayScrollPane.setViewportView(DayTimelinePanel(todayHistory))
             updateDayLabel()
         }
@@ -198,7 +203,7 @@ class TimelineToolWindowFactory : ToolWindowFactory {
                 val rawList = (0 until historyArray.length()).mapNotNull { historyArray.optJSONObject(it) }
                 val grouped = HistoryGrouper.groupCloseSessions(rawList)
 
-                for (entry in grouped) {
+                for (entry in rawList) {
                     entry.put("date", dateKey)
                     entry.put("project", project)
                     fullHistory.put(entry)
