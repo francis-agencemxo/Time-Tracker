@@ -73,34 +73,14 @@ class TrackingStartupActivity : ProjectActivity {
     }
 
     private fun saveTime(projectName: String, secondsToAdd: Int, filePath: String?) {
-        val today = LocalDate.now().toString()
-        val now = LocalDateTime.now()
+        val now   = LocalDateTime.now()
         val start = now.minusSeconds(secondsToAdd.toLong())
-
-        val json = if (dataFile.exists()) JSONObject(dataFile.readText()) else JSONObject()
-        val dayData = json.optJSONObject(today) ?: JSONObject()
-        val projectData = dayData.optJSONObject(projectName) ?: JSONObject()
-
-        // Update total project time
-        val current = projectData.optInt("duration", 0)
-        projectData.put("duration", current + secondsToAdd)
-
-        // Add to history array
-        val historyArray = projectData.optJSONArray("history") ?: JSONArray()
-        val entry = JSONObject().apply {
-            put("start", start.toString())
-            put("end", now.toString())
-            put("type", "coding")
-            if (filePath != null) put("file", filePath)
-        }
-        historyArray.put(entry)
-        projectData.put("history", historyArray)
-
-        // Save everything
-        dayData.put(projectName, projectData)
-        json.put(today, dayData)
-
-        dataFile.parentFile.mkdirs()
-        FileWriter(dataFile).use { it.write(json.toString(2)) }
+        DBManager.insertSession(
+            project = projectName,
+            startIso = start.toString(),
+            endIso   = now.toString(),
+            type      = "coding",
+            file      = filePath
+        )
     }
 }

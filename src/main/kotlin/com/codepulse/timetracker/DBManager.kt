@@ -1,0 +1,120 @@
+package com.codepulse.timetracker
+
+import java.io.File
+import java.sql.Connection
+import java.sql.DriverManager
+import java.time.LocalDate
+import org.json.JSONArray
+import org.json.JSONObject
+import org.sqlite.SQLiteDataSource
+
+object DBManager {
+    private const val DB_NAME = "data.db"
+    private val dbFile = File(System.getProperty("user.home"), ".cache/phpstorm-time-tracker/$DB_NAME")
+    private val conn: Connection
+
+    init {
+        println("→→→→→→ Opening SQLite DB at ${dbFile.absolutePath}")
+
+        dbFile.parentFile.mkdirs()
+
+        // create and configure the datasource
+        val ds = SQLiteDataSource().apply {
+            url = "jdbc:sqlite:${dbFile.absolutePath}"
+        }
+        conn = ds.connection
+        conn.createStatement().use { st ->
+            st.executeUpdate("""
+        CREATE TABLE IF NOT EXISTS sessions (
+          id      INTEGER PRIMARY KEY AUTOINCREMENT,
+          project TEXT    NOT NULL,
+          date    TEXT    NOT NULL,     -- ISO yyyy-MM-dd
+          start   TEXT    NOT NULL,     -- ISO datetime
+          end     TEXT    NOT NULL,     -- ISO datetime
+          type    TEXT    NOT NULL,
+          file    TEXT,
+          host    TEXT,
+          url     TEXT
+        );
+      """.trimIndent())
+        }
+    }
+
+    fun insertSession(
+        project: String,
+        startIso: String,
+        endIso: String,
+        type: String,
+        file: String? = null,
+        host: String? = null,
+        url: String? = null
+    ) {
+        val date = startIso.substringBefore('T')
+        conn.prepareStatement("""
+      INSERT INTO sessions (project, date, start, end, type, file, host, url)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """.trimIndent()).use { ps ->
+            ps.setString(1, project)
+            ps.setString(2, date)
+            ps.setString(3, startIso)
+            ps.setString(4, endIso)
+            ps.setString(5, type)
+            ps.setString(6, file)
+            ps.setString(7, host)
+            ps.setString(8, url)
+            ps.executeUpdate()
+        }
+    }
+
+    fun querySessions(fromDate: LocalDate, toDate: LocalDate): JSONArray {
+        val arr = JSONArray()
+        conn.prepareStatement("""
+      SELECT * FROM sessions
+      WHERE date BETWEEN ? AND ?
+      ORDER BY start
+    """.trimIndent()).use { ps ->
+            ps.setString(1, fromDate.toString())
+            ps.setString(2, toDate.toString())
+            val rs = ps.executeQuery()
+            while (rs.next()) {
+                val obj = JSONObject()
+                obj.put("project", rs.getString("project"))
+                obj.put("date",    rs.getString("date"))
+                obj.put("start",   rs.getString("start"))
+                obj.put("end",     rs.getString("end"))
+                obj.put("type",    rs.getString("type"))
+                rs.getString("file")?.let { obj.put("file", it) }
+                rs.getString("host")?.let { obj.put("host", it) }
+                rs.getString("url")?.let { obj.put("url", it) }
+                arr.put(obj)
+            }
+        }
+        return arr
+    }
+
+    fun querySessionsByProject(project: String, fromDate: LocalDate, toDate: LocalDate): JSONArray {
+        val arr = JSONArray()
+        conn.prepareStatement("""
+      SELECT * FROM sessions
+      WHERE date BETWEEN ? AND ?
+      ORDER BY start
+    """.trimIndent()).use { ps ->
+            ps.setString(1, fromDate.toString())
+            ps.setString(2, toDate.toString())
+            val rs = ps.executeQuery()
+            while (rs.next()) {
+                val obj = JSONObject()
+                obj.put("project", rs.getString("project"))
+                obj.put("date",    rs.getString("date"))
+                obj.put("start",   rs.getString("start"))
+                obj.put("end",     rs.getString("end"))
+                obj.put("type",    rs.getString("type"))
+                rs.getString("file")?.let { obj.put("file", it) }
+                rs.getString("host")?.let { obj.put("host", it) }
+                rs.getString("url")?.let { obj.put("url", it) }
+                arr.put(obj)
+            }
+        }
+        return arr
+    }
+}

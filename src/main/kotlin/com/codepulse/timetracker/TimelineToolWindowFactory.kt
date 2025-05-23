@@ -1,5 +1,6 @@
 package com.codepulse.timetracker.timeline
 
+import com.codepulse.timetracker.DBManager
 import com.codepulse.timetracker.HistoryGrouper
 import com.codepulse.timetracker.TimeTrackerToolWindowFactory
 import com.codepulse.timetracker.settings.TimeTrackerSettings
@@ -22,7 +23,6 @@ import java.util.*
 import javax.swing.*
 
 class TimelineToolWindowFactory : ToolWindowFactory {
-    private val dataFile = File(System.getProperty("user.home") + "/.cache/phpstorm-time-tracker/data.json")
     private var weekOffset = 0
     private lateinit var scrollPane: JBScrollPane
     private lateinit var tabbedPane: JTabbedPane
@@ -113,10 +113,6 @@ class TimelineToolWindowFactory : ToolWindowFactory {
                 }
             }
 
-            println(project.name)
-            println(todayHistory)
-
-
             dayScrollPane.setViewportView(DayTimelinePanel(todayHistory))
             updateDayLabel()
         }
@@ -178,39 +174,10 @@ class TimelineToolWindowFactory : ToolWindowFactory {
 
 
     private fun loadFilteredHistory(projectName: String, weekOffset: Int): JSONArray {
-        val json = if (dataFile.exists()) JSONObject(dataFile.readText()) else JSONObject()
-
-        val fullHistory = JSONArray()
-        val targetWeek = LocalDate.now().plusWeeks(weekOffset.toLong())
-        val weekFields = WeekFields.of(Locale.getDefault())
-        val targetWeekNumber = targetWeek.get(weekFields.weekOfWeekBasedYear())
-        val targetYear = targetWeek.year
-
-        for (dateKey in json.keySet()) {
-            if (dateKey == "config") continue
-            val date = try {
-                LocalDate.parse(dateKey, DateTimeFormatter.ISO_DATE)
-            } catch (_: Exception) { continue }
-
-            val weekNum = date.get(weekFields.weekOfWeekBasedYear())
-            if (weekNum != targetWeekNumber || date.year != targetYear) continue
-
-            val dayData = json.optJSONObject(dateKey) ?: continue
-            for (project in dayData.keySet()) {
-                val projectData = dayData.optJSONObject(project) ?: continue
-                val historyArray = projectData.optJSONArray("history") ?: continue
-
-                val rawList = (0 until historyArray.length()).mapNotNull { historyArray.optJSONObject(it) }
-                val grouped = HistoryGrouper.groupCloseSessions(rawList)
-
-                for (entry in rawList) {
-                    entry.put("date", dateKey)
-                    entry.put("project", project)
-                    fullHistory.put(entry)
-                }
-            }
-        }
-
-        return fullHistory
+        val today = LocalDate.now().plusWeeks(weekOffset.toLong())
+        val wf    = WeekFields.of(Locale.getDefault())
+        val startOfWeek = today.with(wf.dayOfWeek(), 1)
+        val endOfWeek   = startOfWeek.plusDays(6)
+        return DBManager.querySessions(startOfWeek, endOfWeek)
     }
 }

@@ -85,36 +85,22 @@ object BrowsingTrackerServer {
         }
 
         fun addBrowsingTime(projectName: String, host: String, fullUrl: String, seconds: Long) {
-            val dateKey = LocalDate.now().toString()
-            val json = if (dataFile.exists()) JSONObject(dataFile.readText()) else JSONObject()
-
-            val dateNode = json.optJSONObject(dateKey) ?: JSONObject()
-            val projectNode = dateNode.optJSONObject(projectName) ?: JSONObject()
-
-            // Optionally also update "duration"
-            projectNode.put("duration", projectNode.optInt("duration", 0) + seconds)
 
             val now = LocalDateTime.now()
             val start = now.minusSeconds(seconds)
-            // ➕ Add to history array
-            val historyArray = projectNode.optJSONArray("history") ?: JSONArray()
-            val entry = JSONObject().apply {
-                put("start", start.toString())
-                put("end", now.toString())
-                put("type", "browsing")
-                put("host", host)
-                put("url", fullUrl)
-            }
-            historyArray.put(entry)
-            projectNode.put("history", historyArray)
 
-            dateNode.put(projectName, projectNode)
-            json.put(dateKey, dateNode)
-            dataFile.writeText(json.toString(2))
+            DBManager.insertSession(
+                project = projectName,
+                startIso = start.toString(),
+                endIso   = now.toString(),
+                type      = "browsing",
+                host      = host,
+                url       = fullUrl
+            )
 
             ApplicationManager.getApplication().invokeLater {
                 NotificationGroupManager.getInstance()
-                    .getNotificationGroup("MXO Time Tracker")
+                    .getNotificationGroup("CodePulse Time Tracker")
                     ?.createNotification(
                         "Browsing Time Logged",
                         "Added ${seconds}s for <b>$host</b><br><i>$host</i><br>→ <b>project: $projectName</b>",
