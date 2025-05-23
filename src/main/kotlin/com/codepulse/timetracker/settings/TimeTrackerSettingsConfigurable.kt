@@ -1,97 +1,99 @@
 package com.codepulse.timetracker.settings
 
 import com.intellij.openapi.options.Configurable
+import com.intellij.ui.components.JBCheckBox
+import com.intellij.ui.components.JBLabel
+import com.intellij.ui.components.JBPanel
+import java.awt.*
 import javax.swing.*
-import java.awt.FlowLayout
-import java.awt.GridBagConstraints
-import java.awt.GridBagLayout
-import java.awt.Insets
 
 class TimeTrackerSettingsConfigurable : Configurable {
+    private val settings = TimeTrackerSettings.getInstance().state
 
-    private lateinit var panel: JPanel
-    private lateinit var autoStartCheckbox: JCheckBox
-    private lateinit var showPopupCheckbox: JCheckBox
-    private lateinit var spinner: JSpinner
+    private var dailyGoalSpinner: JSpinner? = null
+    private var timeoutSpinner: JSpinner? = null
+    private var autoStartCheckbox: JBCheckBox? = null
+    private var showPopupCheckbox: JBCheckBox? = null
 
-    private val settings = TimeTrackerSettings.getInstance()
-
-    override fun getDisplayName(): String = "MXO Time Tracker"
+    override fun getDisplayName(): String = "CodePulse Time Tracker"
 
     override fun createComponent(): JComponent {
-
-        autoStartCheckbox = JCheckBox("Automatically start browsing tracker")
-        autoStartCheckbox.alignmentX = JPanel.LEFT_ALIGNMENT
-
-        showPopupCheckbox = JCheckBox("Show popup when time is tracked")
-        showPopupCheckbox.alignmentX = JPanel.LEFT_ALIGNMENT
-
-        spinner = JSpinner(SpinnerNumberModel(
-            TimeTrackerSettings.getInstance().state.dailyGoalHours, // initial
-            0.0,    // min
-            24.0,   // max
-            0.5    // step
-        ))
+        val outer = JBPanel<JBPanel<*>>()
+        outer.layout = BorderLayout()
 
         val panel = JPanel(GridBagLayout())
-        val c = GridBagConstraints().apply {
+        outer.add(panel, BorderLayout.NORTH)
+
+        val gbcLabel = GridBagConstraints().apply {
             anchor = GridBagConstraints.WEST
-            insets = Insets(4, 10, 4, 10)
+            fill = GridBagConstraints.NONE
             gridx = 0
-            gridy = 0
-            fill = GridBagConstraints.HORIZONTAL
             weightx = 0.0
+            insets = Insets(6, 10, 6, 10)
         }
 
-// Row 1: Auto-start checkbox (spans 2 columns)
-        autoStartCheckbox = JCheckBox("Automatically start browsing tracker")
-        c.gridwidth = 2
-        panel.add(autoStartCheckbox, c)
+        val gbcField = GridBagConstraints().apply {
+            anchor = GridBagConstraints.WEST
+            fill = GridBagConstraints.NONE
+            gridx = 1
+            weightx = 1.0
+            insets = Insets(6, 0, 6, 10)
+        }
 
-// Row 2
-        c.gridy++
-        showPopupCheckbox = JCheckBox("Show popup when time is tracked")
-        panel.add(showPopupCheckbox, c)
+        var row = 0
 
-// Row 3: Spinner label & control aligned
-        c.gridy++
-        c.gridwidth = 1
-        c.gridx = 0
-        c.weightx = 0.0
-        panel.add(JLabel("Objectif quotidien (heures)"), c)
+        autoStartCheckbox = JBCheckBox("Automatically start browsing tracker", settings.autoStart)
+        gbcLabel.gridy = row
+        gbcLabel.gridwidth = 2
+        panel.add(autoStartCheckbox, gbcLabel)
+        row++
 
-        c.gridx = 1
-        c.weightx = 1.0
-        spinner = JSpinner(SpinnerNumberModel(settings.state.dailyGoalHours, 0.0, 24.0, 0.5))
-        panel.add(spinner, c)
+        showPopupCheckbox = JBCheckBox("Show popup when time is tracked", settings.showPopup)
+        gbcLabel.gridy = row
+        panel.add(showPopupCheckbox, gbcLabel)
+        row++
 
+        gbcLabel.gridy = row
+        gbcLabel.gridwidth = 1
+        panel.add(JBLabel("Objectif quotidien (heures):"), gbcLabel)
+        dailyGoalSpinner = JSpinner(SpinnerNumberModel(settings.dailyGoalHours, 1.0, 24.0, 0.5)).apply {
+            preferredSize = Dimension(60, preferredSize.height)
+        }
+        gbcField.gridy = row
+        panel.add(dailyGoalSpinner, gbcField)
+        row++
 
-        return panel
+        gbcLabel.gridy = row
+        panel.add(JBLabel("Keystroke timeout (minutes):"), gbcLabel)
+        timeoutSpinner = JSpinner(SpinnerNumberModel(settings.keystrokeTimeoutSeconds / 60, 1, 600, 1)).apply {
+            preferredSize = Dimension(60, preferredSize.height)
+        }
+        gbcField.gridy = row
+        panel.add(timeoutSpinner, gbcField)
 
+        return outer
     }
 
     override fun isModified(): Boolean {
-        val state = settings.state
-        return autoStartCheckbox.isSelected != state.autoStart ||
-                showPopupCheckbox.isSelected != state.showPopup ||
-                (spinner.value as? Double) != state.dailyGoalHours
+        return autoStartCheckbox?.isSelected != settings.autoStart ||
+                showPopupCheckbox?.isSelected != settings.showPopup ||
+                (dailyGoalSpinner?.value as? Double)?.compareTo(settings.dailyGoalHours) != 0 ||
+                ((timeoutSpinner?.value as? Int)?.times(60)) != settings.keystrokeTimeoutSeconds
     }
 
     override fun apply() {
-        val state = settings.state
-        state.autoStart = autoStartCheckbox.isSelected
-        state.showPopup = showPopupCheckbox.isSelected
-        state.dailyGoalHours = (spinner.value as? Double) ?: 8.0
+        settings.autoStart = autoStartCheckbox?.isSelected ?: settings.autoStart
+        settings.showPopup = showPopupCheckbox?.isSelected ?: settings.showPopup
+        settings.dailyGoalHours = (dailyGoalSpinner?.value as? Double) ?: settings.dailyGoalHours
+        settings.keystrokeTimeoutSeconds = ((timeoutSpinner?.value as? Int)?.times(60)) ?: settings.keystrokeTimeoutSeconds
     }
 
     override fun reset() {
-        val state = settings.state
-        autoStartCheckbox.isSelected = state.autoStart
-        showPopupCheckbox.isSelected = state.showPopup
-        spinner.value = state.dailyGoalHours
+        autoStartCheckbox?.isSelected = settings.autoStart
+        showPopupCheckbox?.isSelected = settings.showPopup
+        dailyGoalSpinner?.value = settings.dailyGoalHours
+        timeoutSpinner?.value = settings.keystrokeTimeoutSeconds / 60
     }
 
-    override fun disposeUIResources() {
-        // Optional: clean up UI resources
-    }
+    override fun disposeUIResources() {}
 }

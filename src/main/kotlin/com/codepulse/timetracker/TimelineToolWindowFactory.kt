@@ -1,5 +1,8 @@
 package com.codepulse.timetracker.timeline
 
+import com.codepulse.timetracker.HistoryGrouper
+import com.codepulse.timetracker.TimeTrackerToolWindowFactory
+import com.codepulse.timetracker.settings.TimeTrackerSettings
 import com.codepulse.timetracker.timeline.ui.DayTimelinePanel
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
@@ -171,6 +174,7 @@ class TimelineToolWindowFactory : ToolWindowFactory {
 
     private fun loadFilteredHistory(projectName: String, weekOffset: Int): JSONArray {
         val json = if (dataFile.exists()) JSONObject(dataFile.readText()) else JSONObject()
+
         val fullHistory = JSONArray()
         val targetWeek = LocalDate.now().plusWeeks(weekOffset.toLong())
         val weekFields = WeekFields.of(Locale.getDefault())
@@ -191,8 +195,10 @@ class TimelineToolWindowFactory : ToolWindowFactory {
                 val projectData = dayData.optJSONObject(project) ?: continue
                 val historyArray = projectData.optJSONArray("history") ?: continue
 
-                for (i in 0 until historyArray.length()) {
-                    val entry = historyArray.getJSONObject(i)
+                val rawList = (0 until historyArray.length()).mapNotNull { historyArray.optJSONObject(it) }
+                val grouped = HistoryGrouper.groupCloseSessions(rawList)
+
+                for (entry in grouped) {
                     entry.put("date", dateKey)
                     entry.put("project", project)
                     fullHistory.put(entry)

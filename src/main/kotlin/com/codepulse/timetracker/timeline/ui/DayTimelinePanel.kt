@@ -4,6 +4,10 @@ import com.intellij.ui.JBColor
 import org.json.JSONArray
 import org.json.JSONObject
 import java.awt.*
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
+import java.awt.event.MouseMotionAdapter
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeParseException
@@ -11,93 +15,47 @@ import javax.swing.JPanel
 
 class DayTimelinePanel(private var history: JSONArray) : JPanel() {
 
-    companion object {
-        var DEBUG_USE_FAKE_DATA = false
+    private val tooltipMap = mutableMapOf<Rectangle, String>()
+    private val expandedProjects = mutableSetOf<String>()
+    private val rowHeight = 24
+    private val padding = 6
+    private val labelWidth = 180
+    private val timelineLeft = labelWidth + 8
+    private val secondsInDay = 24 * 60 * 60
+    private val topPadding = 20
+    private val rowHeightWithPadding = rowHeight + padding
 
-        fun generateFakeHistory(
-            daysBack: Int = 7,
-            onlyDate: LocalDate? = null
-        ): JSONArray {
-            val history = JSONArray()
-            val today = LocalDate.now()
-            val projects = listOf("mxoutils", "ihr", "prb-sai", "OPS")
-            val rand = java.util.Random()
-
-            for (d in 0 until daysBack) {
-                val date = today.minusDays(d.toLong())
-                if (onlyDate != null && date != onlyDate) continue
-
-                for (project in projects) {
-                    val sessionCount = rand.nextInt(3) + 1
-                    for (s in 0 until sessionCount) {
-                        val startHour = 8 + rand.nextInt(10) // 8AM–6PM
-                        val startMin = rand.nextInt(60)
-                        val durationMin = 20 + rand.nextInt(50)
-
-                        val start = date.atTime(startHour, startMin)
-                        val end = start.plusMinutes(durationMin.toLong())
-
-                        if (end.isAfter(LocalDate.now().atTime(23, 59))) continue
-
-                        history.put(JSONObject().apply {
-                            put("date", date.toString())
-                            put("project", project)
-                            put("start", start.toString())
-                            put("end", end.toString())
-                            put("type", if (project == "ihr") "browsing" else "coding")
-                        })
-                    }
-                }
-            }
-
-            return history
-        }
-
-        fun wrapFakeHistoryAsJSONObject(history: JSONArray): JSONObject {
-            val result = JSONObject()
-
-            for (i in 0 until history.length()) {
-                val entry = history.getJSONObject(i)
-                val date = entry.getString("date")
-                val project = entry.optString("project", "Unknown")
-                val start = LocalDateTime.parse(entry.getString("start"))
-                val end = LocalDateTime.parse(entry.getString("end"))
-                val duration = java.time.Duration.between(start, end).seconds.toInt()
-
-                val dayNode = result.optJSONObject(date) ?: JSONObject().also {
-                    result.put(date, it)
-                }
-
-                val projectNode = dayNode.optJSONObject(project) ?: JSONObject().also {
-                    it.put("duration", 0)
-                    it.put("history", JSONArray())
-                    dayNode.put(project, it)
-                }
-
-                projectNode.put("duration", projectNode.getInt("duration") + duration)
-                projectNode.getJSONArray("history").put(entry)
-            }
-
-            return result
-        }
-    }
+    private var projectRowBounds: List<Pair<String, Rectangle>> = emptyList()
 
     init {
         preferredSize = Dimension(1000, 150)
         background = JBColor.PanelBackground
 
-        if (DEBUG_USE_FAKE_DATA) {
-            history = generateFakeHistory(7)
-        }
+        toolTipText = ""
+        addMouseMotionListener(object : MouseMotionAdapter() {
+            override fun mouseMoved(e: MouseEvent) {
+                val tip = tooltipMap.entries.firstOrNull { it.key.contains(e.point) }?.value
+                toolTipText = tip ?: ""
+            }
+        })
+
+        addMouseListener(object : MouseAdapter() {
+            override fun mouseClicked(e: MouseEvent) {
+                projectRowBounds.firstOrNull { it.second.contains(e.point) }?.first?.let { clickedProject ->
+                    if (expandedProjects.contains(clickedProject)) expandedProjects.remove(clickedProject)
+                    else expandedProjects.add(clickedProject)
+                    repaint()
+                }
+            }
+        })
     }
 
     override fun paintComponent(g: Graphics) {
         super.paintComponent(g)
         val g2 = g as Graphics2D
-        val width = width
-        val secondsInDay = 24 * 60 * 60
+        tooltipMap.clear()
+        projectRowBounds = emptyList()
 
-        // Group by project
         val groupedByProject = mutableMapOf<String, MutableList<JSONObject>>()
         for (i in 0 until history.length()) {
             val obj = history.getJSONObject(i)
@@ -105,59 +63,108 @@ class DayTimelinePanel(private var history: JSONArray) : JPanel() {
             groupedByProject.computeIfAbsent(project) { mutableListOf() }.add(obj)
         }
 
-        val rowHeight = 24
-        val padding = 6
-        val labelWidth = 100
-        val timelineLeft = labelWidth + 8
-        val totalHeight = groupedByProject.size * (rowHeight + padding)
-        preferredSize = Dimension(width, totalHeight + 40)
+        val projectDurations = groupedByProject.mapValues { (_, entries) ->
+            entries.sumOf {
+                val start = LocalDateTime.parse(it.getString("start"))
+                val end = LocalDateTime.parse(it.getString("end"))
+                Duration.between(start, end).seconds
+            }
+        }
 
-        // Draw hour ticks
+        val fileDurationsByProject = groupedByProject.mapValues { (_, entries) ->
+            entries.groupBy { it.optString("file", "[no file]") }.mapValues { (_, fileEntries) ->
+                fileEntries.sumOf {
+                    val start = LocalDateTime.parse(it.getString("start"))
+                    val end = LocalDateTime.parse(it.getString("end"))
+                    Duration.between(start, end).seconds
+                }
+            }
+        }
+
+        val groupedProjectKeys = groupedByProject.keys.sorted()
+        val totalRows = groupedProjectKeys.sumOf {
+            1 + if (expandedProjects.contains(it)) fileDurationsByProject[it]?.size ?: 0 else 0
+        }
+        preferredSize = Dimension(width, topPadding + totalRows * rowHeightWithPadding + 40)
+
         g2.color = JBColor.GRAY
         g2.font = Font("SansSerif", Font.PLAIN, 10)
         for (h in 0..24) {
             val x = timelineLeft + (h / 24.0 * (width - timelineLeft)).toInt()
-            g2.drawLine(x, 0, x, totalHeight + 20)
+            g2.drawLine(x, 0, x, height)
             val label = "${h}h"
             val labelWidthPx = g2.fontMetrics.stringWidth(label)
-            g2.drawString(label, x - labelWidthPx / 2, totalHeight + 30)
+            g2.drawString(label, x - labelWidthPx / 2, height - 10)
         }
 
-        var rowIndex = 0
-        for ((project, entries) in groupedByProject.entries.sortedBy { it.key }) {
-            val y = rowIndex * (rowHeight + padding) + 20
+        var rowY = topPadding
+        val rowBounds = mutableListOf<Pair<String, Rectangle>>()
 
-            // Draw label
+        for (project in groupedProjectKeys) {
+            val entries = groupedByProject[project] ?: continue
+            val duration = formatDuration(projectDurations[project] ?: 0)
+
+            val label = if (expandedProjects.contains(project)) "▼ $project ($duration)" else "▶ $project ($duration)"
+            g2.font = Font("Monospaced", Font.BOLD, 11)
             g2.color = JBColor.foreground()
-            g2.drawString(project, 5, y + rowHeight / 2 + 4)
+            g2.drawString(label, 5, rowY + rowHeight / 2 + 4)
 
-            for (entry in entries) {
-                try {
-                    val start = LocalDateTime.parse(entry.getString("start"))
-                    val end = LocalDateTime.parse(entry.getString("end"))
-                    val type = entry.optString("type", "unknown")
+            rowBounds.add(project to Rectangle(0, rowY, timelineLeft, rowHeight))
+            drawBars(entries, g2, rowY)
 
-                    val startSec = start.toLocalTime().toSecondOfDay()
-                    val endSec = end.toLocalTime().toSecondOfDay()
-                    val x = timelineLeft + (startSec / secondsInDay.toDouble() * (width - timelineLeft)).toInt()
-                    val w = ((endSec - startSec) / secondsInDay.toDouble() * (width - timelineLeft)).toInt().coerceAtLeast(1)
+            rowY += rowHeightWithPadding
 
-                    g2.color = when (type) {
-                        "coding" -> JBColor.BLUE
-                        "browsing" -> JBColor.ORANGE
-                        else -> JBColor.GRAY
-                    }
-
-                    g2.fillRect(x, y, w, rowHeight - 4)
-                    g2.color = g2.color.darker()
-                    g2.drawRect(x, y, w, rowHeight - 4)
-
-                } catch (e: DateTimeParseException) {
-                    continue
+            if (expandedProjects.contains(project)) {
+                val files = entries.groupBy { it.optString("file", "[no file]") }
+                for ((file, fileEntries) in files.entries.sortedBy { it.key }) {
+                    val fileDuration = formatDuration(fileDurationsByProject[project]?.get(file) ?: 0)
+                    g2.font = Font("Monospaced", Font.PLAIN, 11)
+                    g2.drawString("   $file ($fileDuration)", 8, rowY + rowHeight / 2 + 4)
+                    drawBars(fileEntries, g2, rowY)
+                    rowY += rowHeightWithPadding
                 }
             }
-
-            rowIndex++
         }
+
+        projectRowBounds = rowBounds
+    }
+
+    private fun drawBars(entries: List<JSONObject>, g2: Graphics2D, y: Int) {
+        for (entry in entries) {
+            try {
+                val start = LocalDateTime.parse(entry.getString("start"))
+                val end = LocalDateTime.parse(entry.getString("end"))
+                val type = entry.optString("type", "unknown")
+                val startSec = start.toLocalTime().toSecondOfDay()
+                val endSec = end.toLocalTime().toSecondOfDay()
+                val x = timelineLeft + (startSec / secondsInDay.toDouble() * (width - timelineLeft)).toInt()
+                val w = ((endSec - startSec) / secondsInDay.toDouble() * (width - timelineLeft)).toInt().coerceAtLeast(1)
+
+                g2.color = when (type) {
+                    "coding" -> JBColor.BLUE
+                    "browsing" -> JBColor.ORANGE
+                    else -> JBColor.GRAY
+                }
+
+                val rect = Rectangle(x, y, w, rowHeight - 4)
+                g2.fill(rect)
+                g2.color = g2.color.darker()
+                g2.draw(rect)
+
+                val duration = Duration.between(start, end).seconds
+                val minutes = duration / 60
+                val seconds = duration % 60
+                tooltipMap[rect] = "$type: ${minutes}m ${seconds}s"
+
+            } catch (e: DateTimeParseException) {
+                continue
+            }
+        }
+    }
+
+    private fun formatDuration(seconds: Long): String {
+        val h = seconds / 3600
+        val m = (seconds % 3600) / 60
+        return if (h > 0) "${h}h${m}m" else "${m}m"
     }
 }

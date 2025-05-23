@@ -13,7 +13,6 @@ import java.time.temporal.WeekFields
 import java.util.Locale
 import javax.swing.JPanel
 import com.codepulse.timetracker.settings.TimeTrackerSettings
-import com.codepulse.timetracker.timeline.util.ProjectColorManager
 
 class StackedTimelinePanel(
     historyArray: JSONArray,
@@ -22,6 +21,16 @@ class StackedTimelinePanel(
 
     private val projectColorMap = mutableMapOf<String, Color>()
     val dailyGoalHours = TimeTrackerSettings.getInstance().state.dailyGoalHours
+
+    private val colors = listOf(
+        Color(0x00393A), // Velours
+        Color(0x0A5D60), // Baumier
+        Color(0xA87B5C), // Cèdre
+        Color(0x893813), // Cognac
+        Color(0xBA68C8), // Bonus
+        Color(0xE57373), // Bonus
+        Color(0x64B5F6)  // Bonus
+    )
 
     private val data: MutableMap<String, MutableMap<String, Int>> = mutableMapOf()
     private val tooltipMap = mutableMapOf<Rectangle, String>()
@@ -69,19 +78,67 @@ class StackedTimelinePanel(
                 .merge(project, duration, Int::plus)
 
             if (!projectColorMap.containsKey(project)) {
-                val base = ProjectColorManager.getColor(project)
+                val base = colors[colorIndex % colors.size]
                 projectColorMap[project] = Color(base.red, base.green, base.blue, 180)
                 colorIndex++
             }
         }
     }
 
+    private fun groupHistoryByTimeout(array: JSONArray, timeoutSeconds: Long): List<Triple<String, String, Int>> {
+        val sorted = (0 until array.length())
+            .mapNotNull { i -> array.optJSONObject(i) }
+            .sortedBy { it.optString("start") }
+
+        val groups = mutableListOf<Triple<String, String, Int>>()
+        var lastEnd: LocalDateTime? = null
+        var currentProject: String? = null
+        var currentDate: String? = null
+        var groupDuration = 0
+
+        for (entry in sorted) {
+            val start = try {
+                LocalDateTime.parse(entry.getString("start"))
+            } catch (e: Exception) {
+                continue
+            }
+
+            val end = try {
+                LocalDateTime.parse(entry.getString("end"))
+            } catch (e: Exception) {
+                continue
+            }
+
+            val duration = Duration.between(start, end).seconds.toInt().coerceAtLeast(0)
+            val date = entry.optString("date")
+            val project = entry.optString("project", "Unknown")
+
+            if (lastEnd != null && Duration.between(lastEnd, start).seconds > timeoutSeconds) {
+                if (currentDate != null && currentProject != null && groupDuration > 0) {
+                    groups.add(Triple(currentProject, currentDate, groupDuration))
+                }
+                groupDuration = 0
+            }
+
+            lastEnd = end
+            currentProject = project
+            currentDate = date
+            groupDuration += duration
+        }
+
+        if (currentDate != null && currentProject != null && groupDuration > 0) {
+            groups.add(Triple(currentProject, currentDate, groupDuration))
+        }
+
+        return groups
+    }
+
     override fun paintComponent(g: Graphics) {
-        // Fill background of legend column
         val legendColumnWidth = 160
-        g.color = Color(30, 30, 30) // or a gradient later
+        g.color = Color(30, 30, 30)
         g.fillRect(0, 0, legendColumnWidth, height)
         super.paintComponent(g)
+
         val g2 = g as Graphics2D
         val dateCount = sortedDates.size
         if (dateCount == 0) return
@@ -131,7 +188,7 @@ class StackedTimelinePanel(
                 g2.font = Font("SansSerif", Font.BOLD, 10)
                 val hours = rawDuration / 3600
                 val minutes = (rawDuration % 3600) / 60
-                val label = if (hours > 0) "${project} : ${hours}h${"%02d".format(minutes)}m" else "${project} : ${"%02d".format(minutes)}m"
+                val label = if (hours > 0) "$project : ${hours}h${"%02d".format(minutes)}m" else "$project : ${"%02d".format(minutes)}m"
                 val fm = g2.fontMetrics
                 if (rect.height > fm.height) {
                     val tx = rect.x + (rect.width - fm.stringWidth(label)) / 2
@@ -143,7 +200,6 @@ class StackedTimelinePanel(
                 yOffset -= h
             }
 
-            // Draw total duration at the bottom
             g2.color = JBColor.foreground()
             g2.font = Font("SansSerif", Font.BOLD, 10)
             val h = totalDaySeconds / 3600
@@ -161,11 +217,9 @@ class StackedTimelinePanel(
         g2.drawLine(legendColumnWidth, goalY, width, goalY)
         g2.stroke = oldStroke
 
-        // Draw divider line between legend and chart
         g2.color = JBColor.border()
         g2.drawLine(legendColumnWidth - 1, 0, legendColumnWidth - 1, height)
 
-        // Draw X-axis labels
         g2.color = JBColor.foreground()
         g2.font = Font("SansSerif", Font.PLAIN, 10)
         for ((i, dateStr) in sortedDates.withIndex()) {
@@ -179,7 +233,6 @@ class StackedTimelinePanel(
             g2.drawString(label, labelX, height - 5)
         }
 
-        // Draw legend
         val legendX = 10
         val legendY = 10
         val legendRowHeight = 20
@@ -212,6 +265,6 @@ class StackedTimelinePanel(
     }
 
     fun setData(newHistory: JSONArray) {
-        // optional future support
+        // placeholder for future updates
     }
 }

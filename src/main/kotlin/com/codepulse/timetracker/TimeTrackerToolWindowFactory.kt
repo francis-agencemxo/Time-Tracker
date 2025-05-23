@@ -1,8 +1,8 @@
 package com.codepulse.timetracker
 
+import com.codepulse.timetracker.settings.TimeTrackerSettings
 import javax.swing.BorderFactory
 import com.intellij.icons.AllIcons
-import com.intellij.icons.ExpUiIcons
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.ActionUpdateThreadAware
@@ -31,12 +31,14 @@ import java.io.File
 import java.net.BindException
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.time.Duration
 import javax.swing.*
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.DefaultTreeCellRenderer
 import javax.swing.tree.DefaultTreeModel
 import javax.swing.tree.TreePath
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.WeekFields
 import java.util.*
@@ -107,50 +109,76 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
     private val dataFile = File(System.getProperty("user.home") + "/.cache/phpstorm-time-tracker/data.json")
 
 
-    private fun computeDetailedBreakdown(
-        history: JSONArray
-    ): Triple<Map<String, Int>, Map<String, Map<String, Int>>, Map<String, Int>> {
+    private fun computeDetailedBreakdown(history: JSONArray): Triple<Map<String, Int>, Map<String, Map<String, Int>>, Map<String, Int>> {
+        val timeout = TimeTrackerSettings.getInstance().state.keystrokeTimeoutSeconds.toLong()
+
+        val sorted = (0 until history.length())
+            .mapNotNull { history.optJSONObject(it) }
+            .sortedBy { it.optString("start") }
+
         val typeDuration = mutableMapOf<String, Int>()
         val browsingMap = mutableMapOf<String, MutableMap<String, Int>>()
         val fileMap = mutableMapOf<String, Int>()
 
-        for (i in 0 until history.length()) {
-            val entry = history.getJSONObject(i)
-            val type = entry.optString("type", "unknown")
-            val start = entry.optString("start")
-            val end = entry.optString("end")
+        var lastEnd: LocalDateTime? = null
+        var groupStart: LocalDateTime? = null
+        var groupEnd: LocalDateTime? = null
+        var groupType: String? = null
+        var groupFile: String? = null
+        var groupHost: String? = null
+        var groupUrl: String? = null
 
-            val startTime = try {
-                java.time.LocalDateTime.parse(start)
-            } catch (_: Exception) {
-                continue
-            }
-            val endTime = try {
-                java.time.LocalDateTime.parse(end)
-            } catch (_: Exception) {
-                continue
-            }
-
-            val seconds = java.time.Duration.between(startTime, endTime).seconds.toInt()
-            if (seconds <= 0) continue
-
-            typeDuration[type] = typeDuration.getOrDefault(type, 0) + seconds
-
-            if (type == "browsing") {
-                val host = entry.optString("host", "unknown")
-                val url = entry.optString("url", "unknown")
+        fun flushGroup() {
+            if (groupType == null || groupStart == null || groupEnd == null) return
+            val duration = Duration.between(groupStart, groupEnd).seconds.toInt().coerceAtLeast(0)
+            if (groupType == "browsing") {
+                val host = groupHost ?: "unknown"
+                val url = groupUrl ?: "unknown"
                 val urls = browsingMap.computeIfAbsent(host) { mutableMapOf() }
-                urls[url] = urls.getOrDefault(url, 0) + seconds
+                urls[url] = urls.getOrDefault(url, 0) + duration
+            } else {
+                typeDuration[groupType!!] = typeDuration.getOrDefault(groupType!!, 0) + duration
+                if (groupType == "coding" && groupFile != null) {
+                    fileMap[groupFile!!] = fileMap.getOrDefault(groupFile!!, 0) + duration
+                }
+            }
+            groupType = null
+            groupFile = null
+            groupHost = null
+            groupUrl = null
+            groupStart = null
+            groupEnd = null
+        }
+
+        val grouped = HistoryGrouper.groupCloseSessions(sorted)
+
+        for (entry in grouped) {
+            val type = entry.optString("type", "unknown")
+            val start = try { LocalDateTime.parse(entry.getString("start")) } catch (_: Exception) { continue }
+            val end = try { LocalDateTime.parse(entry.getString("end")) } catch (_: Exception) { continue }
+            val file = entry.optString("file", null)
+            val host = entry.optString("host", null)
+            val url = entry.optString("url", null)
+
+            if (lastEnd != null && Duration.between(lastEnd, start).seconds > timeout) {
+                flushGroup()
             }
 
-            if (type == "coding" && entry.has("file")) {
-                val file = entry.optString("file")
-                fileMap[file] = fileMap.getOrDefault(file, 0) + seconds
+            if (groupStart == null) {
+                groupStart = start
+                groupType = type
+                groupFile = file
+                groupHost = host
+                groupUrl = url
             }
+            groupEnd = end
+            lastEnd = end
         }
+        flushGroup()
 
         return Triple(typeDuration, browsingMap, fileMap)
     }
+
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
 

@@ -3,5 +3,6 @@ package com.codepulse.timetracker.settings
 data class TimeTrackerSettingsState(
     var autoStartBrowsing: Boolean = false,
     var showPopupOnTrack: Boolean = false,
-    var dailyGoalHours: Double = 8.0
+    var dailyGoalHours: Double = 8.0,
+    var keystrokeTimeoutSeconds: Int = 300
 )

@@ -17,6 +17,7 @@ class TimeTrackerSettings : PersistentStateComponent<TimeTrackerSettings.State> 
         var autoStart: Boolean = false
         var showPopup: Boolean = false
         var dailyGoalHours: Double = 8.0
+        var keystrokeTimeoutSeconds: Int = 300
     }
 
     private var state = State()
