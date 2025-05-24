@@ -108,6 +108,32 @@ class BackgroundImagePanel(private val backgroundImage: Image) : JPanel() {
 class TimeTrackerToolWindowFactory : ToolWindowFactory {
     private val dataFile = File(System.getProperty("user.home") + "/.cache/phpstorm-time-tracker/data.json")
 
+    private fun showProjectUrlsInFooter(label: JBLabel, projectName: String) {
+        val urls = getProjectUrls(projectName)
+        val html = buildString {
+            append("<html><i>URLs:</i><br>")
+            for (i in 0 until urls.length()) {
+                append(urls.getString(i)).append("<br>")
+            }
+            append("</html>")
+        }
+        label.text = html
+    }
+
+    fun getProjectUrls(projectName: String): JSONArray {
+        val urls = DBManager.queryUrls(projectName)
+
+        val result = JSONArray()
+        for (i in 0 until urls.length()) {
+            val entry = urls.getJSONObject(i)
+            val url   = entry.optString("url", "")
+            if (url.isNotEmpty()) {
+                result.put(url)
+            }
+        }
+
+        return result
+    }
 
     private fun computeDetailedBreakdown(history: JSONArray): Triple<Map<String, Int>, Map<String, Map<String, Int>>, Map<String, Int>> {
         val timeout = TimeTrackerSettings.getInstance().state.keystrokeTimeoutSeconds.toLong()
@@ -229,12 +255,6 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
         fun getProjectData(date: String): JSONObject? {
             val json = if (dataFile.exists()) JSONObject(dataFile.readText()) else JSONObject()
             return json.optJSONObject(date)?.optJSONObject(projectName)
-        }
-
-        fun getProjectUrls(projectName: String): JSONArray {
-            val json = if (dataFile.exists()) JSONObject(dataFile.readText()) else JSONObject()
-            val config = json.optJSONObject("config")?.optJSONObject(projectName)
-            return config?.optJSONArray("urls") ?: JSONArray()
         }
 
         fun refreshTime(date: String) {
@@ -510,10 +530,8 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
         }
 
         fun openUrlCrudEditorForProject(projectName: String) {
-            val json = if (dataFile.exists()) JSONObject(dataFile.readText()) else JSONObject()
-            val configNode = json.optJSONObject("config") ?: JSONObject()
-            val projectConfig = configNode.optJSONObject(projectName) ?: JSONObject()
-            val urls = projectConfig.optJSONArray("urls") ?: JSONArray()
+
+            val urls = DBManager.queryUrls(projectName)
 
             // Create dialog
             val dialog = JDialog(null as Frame?, "Modifier les URLs", true)
@@ -521,7 +539,9 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
 
             val listModel = DefaultListModel<String>()
             for (i in 0 until urls.length()) {
-                listModel.addElement(urls.getString(i))
+                val entry = urls.getJSONObject(i)
+                val url   = entry.optString("url", "")
+                listModel.addElement(url)
             }
 
             val urlList = JBList(listModel)
@@ -590,17 +610,14 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
             dialog.contentPane = contentPanel
 
             saveButton.addActionListener {
-                val newArray = JSONArray()
+                DBManager.removeUrls(projectName)
                 for (i in 0 until listModel.size()) {
-                    newArray.put(listModel.get(i))
+                    println("saveButton.addActionListener"+ listModel.get(i))
+                    DBManager.insertUrl(projectName, listModel.get(i))
                 }
 
-                projectConfig.put("urls", newArray)
-                configNode.put(projectName, projectConfig)
-                json.put("config", configNode)
-                dataFile.writeText(json.toString(2))
                 dialog.dispose()
-                //refreshTime(dateField.text.trim())
+                showProjectUrlsInFooter(urlFooterLabel, projectName)
             }
 
             cancelButton.addActionListener {
@@ -719,7 +736,7 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
             }
 
             if (projectName != null && selectedNode.level == 1) {
-                showProjectUrlsInFooter(projectName)
+                showProjectUrlsInFooter(urlFooterLabel, projectName)
             } else {
                 urlFooterLabel.text = ""
             }

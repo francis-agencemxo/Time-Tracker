@@ -110,15 +110,18 @@ class DayTimelinePanel(private var history: JSONArray) : JPanel() {
         }
         preferredSize = Dimension(width, topPadding + totalRows * rowHeightWithPadding + 40)
 
+        val lineBottomPadding = 20
+
         // 4) draw hour vertical lines
         g2.color = JBColor.GRAY
-        g2.font = Font("SansSerif", Font.PLAIN, 10)
+        g2.font = Font("", Font.PLAIN, 10)
         for (h in 0..24) {
             val x = timelineLeft + ((width - timelineLeft) * h / 24.0).toInt()
-            g2.drawLine(x, 0, x, height)
+            g2.drawLine(x, 0, x, height - lineBottomPadding)
             val label = "${h}h"
             val lw = g2.fontMetrics.stringWidth(label)
-            g2.drawString(label, x - lw/2, height - 10)
+            val labelY = height - lineBottomPadding / 2 + g2.fontMetrics.ascent/2
+            g2.drawString(label, x - lw/2, labelY)
         }
 
         // 5) draw rows
@@ -132,7 +135,7 @@ class DayTimelinePanel(private var history: JSONArray) : JPanel() {
             val totalFmt = formatDuration(totalSec)
 
             // project header
-            g2.font = Font("Monospaced", Font.BOLD, 11)
+            g2.font = Font("", Font.BOLD, 11)
             g2.color = JBColor.foreground()
             val projLabel = if (proj in expandedProjects) "▼ $proj ($totalFmt)"
             else "▶ $proj ($totalFmt)"
@@ -153,7 +156,7 @@ class DayTimelinePanel(private var history: JSONArray) : JPanel() {
                         Duration.between(s,e).seconds
                     }
                     val fmt = formatDuration(sec)
-                    g2.font = Font("Monospaced", Font.PLAIN, 11)
+                    g2.font = Font("", Font.PLAIN, 11)
                     g2.color = JBColor.foreground()
                     g2.drawString("   $file ($fmt)", 8, y + rowHeight/2 + 4)
                     drawBars(entries, g2, y)
@@ -171,7 +174,7 @@ class DayTimelinePanel(private var history: JSONArray) : JPanel() {
                         Duration.between(s,e).seconds
                     }
                     val fmt = formatDuration(sec)
-                    g2.font = Font("Monospaced", Font.PLAIN, 11)
+                    g2.font = Font("", Font.PLAIN, 11)
                     g2.color = JBColor.foreground()
                     val hostLabel = if ((proj to host) in expandedHosts)
                         "▼ $host ($fmt)"

@@ -38,6 +38,59 @@ object DBManager {
         );
       """.trimIndent())
         }
+
+        conn.createStatement().use { st ->
+            st.executeUpdate("""
+        CREATE TABLE IF NOT EXISTS urls (
+          project TEXT    NOT NULL,
+          url     TEXT
+        );
+      """.trimIndent())
+        }
+    }
+
+    fun insertUrl(
+        project: String,
+        url: String? = null
+    ) {
+        conn.prepareStatement("""
+      INSERT INTO urls (project, url)
+      VALUES (?, ?)
+    """.trimIndent()).use { ps ->
+            ps.setString(1, project)
+            ps.setString(2, url)
+            ps.executeUpdate()
+        }
+    }
+
+    fun removeUrls(
+        project: String
+    ) {
+        conn.prepareStatement("""
+      DELETE FROM urls
+      WHERE project = ?
+    """.trimIndent()).use { ps ->
+            ps.setString(1, project)
+            ps.executeUpdate()
+        }
+    }
+
+    fun queryUrls(project: String): JSONArray {
+        val arr = JSONArray()
+        conn.prepareStatement("""
+      SELECT url FROM urls
+        WHERE project = ?
+      ORDER BY url DESC
+    """.trimIndent()).use { ps ->
+            ps.setString(1, project)
+            val rs = ps.executeQuery()
+            while (rs.next()) {
+                val obj = JSONObject()
+                rs.getString("url")?.let { obj.put("url", it) }
+                arr.put(obj)
+            }
+        }
+        return arr
     }
 
     fun insertSession(
