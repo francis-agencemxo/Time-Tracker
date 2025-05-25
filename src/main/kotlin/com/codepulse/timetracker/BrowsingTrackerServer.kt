@@ -70,18 +70,8 @@ object BrowsingTrackerServer {
             exchange.responseBody.use { it.write(message.toByteArray()) }
         }
 
-        private fun findMatchingProject(url: String): String? {
-            if (!dataFile.exists()) return null
-            val config = JSONObject(dataFile.readText()).optJSONObject("config") ?: return null
-
-            for (key in config.keySet()) {
-                val urls = config.optJSONObject(key)?.optJSONArray("urls") ?: continue
-                for (i in 0 until urls.length()) {
-                    val u = urls.getString(i)
-                    if (url.contains(u)) return key
-                }
-            }
-            return null
+        private fun findMatchingProject(host: String): String? {
+            return DBManager.queryProjectByUrl(host);
         }
 
         fun addBrowsingTime(projectName: String, host: String, fullUrl: String, seconds: Long) {

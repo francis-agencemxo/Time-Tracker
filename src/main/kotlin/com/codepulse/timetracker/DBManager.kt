@@ -93,6 +93,24 @@ object DBManager {
         return arr
     }
 
+    fun queryProjectByUrl(url: String): String? {
+        val sql = """
+      SELECT project 
+        FROM urls
+       WHERE url LIKE ?
+    ORDER BY url DESC
+       LIMIT 1
+    """.trimIndent()
+
+        conn.prepareStatement(sql).use { ps ->
+            ps.setString(1, url)
+            ps.executeQuery().use { rs ->
+                return if (rs.next()) rs.getString("project") else null
+            }
+        }
+
+    }
+
     fun insertSession(
         project: String,
         startIso: String,
