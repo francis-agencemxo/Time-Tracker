@@ -34,7 +34,13 @@ class TrackingStartupActivity : ProjectActivity {
         } else {
             fullPath
         }
-        currentFileMap[project] = relativePath
+
+        if (relativePath != null) {
+            currentFileMap[project] = relativePath
+        } else {
+            // no file open → remove any old entry
+            currentFileMap.remove(project)
+        }
 
         // Listen to file switch events
         project.messageBus.connect().subscribe(
@@ -48,7 +54,13 @@ class TrackingStartupActivity : ProjectActivity {
                     } else {
                         fullPath
                     }
-                    currentFileMap[project] = relativePath
+
+                    if (relativePath != null) {
+                        currentFileMap[project] = relativePath
+                    } else {
+                        // no file open → remove any old entry
+                        currentFileMap.remove(project)
+                    }
                 }
             }
         )
