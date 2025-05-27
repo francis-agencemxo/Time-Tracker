@@ -1,7 +1,9 @@
 package com.codepulse.timetracker.settings
 
+import com.intellij.ide.ui.UINumericRange
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.ProjectManager
+import com.intellij.ui.JBIntSpinner
 import com.intellij.ui.components.*
 import org.json.JSONObject
 import java.awt.BorderLayout
@@ -27,16 +29,35 @@ class TimeTrackerSettingsConfigurable : Configurable {
     override fun getDisplayName(): String = "CodePulse Time Tracker URLs"
 
     override fun createComponent(): JComponent {
+        // Load keystroke timeout setting
+        val state = TimeTrackerSettings.getInstance().state
+        val timeoutSpinner = JBIntSpinner(
+            UINumericRange(
+                state.keystrokeTimeoutSeconds,
+                0,
+                3600,
+            )
+        ).apply {
+            addChangeListener { state.keystrokeTimeoutSeconds = value as Int }
+            toolTipText = "Merge sessions with gap ≤ this many seconds"
+        }
+
+        // Prepare top settings panel
+        val generalPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
+            add(JBLabel("Keystroke timeout (s):"))
+            add(timeoutSpinner)
+        }
+
         // load existing DB entries into memory
         loadAllUrls()
         // merge in all currently open projects (even those with no URLs yet)
         val openProjects = ProjectManager.getInstance().openProjects.mapNotNull { it.name }
-        for (proj in openProjects) {
-            urlMap.putIfAbsent(proj, mutableListOf())
-        }
+        openProjects.forEach { urlMap.putIfAbsent(it, mutableListOf()) }
 
-        // build UI
+        // build main UI
         val outer = JBPanel<JBPanel<*>>(BorderLayout())
+        outer.add(generalPanel, BorderLayout.NORTH)
+
         val splitPane = JSplitPane(JSplitPane.HORIZONTAL_SPLIT)
         splitPane.resizeWeight = 0.3
 
@@ -52,41 +73,41 @@ class TimeTrackerSettingsConfigurable : Configurable {
         urlList = JBList(urlListModel).apply { selectionMode = ListSelectionModel.SINGLE_SELECTION }
         urlPanel.add(JBScrollPane(urlList), BorderLayout.CENTER)
 
-        val controlPanel = JPanel(FlowLayout(FlowLayout.LEFT))
-        val urlField = JBTextField(30)
-        val addButton = JButton("➕ Add").apply {
-            addActionListener {
-                val project = projectList.selectedValue ?: return@addActionListener
-                val url = urlField.text.trim()
-                if (url.isNotEmpty() && urlMap.getOrPut(project) { mutableListOf() }.none { it == url }) {
-                    // insert DB record
-                    conn.prepareStatement("INSERT OR IGNORE INTO urls(project, url) VALUES(?, ?)").use { ps ->
+        val controlPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
+            val urlField = JBTextField(30)
+            val addButton = JButton("➕ Add").apply {
+                addActionListener {
+                    val project = projectList.selectedValue ?: return@addActionListener
+                    val url = urlField.text.trim()
+                    if (url.isNotEmpty() && urlMap.getOrPut(project) { mutableListOf() }.none { it == url }) {
+                        conn.prepareStatement("INSERT OR IGNORE INTO urls(project, url) VALUES(?, ?)").use { ps ->
+                            ps.setString(1, project)
+                            ps.setString(2, url)
+                            ps.executeUpdate()
+                        }
+                        urlMap[project]!!.add(url)
+                        urlListModel.addElement(url)
+                        urlField.text = ""
+                    }
+                }
+            }
+            val removeButton = JButton("❌ Remove").apply {
+                addActionListener {
+                    val project = projectList.selectedValue ?: return@addActionListener
+                    val sel = urlList.selectedValue ?: return@addActionListener
+                    conn.prepareStatement("DELETE FROM urls WHERE project = ? AND url = ?").use { ps ->
                         ps.setString(1, project)
-                        ps.setString(2, url)
+                        ps.setString(2, sel)
                         ps.executeUpdate()
                     }
-                    urlMap[project]!!.add(url)
-                    urlListModel.addElement(url)
-                    urlField.text = ""
+                    urlMap[project]!!.remove(sel)
+                    urlListModel.removeElement(sel)
                 }
             }
+            add(urlField)
+            add(addButton)
+            add(removeButton)
         }
-        val removeButton = JButton("❌ Remove").apply {
-            addActionListener {
-                val project = projectList.selectedValue ?: return@addActionListener
-                val sel = urlList.selectedValue ?: return@addActionListener
-                conn.prepareStatement("DELETE FROM urls WHERE project = ? AND url = ?").use { ps ->
-                    ps.setString(1, project)
-                    ps.setString(2, sel)
-                    ps.executeUpdate()
-                }
-                urlMap[project]!!.remove(sel)
-                urlListModel.removeElement(sel)
-            }
-        }
-        controlPanel.add(urlField)
-        controlPanel.add(addButton)
-        controlPanel.add(removeButton)
         urlPanel.add(controlPanel, BorderLayout.SOUTH)
 
         splitPane.rightComponent = urlPanel
@@ -102,23 +123,15 @@ class TimeTrackerSettingsConfigurable : Configurable {
         return outer
     }
 
-    override fun isModified(): Boolean = false // live updates applied immediately
+    override fun isModified(): Boolean = false // live updates via change listener
 
     override fun apply() {
-        // nothing: changes are persisted on the fly
+        // no-op: URL changes persisted immediately, timeout stored via spinner listener
     }
 
     override fun reset() {
-        // re-sync with DB and open projects
-        urlMap.clear()
-        loadAllUrls()
-        val openProjects = ProjectManager.getInstance().openProjects.mapNotNull { it.name }
-        for (proj in openProjects) urlMap.putIfAbsent(proj, mutableListOf())
-        projectListModel.clear()
-        urlMap.keys.sorted().forEach { projectListModel.addElement(it) }
-        if (!projectListModel.isEmpty()) {
-            projectList.selectedIndex = 0
-        }
+        // re-sync UI from DB and open projects, spinner reflects stored state
+        resetList()
     }
 
     override fun disposeUIResources() {
@@ -137,10 +150,19 @@ class TimeTrackerSettingsConfigurable : Configurable {
         }
     }
 
+    private fun resetList() {
+        urlMap.clear()
+        loadAllUrls()
+        ProjectManager.getInstance().openProjects.mapNotNull { it.name }.forEach { urlMap.putIfAbsent(it, mutableListOf()) }
+        projectListModel.clear()
+        urlMap.keys.sorted().forEach { projectListModel.addElement(it) }
+        if (!projectListModel.isEmpty()) {
+            projectList.selectedIndex = 0
+        }
+    }
+
     private fun onProjectSelected() {
         urlListModel.clear()
-        projectList.selectedValue?.let { proj ->
-            urlMap[proj]?.forEach { urlListModel.addElement(it) }
-        }
+        projectList.selectedValue?.let { urlMap[it]?.forEach(urlListModel::addElement) }
     }
 }

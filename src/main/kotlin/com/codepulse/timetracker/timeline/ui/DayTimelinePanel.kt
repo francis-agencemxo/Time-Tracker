@@ -1,5 +1,6 @@
 package com.codepulse.timetracker.timeline.ui
 
+import com.codepulse.timetracker.HistoryGrouper
 import com.intellij.ui.JBColor
 import org.json.JSONArray
 import org.json.JSONObject
@@ -141,7 +142,9 @@ class DayTimelinePanel(private var history: JSONArray) : JPanel() {
             else "▶ $proj ($totalFmt)"
             g2.drawString(projLabel, 5, y + rowHeight/2 + 4)
             projBounds += proj to Rectangle(0, y, timelineLeft, rowHeight)
-            drawBars(list, g2, y)
+
+            val mergedList = HistoryGrouper.groupCloseSessions(list)
+            drawBars(mergedList, g2, y)
             y += rowHeightWithPadding
 
             if (proj in expandedProjects) {

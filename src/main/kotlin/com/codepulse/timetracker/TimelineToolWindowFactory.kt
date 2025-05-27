@@ -10,9 +10,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.components.JBScrollPane
+import javax.swing.JToggleButton
 import com.intellij.ui.content.ContentFactory
 import com.codepulse.timetracker.timeline.ui.StackedTimelinePanel
 import com.intellij.openapi.options.ShowSettingsUtil
+import com.intellij.openapi.ui.popup.JBPopupFactory
 import org.json.JSONArray
 import org.json.JSONObject
 import java.awt.*
@@ -166,6 +168,41 @@ class TimelineToolWindowFactory : ToolWindowFactory {
             }
         }
 
+        // Timeout toggle with popup slider
+        val timeoutToggle = JToggleButton("⏱️").apply {
+            toolTipText = "Adjust merge timeout"
+            addActionListener {
+                if (isSelected) {
+                    // Read current timeout
+                    val current = TimeTrackerSettings.getInstance().state.keystrokeTimeoutSeconds.toInt() / 60
+                    val slider = JSlider(0, 60, current).apply {
+                        majorTickSpacing = 10
+                        minorTickSpacing = 5
+                        paintTicks = true
+                        paintLabels = true
+                        snapToTicks = true
+                        addChangeListener {
+                            TimeTrackerSettings.getInstance().state.keystrokeTimeoutSeconds = this.value.toInt() * 60
+                        }
+                    }
+                    // Show slider in a popup
+                    val popup = JBPopupFactory.getInstance()
+                        .createComponentPopupBuilder(slider, slider)
+                        .setTitle("Merge Timeout Minutes")
+                        .setResizable(true)
+                        .setMovable(true)
+                        .setRequestFocus(true)
+                        .createPopup()
+                    popup.showUnderneathOf(this)
+                    popup.addListener(object : com.intellij.openapi.ui.popup.JBPopupListener {
+                        override fun onClosed(event: com.intellij.openapi.ui.popup.LightweightWindowEvent) {
+                            isSelected = false
+                        }
+                    })
+                }
+            }
+        }
+
         dayLeft.addActionListener { dayOffset--; updateDayTimeline() }
         dayRight.addActionListener { dayOffset++; updateDayTimeline() }
         dayToday.addActionListener { dayOffset = 0; updateDayTimeline() }
@@ -177,7 +214,11 @@ class TimelineToolWindowFactory : ToolWindowFactory {
 
         dayControls.add(dayNav, BorderLayout.WEST)
         dayControls.add(dayLabel, BorderLayout.CENTER)
-        dayControls.add(daySettingsButton, BorderLayout.EAST)
+        val eastPanel = JPanel(FlowLayout(FlowLayout.RIGHT)).apply {
+            add(timeoutToggle)
+            add(daySettingsButton)
+        }
+        dayControls.add(eastPanel, BorderLayout.EAST)
 
         // Add both timelines with their toolbars
         val weekView = JPanel(BorderLayout())
