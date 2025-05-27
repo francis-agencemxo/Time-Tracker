@@ -4,6 +4,7 @@ import com.codepulse.timetracker.DBManager
 import com.codepulse.timetracker.HistoryGrouper
 import com.codepulse.timetracker.TimeTrackerToolWindowFactory
 import com.codepulse.timetracker.settings.TimeTrackerSettings
+import com.codepulse.timetracker.settings.TimeTrackerSettingsConfigurable
 import com.codepulse.timetracker.timeline.ui.DayTimelinePanel
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
@@ -11,6 +12,7 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.content.ContentFactory
 import com.codepulse.timetracker.timeline.ui.StackedTimelinePanel
+import com.intellij.openapi.options.ShowSettingsUtil
 import org.json.JSONArray
 import org.json.JSONObject
 import java.awt.*
@@ -117,6 +119,16 @@ class TimelineToolWindowFactory : ToolWindowFactory {
             updateDayLabel()
         }
 
+        // ⚙️ Settings button
+        val weekSettingsButton = JButton("⚙️").apply {
+            toolTipText = "Settings"
+            addActionListener {
+                ShowSettingsUtil
+                    .getInstance()
+                    .showSettingsDialog(project, TimeTrackerSettingsConfigurable::class.java)
+            }
+        }
+
         // Week navigation controls
         val weekControls = JPanel(BorderLayout())
         val weekNav = JPanel(FlowLayout(FlowLayout.LEFT))
@@ -131,8 +143,11 @@ class TimelineToolWindowFactory : ToolWindowFactory {
         weekNav.add(weekLeft)
         weekNav.add(weekRight)
         weekNav.add(weekToday)
+        weekNav.add(Box.createHorizontalStrut(8)) // spacing
+
         weekControls.add(weekNav, BorderLayout.WEST)
         weekControls.add(weekLabel, BorderLayout.CENTER)
+        weekControls.add(weekSettingsButton, BorderLayout.EAST)
 
         // Day navigation controls
         val dayControls = JPanel(BorderLayout())
@@ -141,6 +156,16 @@ class TimelineToolWindowFactory : ToolWindowFactory {
         val dayRight = JButton("→")
         val dayToday = JButton("Aujourd'hui")
 
+        // ⚙️ Settings button
+        val daySettingsButton = JButton("⚙️").apply {
+            toolTipText = "Settings"
+            addActionListener {
+                ShowSettingsUtil
+                    .getInstance()
+                    .showSettingsDialog(project, TimeTrackerSettingsConfigurable::class.java)
+            }
+        }
+
         dayLeft.addActionListener { dayOffset--; updateDayTimeline() }
         dayRight.addActionListener { dayOffset++; updateDayTimeline() }
         dayToday.addActionListener { dayOffset = 0; updateDayTimeline() }
@@ -148,8 +173,11 @@ class TimelineToolWindowFactory : ToolWindowFactory {
         dayNav.add(dayLeft)
         dayNav.add(dayRight)
         dayNav.add(dayToday)
+        dayNav.add(Box.createHorizontalStrut(8)) // spacing
+
         dayControls.add(dayNav, BorderLayout.WEST)
         dayControls.add(dayLabel, BorderLayout.CENTER)
+        dayControls.add(daySettingsButton, BorderLayout.EAST)
 
         // Add both timelines with their toolbars
         val weekView = JPanel(BorderLayout())

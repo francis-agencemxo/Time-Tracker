@@ -93,6 +93,27 @@ object DBManager {
         return arr
     }
 
+    fun queryAllUrls(): JSONArray {
+        val arr = JSONArray()
+        conn.prepareStatement("""
+        SELECT project, url
+        FROM urls
+        ORDER BY project DESC
+    """.trimIndent()).use { ps ->
+            ps.executeQuery().use { rs ->
+                while (rs.next()) {
+                    val obj = JSONObject()
+                    // assume neither column is null in your schema;
+                    // otherwise add null‐checks as needed
+                    obj.put("project", rs.getString("project"))
+                    obj.put("url",     rs.getString("url"))
+                    arr.put(obj)
+                }
+            }
+        }
+        return arr
+    }
+
     fun queryProjectByUrl(url: String): String? {
         val sql = """
       SELECT project 
