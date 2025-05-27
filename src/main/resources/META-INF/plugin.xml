@@ -1,0 +1,51 @@
+<idea-plugin>
+    <id>com.codepulse.timetracker</id>
+    <name>CodePulse</name>
+    <version>1.10.5</version>
+    <vendor email="info@francislabonte.com">MXO</vendor>
+
+    <description><![CDATA[
+        <h2>CodePulse</h2>
+        <p><b>Track developer productivity across coding and browsing activity.</b></p>
+        <p>This plugin monitors project file activity in PhpStorm, as well as associated URLs opened in Chrome, allowing you to:</p>
+        <ul>
+            <li>Track time spent coding per file and project</li>
+            <li>Monitor web activity across configured domains</li>
+            <li>Display daily and weekly summaries with project breakdowns</li>
+            <li>Export or sync data to external reporting systems</li>
+        </ul>
+    ]]></description>
+
+    <change-notes><![CDATA[
+        <ul>
+            <li>New: Real-time Chrome URL tracking with host grouping</li>
+            <li>Improved: Auto-refresh of summary every 60s</li>
+            <li>Enhanced: Visual breakdown of Coding vs Browsing</li>
+            <li>Added: Gear icon settings panel with project scope toggle</li>
+        </ul>
+    ]]></change-notes>
+
+    <category>Productivity</category>
+
+    <depends>com.jetbrains.php</depends>
+    <depends>com.intellij.modules.phpstorm</depends>
+
+    <idea-version since-build="193.0" until-build="999.*"/>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="CodePulse Time Tracker"
+                    label="CodePulse Time Tracker"
+                    icon="/icons/toolbar-icon.png"
+                    anchor="right"
+                    factoryClass="com.codepulse.timetracker.TimeTrackerToolWindowFactory"
+                    canCloseContents="false"/>
+
+        <postStartupActivity implementation="com.codepulse.timetracker.TrackingStartupActivity"/>
+        <notificationGroup id="CodePulse"
+                           displayType="BALLOON"
+                           isLogByDefault="true"/>
+        <projectConfigurable instance="com.codepulse.timetracker.settings.TimeTrackerSettingsConfigurable"
+                             displayName="CodePulse Time Tracker"/>
+        <applicationService serviceImplementation="com.codepulse.timetracker.settings.TimeTrackerSettings"/>
+    </extensions>
+</idea-plugin>
