@@ -4,8 +4,14 @@
     <version>1.10.5</version>
     <vendor email="info@francislabonte.com">MXO</vendor>
 
+    <screenshots>
+        <image>https://raw.githubusercontent.com/francis-agencemxo/Time-Tracker/main/screenshots/screenshot1.png</image>
+        <image>https://raw.githubusercontent.com/francis-agencemxo/Time-Tracker/main/screenshots/screenshot2.png</image>
+    </screenshots>
+
     <description><![CDATA[
         <h2>CodePulse</h2>
+        <img src="https://raw.githubusercontent.com/francis-agencemxo/Time-Tracker/main/screenshots/dashboard.png" width="600"/>
         <p><b>Track developer productivity across coding and browsing activity.</b></p>
         <p>This plugin monitors project file activity in PhpStorm, as well as associated URLs opened in Chrome, allowing you to:</p>
         <ul>
