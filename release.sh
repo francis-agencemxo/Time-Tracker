@@ -52,6 +52,9 @@ if [[ ! -f "$ZIP_PATH" ]]; then
   exit 1
 fi
 
+# remove ZIP files in release dir before moving the new one
+rm -f "$RELEASE_DIR/$ZIP_BASENAME-"*.zip
+
 echo "📁 Moving $ZIP_NAME to $RELEASE_DIR/"
 mkdir -p "$RELEASE_DIR"
 mv "$ZIP_PATH" "$RELEASE_DIR/"

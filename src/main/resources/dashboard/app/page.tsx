@@ -21,7 +21,11 @@ import {
   Area,
   AreaChart,
 } from "recharts"
+
 import { Clock, Calendar, TrendingUp, Users, FolderOpen, RefreshCw } from "lucide-react"
+
+// Auto-refresh interval in milliseconds (e.g., 60000 ms = 1 minute)
+const AUTO_REFRESH_INTERVAL = 60000
 
 // Types for the API data
 interface Session {
@@ -69,6 +73,8 @@ export default function TimeTrackingDashboard() {
 
   useEffect(() => {
     fetchStats()
+    const intervalId = setInterval(fetchStats, AUTO_REFRESH_INTERVAL)
+    return () => clearInterval(intervalId)
   }, [])
 
   // Helper functions to process the data
