@@ -9,12 +9,9 @@ object LicenseValidator {
         // Replace with real server-side call:
         if (key == "am+o2015" && email.endsWith("@agencemxo.com"))
             return true;
-        else{
-            return false
-        }
 
         try {
-            val url = URL("https://your-api-endpoint.com/api/validate-license")
+            val url = URL("https://addons.francislabonte.com/subscription/status")
             val connection = url.openConnection() as HttpURLConnection
 
             connection.requestMethod = "POST"
@@ -24,8 +21,7 @@ object LicenseValidator {
             val payload = """
                 {
                   "email": "$email",
-                  "licenseKey": "$key"
-                  "product": "CodePulse",
+                  "slug": "codepulse",
                 }
             """.trimIndent()
 
@@ -39,5 +35,8 @@ object LicenseValidator {
             println("License validation error: ${e.message}")
             return false
         }
+
+        println("Invalid license.")
+        return false
     }
 }
