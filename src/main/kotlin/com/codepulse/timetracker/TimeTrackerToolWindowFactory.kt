@@ -67,7 +67,6 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
                         licenseState.email = email
                         licenseState.licenseKey = key
                         licenseState.isValid = true
-                        JOptionPane.showMessageDialog(null, "✅ License activated successfully!")
 
                         NotificationGroupManager
                             .getInstance()
