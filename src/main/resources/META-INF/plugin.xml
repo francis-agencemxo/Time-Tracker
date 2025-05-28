@@ -48,5 +48,6 @@
         <projectConfigurable instance="com.codepulse.timetracker.settings.TimeTrackerSettingsConfigurable"
                              displayName="CodePulse Time Tracker"/>
         <applicationService serviceImplementation="com.codepulse.timetracker.settings.TimeTrackerSettings"/>
+        <applicationService serviceImplementation="com.codepulse.timetracker.license.LicenseStateService"/>
     </extensions>
 </idea-plugin>

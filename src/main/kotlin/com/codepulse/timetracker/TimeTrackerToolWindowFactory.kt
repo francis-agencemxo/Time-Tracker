@@ -1,10 +1,14 @@
 package com.codepulse.timetracker
 
+import com.codepulse.timetracker.license.LicenseDialog
+import com.codepulse.timetracker.license.LicenseStateService
+import com.codepulse.timetracker.license.LicenseValidator
 import com.codepulse.timetracker.settings.TimeTrackerSettingsConfigurable
 import com.intellij.icons.AllIcons
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.JBColor
@@ -26,6 +30,7 @@ class BackgroundImagePanel(private val backgroundImage: Image) : JPanel() {
 
 class TimeTrackerToolWindowFactory : ToolWindowFactory {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
+
         // 1) Root panel
         val panel = JPanel(BorderLayout(10, 10))
         val content = ContentFactory.getInstance().createContent(panel, "", false)
@@ -46,6 +51,27 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
             add(JLabel(logoIcon))
         }
         topPanel.add(logoWithBg)
+
+        val activateButton = JButton("🔑 Activate").apply {
+            toolTipText = "Enter license information"
+            addActionListener {
+                val dialog = LicenseDialog(project)
+                if (dialog.showAndGet()) {
+                    val email = dialog.getEmail()
+                    val key = dialog.getLicenseKey()
+                    val licenseState = LicenseStateService.getInstance().state
+
+                    if (LicenseValidator.validate(email, key)) {
+                        licenseState.email = email
+                        licenseState.licenseKey = key
+                        licenseState.isValid = true
+                        JOptionPane.showMessageDialog(null, "✅ License activated successfully!")
+                    } else {
+                        JOptionPane.showMessageDialog(null, "❌ Invalid license key or email.")
+                    }
+                }
+            }
+        }
 
         val openSettingsBtn = JButton(AllIcons.General.Settings).apply {
             text = "Settings"
@@ -75,8 +101,14 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
         val buttonBar = JPanel(FlowLayout(FlowLayout.RIGHT)).apply {
             border = JBUI.Borders.empty(5, 10)
             preferredSize = Dimension(400, 200)
-            add(openSettingsBtn)
-            add(viewDashboardBtn)
+
+            if (!LicenseStateService.getInstance().state.isValid) {
+                add(activateButton)
+            }
+            else{
+                add(openSettingsBtn)
+                add(viewDashboardBtn)
+            }
         }
 
         topPanel.add(buttonBar)

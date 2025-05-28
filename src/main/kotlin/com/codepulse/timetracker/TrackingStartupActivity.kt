@@ -1,5 +1,10 @@
 package com.codepulse.timetracker
 
+import com.codepulse.timetracker.license.LicenseDialog
+import com.codepulse.timetracker.license.LicenseStateService
+import com.codepulse.timetracker.license.LicenseValidator
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.diagnostic.Logger
 import java.time.LocalDate
@@ -12,6 +17,7 @@ import org.json.JSONObject
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent
 import com.intellij.openapi.startup.ProjectActivity
+import com.intellij.openapi.ui.Messages
 import org.json.JSONArray
 import java.net.BindException
 import java.net.InetSocketAddress
@@ -39,6 +45,37 @@ class TrackingStartupActivity : ProjectActivity {
     }
 
     override suspend fun execute(project: Project) {
+
+        val licenseState = LicenseStateService.getInstance().state
+
+        if (!licenseState.isValid) {
+            com.intellij.openapi.application.ApplicationManager.getApplication().invokeAndWait {
+                val dialog = LicenseDialog(project)
+                if (dialog.showAndGet()) {
+                    val email = dialog.getEmail()
+                    val key = dialog.getLicenseKey()
+
+                    if (LicenseValidator.validate(email, key)) {
+                        licenseState.email = email
+                        licenseState.licenseKey = key
+                        licenseState.isValid = true
+                        println("✅ License validated for $email")
+                    } else {
+                        Messages.showErrorDialog(
+                            project,
+                            "Invalid license key or email.\nPlease contact support or try again.",
+                            "License Error"
+                        )
+                    }
+                } else {
+                    println("❌ License dialog was cancelled. Plugin not activated.")
+                }
+            }
+
+            // Abort startup if still not valid
+            if (!licenseState.isValid) return
+        }
+
         println("✅ Time Tracker started for: ${project.name}")
 
         try {
