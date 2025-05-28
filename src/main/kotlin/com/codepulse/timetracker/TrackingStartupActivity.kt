@@ -3,6 +3,8 @@ package com.codepulse.timetracker
 import com.codepulse.timetracker.license.LicenseDialog
 import com.codepulse.timetracker.license.LicenseStateService
 import com.codepulse.timetracker.license.LicenseValidator
+import com.intellij.notification.NotificationGroupManager
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.project.Project
@@ -59,7 +61,14 @@ class TrackingStartupActivity : ProjectActivity {
                         licenseState.email = email
                         licenseState.licenseKey = key
                         licenseState.isValid = true
-                        println("✅ License validated for $email")
+                        NotificationGroupManager
+                            .getInstance()
+                            .getNotificationGroup("CodePulse")
+                            .createNotification(
+                                "License activated successfully!",      // NO leading emoji/icon
+                                NotificationType.INFORMATION
+                            )
+                            .notify(project)
                     } else {
                         Messages.showErrorDialog(
                             project,

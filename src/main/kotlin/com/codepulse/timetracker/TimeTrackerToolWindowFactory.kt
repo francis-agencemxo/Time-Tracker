@@ -6,6 +6,8 @@ import com.codepulse.timetracker.license.LicenseValidator
 import com.codepulse.timetracker.settings.TimeTrackerSettingsConfigurable
 import com.intellij.icons.AllIcons
 import com.intellij.ide.BrowserUtil
+import com.intellij.notification.NotificationGroupManager
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
@@ -66,6 +68,15 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
                         licenseState.licenseKey = key
                         licenseState.isValid = true
                         JOptionPane.showMessageDialog(null, "✅ License activated successfully!")
+
+                        NotificationGroupManager
+                            .getInstance()
+                            .getNotificationGroup("CodePulse")
+                            .createNotification(
+                                "License activated successfully!",      // NO leading emoji/icon
+                                NotificationType.INFORMATION
+                            )
+                            .notify(project)
                     } else {
                         JOptionPane.showMessageDialog(null, "❌ Invalid license key or email.")
                     }
