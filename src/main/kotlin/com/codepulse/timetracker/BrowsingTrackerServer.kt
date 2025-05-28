@@ -13,6 +13,7 @@ import com.intellij.openapi.application.ApplicationManager
 import org.json.JSONArray
 import java.time.Duration
 import java.time.LocalDateTime
+import java.net.URI
 
 object BrowsingTrackerServer {
 
@@ -122,7 +123,8 @@ object BrowsingTrackerServer {
             try {
                 val json = JSONObject(body)
                 val fullUrl = json.getString("url")
-                val url = URL(fullUrl)
+                val uri = URI.create(fullUrl)        // parse and validate as a URI
+                val url = uri.toURL()                // convert to URL instance
                 val host = url.host  // "ihr.local"
 
                 val duration = json.getLong("duration")
