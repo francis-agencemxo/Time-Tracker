@@ -1,6 +1,7 @@
 package com.codepulse.timetracker.license
 
 import java.net.HttpURLConnection
+import java.net.URI
 import java.net.URL
 import java.nio.charset.StandardCharsets
 
@@ -11,7 +12,9 @@ object LicenseValidator {
             return true;
 
         try {
-            val url = URL("https://addons.francislabonte.com/subscription/status")
+            val uri = URI.create("https://addons.francislabonte.com/subscription/status")        // parse and validate as a URI
+            val url = uri.toURL()                // convert to URL instance
+
             val connection = url.openConnection() as HttpURLConnection
 
             connection.requestMethod = "POST"
@@ -35,8 +38,5 @@ object LicenseValidator {
             println("License validation error: ${e.message}")
             return false
         }
-
-        println("Invalid license.")
-        return false
     }
 }
