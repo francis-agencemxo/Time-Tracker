@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import {
   BarChart,
@@ -21,8 +22,7 @@ import {
   Area,
   AreaChart,
 } from "recharts"
-
-import { Clock, Calendar, TrendingUp, Users, FolderOpen, RefreshCw } from "lucide-react"
+import { Clock, Calendar, TrendingUp, Users, FolderOpen, RefreshCw, Settings } from "lucide-react"
 
 // Types for the API data
 interface Session {
@@ -48,6 +48,8 @@ export default function TimeTrackingDashboard() {
   const [statsData, setStatsData] = useState<StatsData>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [currentWeek, setCurrentWeek] = useState<Date>(new Date())
+  const [idleTimeoutMinutes, setIdleTimeoutMinutes] = useState<number>(10)
 
   // Fetch data from local API
   const fetchStats = async () => {
@@ -72,6 +74,57 @@ export default function TimeTrackingDashboard() {
     fetchStats()
   }, [])
 
+  // Week navigation helpers
+  const getWeekStart = (date: Date) => {
+    const d = new Date(date)
+    const day = d.getDay()
+    const diff = d.getDate() - day
+    return new Date(d.setDate(diff))
+  }
+
+  const getWeekEnd = (date: Date) => {
+    const weekStart = getWeekStart(date)
+    return new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000)
+  }
+
+  const getWeekDates = (weekStart: Date) => {
+    const dates = []
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(weekStart.getTime() + i * 24 * 60 * 60 * 1000)
+      dates.push(date.toISOString().split("T")[0])
+    }
+    return dates
+  }
+
+  const getCurrentWeekData = () => {
+    const weekStart = getWeekStart(currentWeek)
+    const weekDates = getWeekDates(weekStart)
+
+    const weekData: StatsData = {}
+    weekDates.forEach((date) => {
+      if (statsData[date]) {
+        weekData[date] = statsData[date]
+      }
+    })
+
+    return weekData
+  }
+
+  const navigateWeek = (direction: "prev" | "next") => {
+    const newWeek = new Date(currentWeek)
+    newWeek.setDate(newWeek.getDate() + (direction === "next" ? 7 : -7))
+    setCurrentWeek(newWeek)
+  }
+
+  const isCurrentWeek = () => {
+    const now = new Date()
+    const weekStart = getWeekStart(currentWeek)
+    const weekEnd = getWeekEnd(currentWeek)
+    const currentWeekStart = getWeekStart(now)
+
+    return weekStart.getTime() === currentWeekStart.getTime()
+  }
+
   // Helper functions to process the data
   const formatDuration = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600)
@@ -92,8 +145,8 @@ export default function TimeTrackingDashboard() {
       const sessionStart = new Date(session.start).getTime()
       const timeDiff = sessionStart - currentEnd
 
-      // If sessions are within 5 minutes (300000 ms) and same type, merge them
-      if (timeDiff <= 300000 && currentSession.type === session.type) {
+      // If sessions are within the idle timeout (in ms) and same type, merge them
+      if (timeDiff <= idleTimeoutMinutes * 60 * 1000 && currentSession.type === session.type) {
         currentSession.end = session.end
       } else {
         mergedSessions.push(currentSession)
@@ -107,8 +160,9 @@ export default function TimeTrackingDashboard() {
 
   const getProjectTotals = () => {
     const projectTotals: { [key: string]: number } = {}
+    const weekData = getCurrentWeekData()
 
-    Object.values(statsData).forEach((dayData) => {
+    Object.values(weekData).forEach((dayData) => {
       Object.entries(dayData).forEach(([projectName, projectData]) => {
         projectTotals[projectName] = (projectTotals[projectName] || 0) + projectData.duration
       })
@@ -120,10 +174,12 @@ export default function TimeTrackingDashboard() {
   }
 
   const getWeeklyData = () => {
-    const last7Days = Object.keys(statsData).sort().slice(-7)
+    const weekStart = getWeekStart(currentWeek)
+    const weekDates = getWeekDates(weekStart)
+    const weekData = getCurrentWeekData()
 
-    return last7Days.map((date) => {
-      const dayData = statsData[date]
+    return weekDates.map((date) => {
+      const dayData = weekData[date] || {}
       const totalSeconds = Object.values(dayData).reduce((sum, project) => sum + project.duration, 0)
       const dayName = new Date(date).toLocaleDateString("en-US", { weekday: "short" })
 
@@ -147,10 +203,11 @@ export default function TimeTrackingDashboard() {
       type: string
     }> = []
 
-    // Get last 10 sessions across all projects and dates
-    Object.entries(statsData)
+    const weekData = getCurrentWeekData()
+
+    // Get sessions from current week
+    Object.entries(weekData)
       .sort(([a], [b]) => b.localeCompare(a)) // Sort dates descending
-      .slice(0, 3) // Last 3 days
       .forEach(([date, dayData]) => {
         Object.entries(dayData).forEach(([projectName, projectData]) => {
           const mergedSessions = mergeSessions(projectData.sessions)
@@ -218,6 +275,48 @@ export default function TimeTrackingDashboard() {
     }))
   }
 
+  const getProjectBreakdown = (projectName: string) => {
+    const sessions: Session[] = []
+    const weekData = getCurrentWeekData()
+
+    Object.entries(weekData).forEach(([date, dayData]) => {
+      if (dayData[projectName]) {
+        const mergedSessions = mergeSessions(dayData[projectName].sessions)
+        sessions.push(...mergedSessions.map((session) => ({ ...session, date })))
+      }
+    })
+
+    return sessions.sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime())
+  }
+
+  const getDailyTotalsForProject = (projectName: string) => {
+    const dailyData: { [date: string]: { duration: number; sessions: Session[] } } = {}
+    const weekData = getCurrentWeekData()
+
+    Object.entries(weekData).forEach(([date, dayData]) => {
+      if (dayData[projectName]) {
+        const mergedSessions = mergeSessions(dayData[projectName].sessions)
+        const totalDuration = mergedSessions.reduce((sum, session) => {
+          return sum + (new Date(session.end).getTime() - new Date(session.start).getTime()) / 1000
+        }, 0)
+
+        dailyData[date] = {
+          duration: totalDuration,
+          sessions: mergedSessions,
+        }
+      }
+    })
+
+    return Object.entries(dailyData)
+      .map(([date, data]) => ({ date, ...data }))
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 14) // Last 14 days
+  }
+
+  const handleIdleTimeoutChange = (minutes: number) => {
+    setIdleTimeoutMinutes(minutes)
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
@@ -266,6 +365,41 @@ export default function TimeTrackingDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="border-teal-200 text-teal-700 hover:bg-teal-50">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Settings
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80">
+                <div className="space-y-4">
+                  <h4 className="font-medium">Dashboard Settings</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label htmlFor="idle-timeout" className="text-sm font-medium">
+                        Idle Timeout: {idleTimeoutMinutes} minutes
+                      </label>
+                      <select
+                        id="idle-timeout"
+                        value={idleTimeoutMinutes}
+                        onChange={(e) => handleIdleTimeoutChange(Number(e.target.value))}
+                        className="bg-white border rounded px-2 py-1 text-sm"
+                      >
+                        <option value={5}>5 minutes</option>
+                        <option value={10}>10 minutes</option>
+                        <option value={15}>15 minutes</option>
+                        <option value={20}>20 minutes</option>
+                        <option value={30}>30 minutes</option>
+                      </select>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Sessions within {idleTimeoutMinutes} minutes of each other will be merged
+                    </p>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
             <Button
               onClick={fetchStats}
               variant="outline"
@@ -282,16 +416,82 @@ export default function TimeTrackingDashboard() {
           </div>
         </div>
 
+        {/* Week Navigation */}
+        <Card>
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Button
+                  onClick={() => navigateWeek("prev")}
+                  variant="outline"
+                  size="sm"
+                  className="border-teal-200 text-teal-700 hover:bg-teal-50"
+                >
+                  ← Previous Week
+                </Button>
+                <div className="text-center">
+                  <div className="text-lg font-semibold text-teal-800">
+                    {getWeekStart(currentWeek).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    })}{" "}
+                    -{" "}
+                    {getWeekEnd(currentWeek).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {isCurrentWeek()
+                      ? "Current Week"
+                      : "Week of " +
+                        getWeekStart(currentWeek).toLocaleDateString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                  </div>
+                </div>
+                <Button
+                  onClick={() => navigateWeek("next")}
+                  variant="outline"
+                  size="sm"
+                  className="border-teal-200 text-teal-700 hover:bg-teal-50"
+                  disabled={isCurrentWeek()}
+                >
+                  Next Week →
+                </Button>
+              </div>
+              {!isCurrentWeek() && (
+                <Button
+                  onClick={() => setCurrentWeek(new Date())}
+                  variant="default"
+                  size="sm"
+                  className="bg-teal-600 hover:bg-teal-700"
+                >
+                  Back to Current Week
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Hours This Week</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {isCurrentWeek() ? "Total Hours This Week" : "Total Hours Selected Week"}
+              </CardTitle>
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalHours.toFixed(1)}h</div>
-              <p className="text-xs text-muted-foreground">Across {weeklyData.length} days</p>
+              <p className="text-xs text-muted-foreground">
+                {getWeekStart(currentWeek).toLocaleDateString("en-US", { month: "short", day: "numeric" })} -{" "}
+                {getWeekEnd(currentWeek).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+              </p>
             </CardContent>
           </Card>
 
@@ -334,6 +534,7 @@ export default function TimeTrackingDashboard() {
           <TabsList>
             <TabsTrigger value="weekly">Weekly View</TabsTrigger>
             <TabsTrigger value="projects">Projects</TabsTrigger>
+            <TabsTrigger value="breakdown">Project Breakdown</TabsTrigger>
             <TabsTrigger value="trends">Trends</TabsTrigger>
           </TabsList>
 
@@ -481,6 +682,123 @@ export default function TimeTrackingDashboard() {
             </div>
           </TabsContent>
 
+          <TabsContent value="breakdown" className="space-y-4">
+            <div className="grid grid-cols-1 gap-6">
+              {/* Project Breakdown Cards */}
+              {allProjects.map((project, projectIndex) => {
+                const projectSessions = getProjectBreakdown(project.name)
+                const dailyTotals = getDailyTotalsForProject(project.name)
+
+                return (
+                  <Card key={project.name}>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="flex items-center gap-3">
+                            <div
+                              className="w-4 h-4 rounded-full"
+                              style={{
+                                backgroundColor: projectData.find((p) => p.name === project.name)?.color || "#2D5A5A",
+                              }}
+                            />
+                            {project.name}
+                          </CardTitle>
+                          <CardDescription>
+                            Total: {formatDuration(project.duration)} • {projectSessions.length} sessions
+                          </CardDescription>
+                        </div>
+                        <Button variant="outline" size="sm" className="border-teal-200 text-teal-700 hover:bg-teal-50">
+                          Export to Wrike
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      {/* Daily Breakdown */}
+                      <div className="space-y-4">
+                        <h4 className="font-semibold text-sm text-gray-700">Daily Breakdown</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {dailyTotals.map((day) => (
+                            <div key={day.date} className="p-3 border rounded-lg bg-stone-50">
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="font-medium text-sm">{new Date(day.date).toLocaleDateString()}</span>
+                                <span className="text-sm font-bold text-teal-700">{formatDuration(day.duration)}</span>
+                              </div>
+                              <div className="space-y-1">
+                                {day.sessions.map((session, sessionIndex) => (
+                                  <div key={sessionIndex} className="flex justify-between text-xs text-gray-600">
+                                    <span className="flex items-center gap-1">
+                                      <div
+                                        className={`w-1.5 h-1.5 rounded-full ${session.type === "coding" ? "bg-teal-500" : "bg-amber-500"}`}
+                                      />
+                                      {new Date(session.start).toLocaleTimeString([], {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      })}{" "}
+                                      -
+                                      {new Date(session.end).toLocaleTimeString([], {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      })}
+                                    </span>
+                                    <span>
+                                      {formatDuration(
+                                        (new Date(session.end).getTime() - new Date(session.start).getTime()) / 1000,
+                                      )}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Weekly Summary for Wrike */}
+                        <div className="mt-6 p-4 bg-teal-50 rounded-lg border border-teal-200">
+                          <h5 className="font-semibold text-sm text-teal-800 mb-3">Wrike Time Log Summary</h5>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <span className="text-gray-600">Total Hours:</span>
+                              <span className="ml-2 font-bold text-teal-800">{project.hours.toFixed(2)}h</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Billable Time:</span>
+                              <span className="ml-2 font-bold text-teal-800">{(project.hours * 0.85).toFixed(2)}h</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Coding Sessions:</span>
+                              <span className="ml-2 font-bold text-teal-800">
+                                {projectSessions.filter((s) => s.type === "coding").length}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Research/Browsing:</span>
+                              <span className="ml-2 font-bold text-teal-800">
+                                {projectSessions.filter((s) => s.type === "browsing").length}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Copy-paste format for Wrike */}
+                          <div className="mt-4 p-3 bg-white rounded border">
+                            <div className="text-xs text-gray-500 mb-1">Copy for Wrike:</div>
+                            <div className="text-sm font-mono text-gray-800">
+                              {dailyTotals
+                                .map(
+                                  (day) =>
+                                    `${new Date(day.date).toLocaleDateString()}: ${formatDuration(day.duration)}`,
+                                )
+                                .join(" | ")}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          </TabsContent>
+
           <TabsContent value="trends" className="space-y-4">
             <Card>
               <CardHeader>
@@ -529,7 +847,7 @@ export default function TimeTrackingDashboard() {
                       className={`w-2 h-2 rounded-full ${activity.type === "coding" ? "bg-teal-600" : "bg-amber-600"}`}
                     />
                     <div>
-                      <div className="font-medium">{activity.task}</div>
+                      <div className="font-medium capitalize">{activity.task}</div>
                       <div className="text-sm text-gray-500">{activity.project}</div>
                     </div>
                   </div>
