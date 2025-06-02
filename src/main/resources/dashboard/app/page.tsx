@@ -56,7 +56,8 @@ export default function TimeTrackingDashboard() {
     try {
       setLoading(true)
       setError(null)
-      const response = await fetch("http://localhost:56000/api/stats")
+      const port = process.env.NEXT_PUBLIC_TRACKER_SERVER_PORT || "56000"
+      const response = await fetch(`http://localhost:${port}/api/stats`)
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }

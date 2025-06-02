@@ -1,3 +1,5 @@
+import org.jetbrains.intellij.tasks.RunIdeTask
+
 plugins {
     application
     kotlin("jvm") version "1.9.0"
@@ -5,7 +7,7 @@ plugins {
 }
 
 group = "com.codepulse.timetracker"
-version = "2.1.25"
+version = "2.3.0"
 
 repositories {
     mavenCentral()
@@ -95,7 +97,19 @@ val pluginPublicDir = File("src/main/resources/public")
 
 tasks.register<Exec>("buildDashboard") {
     workingDir = dashboardDir
+    val portValue = project.findProperty("trackerServerPort")?.toString()
+        ?: System.getenv("TRACKER_SERVER_PORT")
+        ?: "56000"
+    environment("TRACKER_SERVER_PORT", portValue)
+    environment("NEXT_PUBLIC_TRACKER_SERVER_PORT", portValue)
     commandLine("npm", "run", "export")
+}
+
+tasks.withType<RunIdeTask> {
+    val portValue = project.findProperty("trackerServerPort")?.toString()
+        ?: System.getenv("TRACKER_SERVER_PORT")
+        ?: "56000"
+    jvmArgs("-DtrackerServerPort=$portValue")
 }
 
 // 1) Stand-alone “clean” task

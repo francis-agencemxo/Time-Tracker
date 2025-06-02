@@ -17,7 +17,9 @@ import java.net.URI
 
 object BrowsingTrackerServer {
 
-    val port = 56000
+    val port: Int = System.getProperty("trackerServerPort")?.toIntOrNull()
+        ?: System.getenv("TRACKER_SERVER_PORT")?.toIntOrNull()
+        ?: 56000
     private var server: HttpServer? = null
     private val dataFile = File(System.getProperty("user.home") + "/.cache/phpstorm-time-tracker/data.json")
 
