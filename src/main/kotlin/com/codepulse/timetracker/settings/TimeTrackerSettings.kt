@@ -18,6 +18,10 @@ class TimeTrackerSettings : PersistentStateComponent<TimeTrackerSettings.State> 
         var showPopup: Boolean = false
         var dailyGoalHours: Double = 8.0
         var keystrokeTimeoutSeconds: Int = 600
+        /** Port for the built-in Tracker HTTP API server (default 56000) */
+        var trackerServerPort: Int = 56000
+        /** Port for the Next.js dashboard dev server (default 3000) */
+        var dashboardPort: Int = 3000
     }
 
     private var state = State()

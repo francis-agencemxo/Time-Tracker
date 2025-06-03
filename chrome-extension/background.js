@@ -4,7 +4,7 @@ let currentStart = null;
 function sendTimeSpent(url, durationSeconds, startTimestamp, endTimestamp) {
   if (!url || durationSeconds <= 0) return;
 
-  fetch('http://localhost:56000/url-track', {
+  fetch('http://localhost:56010/url-track', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

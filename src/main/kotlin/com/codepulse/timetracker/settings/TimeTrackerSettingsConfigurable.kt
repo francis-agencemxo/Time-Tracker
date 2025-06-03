@@ -3,6 +3,7 @@ package com.codepulse.timetracker.settings
 import com.intellij.ide.ui.UINumericRange
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.ProjectManager
+import com.codepulse.timetracker.settings.TimeTrackerSettings
 import com.intellij.ui.JBIntSpinner
 import com.intellij.ui.components.*
 import org.json.JSONObject
@@ -42,10 +43,35 @@ class TimeTrackerSettingsConfigurable : Configurable {
             toolTipText = "Merge sessions with gap ≤ this many seconds"
         }
 
+        val serverPortSpinner = JBIntSpinner(
+            UINumericRange(
+                state.trackerServerPort,
+                1,
+                65535,
+            )
+        ).apply {
+            addChangeListener { state.trackerServerPort = value as Int }
+            toolTipText = "Port number for the Tracker HTTP API server"
+        }
+        val dashboardPortSpinner = JBIntSpinner(
+            UINumericRange(
+                state.dashboardPort,
+                1,
+                65535,
+            )
+        ).apply {
+            addChangeListener { state.dashboardPort = value as Int }
+            toolTipText = "Port number for the Next.js dashboard dev server"
+        }
+
         // Prepare top settings panel
         val generalPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
             add(JBLabel("Keystroke timeout (s):"))
             add(timeoutSpinner)
+            add(JBLabel("Tracker server port:"))
+            add(serverPortSpinner)
+            add(JBLabel("Dashboard port:"))
+            add(dashboardPortSpinner)
         }
 
         // load existing DB entries into memory

@@ -10,6 +10,7 @@ import java.net.URL
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
+import com.codepulse.timetracker.settings.TimeTrackerSettings
 import org.json.JSONArray
 import java.time.Duration
 import java.time.LocalDateTime
@@ -17,9 +18,14 @@ import java.net.URI
 
 object BrowsingTrackerServer {
 
-    val port: Int = System.getProperty("trackerServerPort")?.toIntOrNull()
-        ?: System.getenv("TRACKER_SERVER_PORT")?.toIntOrNull()
-        ?: 56000
+    /**
+     * Port for the Tracker HTTP API server. Respects system property or env var, then plugin setting.
+     */
+    val port: Int
+        get() = System.getProperty("trackerServerPort")?.toIntOrNull()
+            ?: System.getenv("TRACKER_SERVER_PORT")?.toIntOrNull()
+            ?: TimeTrackerSettings.getInstance().state.trackerServerPort
+
     private var server: HttpServer? = null
     private val dataFile = File(System.getProperty("user.home") + "/.cache/phpstorm-time-tracker/data.json")
 
@@ -52,7 +58,6 @@ object BrowsingTrackerServer {
 
     private class StatsHandler : HttpHandler {
         override fun handle(exchange: HttpExchange) {
-            // CORS support for dev-mode cross-origin requests
             with(exchange.responseHeaders) {
                 add("Access-Control-Allow-Origin", "*")
                 add("Access-Control-Allow-Methods", "GET, OPTIONS")
@@ -113,8 +118,8 @@ object BrowsingTrackerServer {
 
 
     fun start() {
-        if (server != null) return // already started
-
+        if (server != null) return
+        
         server = HttpServer.create(InetSocketAddress(port), 0)
         server?.createContext("/url-track", UrlTrackHandler())
         server?.createContext("/", StaticFileHandler())
@@ -136,9 +141,9 @@ object BrowsingTrackerServer {
             try {
                 val json = JSONObject(body)
                 val fullUrl = json.getString("url")
-                val uri = URI.create(fullUrl)        // parse and validate as a URI
-                val url = uri.toURL()                // convert to URL instance
-                val host = url.host  // "ihr.local"
+                val uri = URI.create(fullUrl)
+                val url = uri.toURL()
+                val host = url.host
 
                 val duration = json.getLong("duration")
 

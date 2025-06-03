@@ -4,6 +4,7 @@ import com.codepulse.timetracker.license.LicenseDialog
 import com.codepulse.timetracker.license.LicenseStateService
 import com.codepulse.timetracker.license.LicenseValidator
 import com.codepulse.timetracker.settings.TimeTrackerSettingsConfigurable
+import com.codepulse.timetracker.settings.TimeTrackerSettings
 import com.intellij.icons.AllIcons
 import com.intellij.ide.BrowserUtil
 import com.intellij.notification.NotificationGroupManager
@@ -103,7 +104,7 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
             UIUtil.applyStyle(UIUtil.ComponentStyle.SMALL, this)
             val dashboardUrl = System.getProperty("dashboardUrl")
                 ?: System.getenv("DASHBOARD_URL")
-                ?: "http://localhost:${BrowsingTrackerServer.port}"
+                ?: "http://localhost:${TimeTrackerSettings.getInstance().state.dashboardPort}"
             addActionListener {
                 BrowserUtil.browse(dashboardUrl)
             }

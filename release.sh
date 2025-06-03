@@ -13,6 +13,10 @@ ZIP_BASENAME="$PLUGIN_NAME"
 SED_EXT=".bak"
 # ----------------------
 
+export PORT=
+export TRACKER_SERVER_PORT=
+export NEXT_PUBLIC_TRACKER_SERVER_PORT=
+
 # --- 0. Parse version bump argument ---
 BUMP_TYPE=${1:-patch}
 if [[ ! "$BUMP_TYPE" =~ ^(major|minor|patch)$ ]]; then

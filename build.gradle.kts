@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.codepulse.timetracker"
-version = "2.4.1"
+version = "2.5.0"
 
 repositories {
     mavenCentral()
@@ -116,10 +116,9 @@ tasks.register<Exec>("buildDashboard") {
 }
 
 tasks.withType<RunIdeTask> {
-    val portValue = project.findProperty("trackerServerPort")?.toString()
-        ?: System.getenv("TRACKER_SERVER_PORT")
-        ?: "56000"
-    jvmArgs("-DtrackerServerPort=$portValue")
+    project.findProperty("trackerServerPort")?.toString()?.let { port ->
+        jvmArgs("-DtrackerServerPort=$port")
+    }
     project.findProperty("dashboardUrl")?.toString()?.let { url ->
         jvmArgs("-DdashboardUrl=$url")
     }
