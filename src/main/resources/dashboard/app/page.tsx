@@ -178,6 +178,7 @@ debugger;
   }
 
   const getWeeklyData = () => {
+      debugger;
     const weekStart = getWeekStart(currentWeek)
     const weekDates = getWeekDates(weekStart)
     const weekData = getCurrentWeekData()
@@ -185,7 +186,7 @@ debugger;
     return weekDates.map((date) => {
       const dayData = weekData[date] || {}
       const totalSeconds = Object.values(dayData).reduce((sum, project) => sum + project.duration, 0)
-      const dayName = new Date(date).toLocaleDateString("en-US", { weekday: "short" })
+      const dayName = new Date(date+'T00:00:00').toLocaleDateString("en-US", { weekday: "short" })
 
       return {
         day: dayName,
@@ -268,7 +269,7 @@ debugger;
     const monthlyData: { [key: string]: number } = {}
 
     Object.entries(statsData).forEach(([date, dayData]) => {
-      const month = new Date(date).toLocaleDateString("en-US", { month: "short" })
+      const month = new Date(date+'T00:00:00').toLocaleDateString("en-US", { month: "short" })
       const totalSeconds = Object.values(dayData).reduce((sum, project) => sum + project.duration, 0)
       monthlyData[month] = (monthlyData[month] || 0) + totalSeconds
     })
@@ -724,7 +725,7 @@ debugger;
                           {dailyTotals.map((day) => (
                             <div key={day.date} className="p-3 border rounded-lg bg-stone-50">
                               <div className="flex justify-between items-center mb-2">
-                                <span className="font-medium text-sm">{new Date(day.date).toLocaleDateString()}</span>
+                                <span className="font-medium text-sm">{day.date}</span>
                                 <span className="text-sm font-bold text-teal-700">{formatDuration(day.duration)}</span>
                               </div>
                               <div className="space-y-1">
