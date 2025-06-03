@@ -75,6 +75,41 @@ This sets up the Kotlin HTTP server on port 59001 and configures the plugin's "D
 
 Now, any changes you make in the Next.js `app/`, `components/`, or styling files will be reflected immediately in the dashboard when you reload the plugin UI.
 
+### Customizing Ports
+
+By default, the Next.js dev server runs on port 3000 and the Tracker API server listens on port 56000. You can override these ports using environment variables and Gradle properties. For example, to use ports 55555 (dashboard) and 55556 (API):
+
+```bash
+# In the dashboard directory:
+export PORT=55555
+export TRACKER_SERVER_PORT=55556
+export NEXT_PUBLIC_TRACKER_SERVER_PORT=55556
+npm run dev
+
+# In the plugin root directory (separate terminal):
+./gradlew runIde \
+  -PtrackerServerPort=55556 \
+  -PdashboardUrl=http://localhost:55555
+```
+
+This will start Next.js on http://localhost:55555 with HMR for TSX, CSS, and Tailwind changes, and the Kotlin server on port 55556.
+
+### One-Command Dev Workflow
+
+To simplify running both the Tracker API server and the Next.js dashboard in parallel, we've added the `concurrently` package and defined a `dev:full` npm script in `package.json`. Now you can start both services with:
+
+```bash
+cd src/main/resources/dashboard
+npm install                    # install deps including concurrently
+export TRACKER_SERVER_PORT=59001
+export NEXT_PUBLIC_TRACKER_SERVER_PORT=59001
+npm run dev:full
+```
+
+This will:
+- Launch the Tracker API server on `$TRACKER_SERVER_PORT` via Gradle
+- Start the Next.js dev server on port 3000 with HMR
+
 ## Production Build
 
 To package the plugin for distribution:
@@ -87,11 +122,26 @@ The plugin ZIP will be available under `build/distributions`.
 
 ## Release Process
 
-1. Bump the version in `build.gradle.kts` under `version`.
-2. Update the `<change-notes>` in `plugin.xml` or via `patchPluginXml` in `build.gradle.kts`.
-3. Update `releases/updatePlugins.xml` if using a custom update feed.
-4. Tag the release and push to GitHub.
-5. Run `./release.sh` to upload artifacts to GitHub Releases and update the update feed.
+Publishing a new release is a two-step workflow: running the `release.sh` helper script to bump,
+build, and publish release assets; then uploading the plugin ZIP to the JetBrains Marketplace.
+
+1. **Run the `release.sh` script**:
+   ```bash
+   # bump type: patch (default), minor, or major
+   ./release.sh [patch|minor|major]
+   ```
+   This will:
+   - Bump the plugin version in `build.gradle.kts` and `plugin.xml`
+   - Build the plugin ZIP and place it in `releases/`
+   - Update `releases/updatePlugins.xml` (for custom update feeds)
+   - Commit changes, tag `v<new_version>`, and push to GitHub
+
+2. **Upload to JetBrains Marketplace**:
+   1. Sign in to your JetBrains Marketplace account and navigate to your plugin’s **Versions** page.
+   2. Click **Upload new plugin version**, select the ZIP file from the `releases/` directory,
+      and fill in the release notes/changelog.
+
+After uploading, JetBrains will process the plugin and publish your new version to users.
 
 ## Contributing
 

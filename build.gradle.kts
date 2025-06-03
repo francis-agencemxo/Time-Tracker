@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.codepulse.timetracker"
-version = "2.4.0"
+version = "2.4.1"
 
 repositories {
     mavenCentral()
@@ -19,6 +19,13 @@ tasks.register<JavaExec>("runMigration") {
     description = "Migrate data.json into SQLite"
     classpath = sourceSets.main.get().runtimeClasspath
     mainClass.set("com.codepulse.timetracker.DataMigrationKt")
+}
+
+tasks.register<JavaExec>("runTrackerServer") {
+    group = "application"
+    description = "Run the browsing tracker HTTP API server"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.codepulse.timetracker.BrowsingTrackerServerKt")
 }
 
 intellij {

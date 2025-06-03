@@ -192,3 +192,7 @@ object BrowsingTrackerServer {
         }
     }
 }
+
+fun main() {
+    BrowsingTrackerServer.start()
+}
