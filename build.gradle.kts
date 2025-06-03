@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.codepulse.timetracker"
-version = "2.3.0"
+version = "2.4.0"
 
 repositories {
     mavenCentral()
@@ -96,6 +96,9 @@ val outputDir = File(dashboardDir, "out")
 val pluginPublicDir = File("src/main/resources/public")
 
 tasks.register<Exec>("buildDashboard") {
+    onlyIf {
+        project.findProperty("dashboardUrl") == null && System.getenv("DASHBOARD_URL") == null
+    }
     workingDir = dashboardDir
     val portValue = project.findProperty("trackerServerPort")?.toString()
         ?: System.getenv("TRACKER_SERVER_PORT")
@@ -110,6 +113,9 @@ tasks.withType<RunIdeTask> {
         ?: System.getenv("TRACKER_SERVER_PORT")
         ?: "56000"
     jvmArgs("-DtrackerServerPort=$portValue")
+    project.findProperty("dashboardUrl")?.toString()?.let { url ->
+        jvmArgs("-DdashboardUrl=$url")
+    }
 }
 
 // 1) Stand-alone “clean” task
@@ -124,6 +130,9 @@ val cleanDashboardResources = tasks.register<Delete>("cleanDashboardResources") 
 }
 
 tasks.register<Copy>("copyDashboardToResources") {
+    onlyIf {
+        project.findProperty("dashboardUrl") == null && System.getenv("DASHBOARD_URL") == null
+    }
     dependsOn("buildDashboard")
     from(outputDir)
     into(pluginPublicDir)

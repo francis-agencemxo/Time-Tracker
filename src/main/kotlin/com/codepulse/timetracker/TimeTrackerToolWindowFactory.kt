@@ -101,9 +101,11 @@ class TimeTrackerToolWindowFactory : ToolWindowFactory {
             isFocusPainted = false
             margin = JBUI.insets(4, 12)
             UIUtil.applyStyle(UIUtil.ComponentStyle.SMALL, this)
-            val port = BrowsingTrackerServer.port
+            val dashboardUrl = System.getProperty("dashboardUrl")
+                ?: System.getenv("DASHBOARD_URL")
+                ?: "http://localhost:${BrowsingTrackerServer.port}"
             addActionListener {
-                BrowserUtil.browse("http://localhost:$port")
+                BrowserUtil.browse(dashboardUrl)
             }
         }
 

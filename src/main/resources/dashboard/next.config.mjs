@@ -6,7 +6,8 @@ const __dirname = path.dirname(__filename)
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // Only use static export in production builds; dev server will handle CSS in-memory
+  output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
   eslint: {
     ignoreDuringBuilds: true,
   },

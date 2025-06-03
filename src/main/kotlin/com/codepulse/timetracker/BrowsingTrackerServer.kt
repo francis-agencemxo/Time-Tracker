@@ -52,6 +52,17 @@ object BrowsingTrackerServer {
 
     private class StatsHandler : HttpHandler {
         override fun handle(exchange: HttpExchange) {
+            // CORS support for dev-mode cross-origin requests
+            with(exchange.responseHeaders) {
+                add("Access-Control-Allow-Origin", "*")
+                add("Access-Control-Allow-Methods", "GET, OPTIONS")
+                add("Access-Control-Allow-Headers", "Content-Type")
+            }
+            if (exchange.requestMethod.equals("OPTIONS", ignoreCase = true)) {
+                exchange.sendResponseHeaders(204, -1)
+                exchange.responseBody.close()
+                return
+            }
             if (exchange.requestMethod != "GET") {
                 exchange.sendResponseHeaders(405, 0)
                 exchange.responseBody.close()
