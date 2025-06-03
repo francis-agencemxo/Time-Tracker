@@ -116,6 +116,59 @@ object BrowsingTrackerServer {
         }
     }
 
+    /**
+     * Handler for CRUD operations on URL matching patterns.
+     */
+    private class UrlConfigHandler : HttpHandler {
+        override fun handle(exchange: HttpExchange) {
+            with(exchange.responseHeaders) {
+                add("Access-Control-Allow-Origin", "*")
+                add("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+                add("Access-Control-Allow-Headers", "Content-Type")
+            }
+            if (exchange.requestMethod.equals("OPTIONS", ignoreCase = true)) {
+                exchange.sendResponseHeaders(204, -1)
+                exchange.responseBody.close()
+                return
+            }
+            when (exchange.requestMethod.uppercase()) {
+                "GET" -> {
+                    val urls = DBManager.queryAllUrls()
+                    val response = urls.toString(2).toByteArray()
+                    exchange.responseHeaders.add("Content-Type", "application/json")
+                    exchange.sendResponseHeaders(200, response.size.toLong())
+                    exchange.responseBody.use { it.write(response) }
+                }
+                "POST" -> {
+                    val body = exchange.requestBody.bufferedReader().readText()
+                    val json = JSONObject(body)
+                    DBManager.insertUrl(
+                        project = json.getString("project"),
+                        url = json.getString("url")
+                    )
+                    exchange.sendResponseHeaders(201, -1)
+                }
+                "DELETE" -> {
+                    val fullPath = exchange.requestURI.path
+                    val idSegment = fullPath.substringAfterLast("/", missingDelimiterValue = "")
+                    val id = idSegment.toIntOrNull()
+
+                    if (id != null) {
+                        DBManager.deleteUrlById(id)
+                        exchange.sendResponseHeaders(204, -1)
+                    } else {
+                        exchange.sendResponseHeaders(400, -1)
+                    }
+
+                    exchange.responseBody.close()
+                }
+                else -> {
+                    exchange.sendResponseHeaders(405, 0)
+                    exchange.responseBody.close()
+                }
+            }
+        }
+    }
 
     fun start() {
         if (server != null) return
@@ -124,6 +177,7 @@ object BrowsingTrackerServer {
         server?.createContext("/url-track", UrlTrackHandler())
         server?.createContext("/", StaticFileHandler())
         server?.createContext("/api/stats", StatsHandler())
+        server?.createContext("/api/urls", UrlConfigHandler())
         server?.executor = null
         server?.start()
         println("🌐 BrowsingTrackerServer started on port $port")

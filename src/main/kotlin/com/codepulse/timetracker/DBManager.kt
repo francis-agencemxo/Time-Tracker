@@ -53,6 +53,7 @@ object DBManager {
         conn.createStatement().use { st ->
             st.executeUpdate("""
         CREATE TABLE IF NOT EXISTS urls (
+          id      INTEGER PRIMARY KEY AUTOINCREMENT,
           project TEXT    NOT NULL,
           url     TEXT
         );
@@ -86,6 +87,38 @@ object DBManager {
         }
     }
 
+    /**
+     * Delete a specific URL pattern for a project.
+     */
+    fun deleteUrl(
+        project: String,
+        url: String
+    ) {
+        conn.prepareStatement("""
+      DELETE FROM urls
+      WHERE project = ? AND url = ?
+    """.trimIndent()).use { ps ->
+            ps.setString(1, project)
+            ps.setString(2, url)
+            ps.executeUpdate()
+        }
+    }
+
+    /**
+     * Delete a specific URL pattern for a project.
+     */
+    fun deleteUrlById(
+        id: Int
+    ) {
+        conn.prepareStatement("""
+      DELETE FROM urls
+      WHERE id = ?
+    """.trimIndent()).use { ps ->
+            ps.setInt(1, id)
+            ps.executeUpdate()
+        }
+    }
+
     fun queryUrls(project: String): JSONArray {
         val arr = JSONArray()
         conn.prepareStatement("""
@@ -107,7 +140,7 @@ object DBManager {
     fun queryAllUrls(): JSONArray {
         val arr = JSONArray()
         conn.prepareStatement("""
-        SELECT project, url
+        SELECT id, project, url
         FROM urls
         ORDER BY project DESC
     """.trimIndent()).use { ps ->
@@ -116,6 +149,7 @@ object DBManager {
                     val obj = JSONObject()
                     // assume neither column is null in your schema;
                     // otherwise add null‐checks as needed
+                    obj.put("id", rs.getInt("id"))
                     obj.put("project", rs.getString("project"))
                     obj.put("url",     rs.getString("url"))
                     arr.put(obj)
