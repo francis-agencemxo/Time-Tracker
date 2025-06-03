@@ -38,16 +38,6 @@ class TimeTrackerSettingsConfigurable : Configurable {
     override fun createComponent(): JComponent {
         // Load keystroke timeout setting
         val state = TimeTrackerSettings.getInstance().state
-        val timeoutSpinner = JBIntSpinner(
-            UINumericRange(
-                state.keystrokeTimeoutSeconds,
-                0,
-                3600,
-            )
-        ).apply {
-            addChangeListener { state.keystrokeTimeoutSeconds = value as Int }
-            toolTipText = "Merge sessions with gap ≤ this many seconds"
-        }
 
         val serverPortSpinner = JBIntSpinner(
             UINumericRange(
@@ -69,11 +59,8 @@ class TimeTrackerSettingsConfigurable : Configurable {
             addChangeListener { state.dashboardPort = value as Int }
             toolTipText = "Port number for the Next.js dashboard dev server"
         }
-
         // Prepare top settings panel
         val generalPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
-            add(JBLabel("Keystroke timeout (s):"))
-            add(timeoutSpinner)
             add(JBLabel("Tracker server port:"))
             add(serverPortSpinner)
             add(JBLabel("Dashboard port:"))

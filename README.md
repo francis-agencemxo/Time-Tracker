@@ -53,30 +53,28 @@ Follow these steps to run the Next.js dashboard in hot-reload mode alongside the
 
 ```bash
 cd src/main/resources/dashboard
-npm install           # if not already installed
-export TRACKER_SERVER_PORT=59001
-export NEXT_PUBLIC_TRACKER_SERVER_PORT=59001
+npm install
+export TRACKER_SERVER_PORT=55000
+export NEXT_PUBLIC_TRACKER_SERVER_PORT=55000
+export DASHBOARD_PORT=55001
 npm run dev
 ```
 
-This starts Next.js on http://localhost:3000 with HMR for TSX, CSS, and Tailwind changes.
+This starts Next.js on http://localhost:$DASHBOARD_PORT with HMR for TSX, CSS, and Tailwind changes.
 
 ### 2. Launch the IntelliJ plugin sandbox
 
 Open a separate terminal in the project root and run:
 
 ```bash
-# Pick up the port saved in Settings (default 56000) and point the Dashboard at your dev server:
-./gradlew runIde -PdashboardUrl=http://localhost:3000
+# Pick up the port saved in Settings (default 56000) and open the dashboard at that port:
+./gradlew runIde
 
-# — or, to override the API port via CLI instead of using the Settings value:
-./gradlew runIde \
-  -PtrackerServerPort=59001 \
-  -PdashboardUrl=http://localhost:3000
+# — or, to override the port
+./gradlew runIde -PtrackerServerPort=55000
 ```
 
-This launches the plugin sandbox. The Tracker API server will start on the port you configured in Settings (or on the CLI override),
-and the Dashboard button will open the dev server at http://localhost:3000.
+This launches the plugin sandbox. The Tracker API server and Next.js dashboard will both listen on the same port (from Settings or CLI override).
 
 Now, any changes you make in the Next.js `app/`, `components/`, or styling files will be reflected immediately in the dashboard when you reload the plugin UI.
 
@@ -84,7 +82,7 @@ Now, any changes you make in the Next.js `app/`, `components/`, or styling files
 
 In PhpStorm, open **Settings | Tools | CodePulse Time Tracker** (on Windows/Linux) or **Preferences | Tools | CodePulse Time Tracker** (on macOS). You can configure:
 - **Tracker Server Port**: port number that the built-in API server listens on (default **56000**).
-- **Dashboard Port**: port number of your Next.js dev server when using hot-reload (default **3000**).
+- **Dashboard Port**: port number that the Next.js dashboard dev server listens on (default **3000**).
 
 Changes take effect immediately; no IDE restart is required.
 
@@ -96,12 +94,10 @@ For example, to run Next.js on port 55555 and the Tracker API on port 55556:
 
 ```bash
 # In the dashboard directory (only for this command):
-PORT=55555 TRACKER_SERVER_PORT=55556 NEXT_PUBLIC_TRACKER_SERVER_PORT=55556 npm run dev
+DASHBOARD_PORT=55555 TRACKER_SERVER_PORT=55556 NEXT_PUBLIC_TRACKER_SERVER_PORT=55556 npm run dev
 
 # In the plugin root (separate terminal):
-./gradlew runIde \
-  -PtrackerServerPort=55556 \
-  -PdashboardUrl=http://localhost:55555
+./gradlew runIde -PtrackerServerPort=55556
 ```
 
 This starts Next.js on http://localhost:55555 with HMR and spins up your plugin's Tracker API on port 55556.
@@ -123,12 +119,13 @@ cd src/main/resources/dashboard
 npm install                    # install deps including concurrently
 export TRACKER_SERVER_PORT=59001
 export NEXT_PUBLIC_TRACKER_SERVER_PORT=59001
+export DASHBOARD_PORT=59001
 npm run dev:full
 ```
 
 This will:
 - Launch the Tracker API server on `$TRACKER_SERVER_PORT` via Gradle
-- Start the Next.js dev server on port 3000 with HMR
+  - Start the Next.js dev server on port `$DASHBOARD_PORT` with HMR
 
 ## Production Build
 
@@ -152,6 +149,7 @@ to ensure the production bundle uses the default ports:
 export PORT=
 export TRACKER_SERVER_PORT=
 export NEXT_PUBLIC_TRACKER_SERVER_PORT=
+export DASHBOARD_PORT=
 ```
 
 1. **Run the `release.sh` script**:

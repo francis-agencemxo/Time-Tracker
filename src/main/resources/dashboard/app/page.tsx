@@ -103,7 +103,7 @@ export default function TimeTrackingDashboard() {
   const getCurrentWeekData = () => {
     const weekStart = getWeekStart(currentWeek)
     const weekDates = getWeekDates(weekStart)
-
+debugger;
     const weekData: StatsData = {}
     weekDates.forEach((date) => {
       if (statsData[date]) {

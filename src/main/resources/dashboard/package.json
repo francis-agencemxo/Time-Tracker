@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p $DASHBOARD_PORT",
     "dev:full": "concurrently \"npm run dev\" \"../../../../gradlew runTrackerServer -PtrackerServerPort=$TRACKER_SERVER_PORT\"",
     "build": "next build",
     "start": "next start",
