@@ -11,12 +11,18 @@ import java.awt.BorderLayout
 import java.awt.FlowLayout
 import java.io.File
 import java.sql.Connection
-import java.sql.DriverManager
+import org.sqlite.SQLiteDataSource
 import javax.swing.*
 
 class TimeTrackerSettingsConfigurable : Configurable {
-    private val dbFile = File(System.getProperty("user.home") + "/.cache/phpstorm-time-tracker/data.db")
-    private val conn: Connection = DriverManager.getConnection("jdbc:sqlite:${dbFile.absolutePath}")
+    private val dbFile = File(System.getProperty("user.home"), ".cache/phpstorm-time-tracker/data.db")
+    private val conn: Connection by lazy {
+        dbFile.parentFile.mkdirs()
+        val ds = SQLiteDataSource().apply {
+            url = "jdbc:sqlite:${dbFile.absolutePath}"
+        }
+        ds.connection
+    }
 
     // in-memory map of project → list of URLs
     private val urlMap = mutableMapOf<String, MutableList<String>>()

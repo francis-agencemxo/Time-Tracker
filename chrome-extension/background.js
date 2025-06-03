@@ -1,10 +1,21 @@
 let currentTabUrl = null;
 let currentStart = null;
+let trackerServerPort = 56000;
+
+chrome.storage.sync.get({ trackerServerPort }, (items) => {
+  trackerServerPort = items.trackerServerPort;
+});
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'sync' && changes.trackerServerPort) {
+    trackerServerPort = changes.trackerServerPort.newValue;
+  }
+});
 
 function sendTimeSpent(url, durationSeconds, startTimestamp, endTimestamp) {
   if (!url || durationSeconds <= 0) return;
 
-  fetch('http://localhost:56010/url-track', {
+  fetch(`http://localhost:${trackerServerPort}/url-track`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
