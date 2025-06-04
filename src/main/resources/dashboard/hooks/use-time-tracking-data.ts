@@ -168,8 +168,7 @@ export const useTimeTrackingData = () => {
   // Better preview detection - use fake data unless we're specifically in production with a real API
   const isPreview =
     typeof window === "undefined" ||
-    window.location.hostname.includes("v0.dev") ||
-    !process.env.NEXT_PUBLIC_TRACKER_SERVER_PORT
+    window.location.hostname.includes("v0.dev")
 
   const fetchStats = async () => {
     try {
