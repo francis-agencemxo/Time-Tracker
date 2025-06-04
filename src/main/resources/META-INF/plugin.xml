@@ -33,13 +33,6 @@
     <idea-version since-build="193.0" until-build="251.*"/>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="CodePulse Time Tracker"
-                    label="CodePulse Time Tracker"
-                    icon="/icons/toolbar-icon.png"
-                    anchor="right"
-                    factoryClass="com.codepulse.timetracker.TimeTrackerToolWindowFactory"
-                    canCloseContents="false"/>
-
         <postStartupActivity implementation="com.codepulse.timetracker.TrackingStartupActivity"/>
         <notificationGroup id="CodePulse"
                            displayType="BALLOON"
@@ -48,5 +41,6 @@
                              displayName="CodePulse Time Tracker"/>
         <applicationService serviceImplementation="com.codepulse.timetracker.settings.TimeTrackerSettings"/>
         <applicationService serviceImplementation="com.codepulse.timetracker.license.LicenseStateService"/>
+        <statusBarWidgetFactory implementation="com.codepulse.timetracker.DashboardStatusBarFactory"/>
     </extensions>
 </idea-plugin>
