@@ -23,6 +23,9 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
   const [error, setError] = useState("")
   const [isValidating, setIsValidating] = useState(false)
 
+  // Check if we're in preview mode (same logic as time tracking data)
+  const isPreview = typeof window === "undefined" || window.location.hostname.includes("v0.dev")
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
@@ -127,57 +130,65 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
               <Globe className="h-4 w-4" />
               License Validation
             </CardTitle>
-            <CardDescription className="text-xs">Licenses are validated through addons.fl.com API</CardDescription>
+            <CardDescription className="text-xs">
+              {isPreview
+                ? "Running in preview mode - demo keys available below"
+                : "Licenses are validated through addons.francislabonte.com API"}
+            </CardDescription>
           </CardHeader>
         </Card>
 
-        {/* Demo Keys Section */}
-        <Card className="border-teal-200">
-          <CardHeader>
-            <CardTitle className="text-sm text-teal-800">Demo License Keys</CardTitle>
-            <CardDescription className="text-xs">
-              For testing purposes, you can use any of these demo keys:
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {DEMO_LICENSE_KEYS.map((key, index) => (
-              <div key={key} className="flex items-center justify-between p-2 bg-teal-50 rounded border">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-xs">
-                    {key.includes("DEV") ? "DEV" : key.includes("PRO") ? "PRO" : "ENT"}
-                  </Badge>
-                  <code className="text-xs font-mono text-teal-700">{key}</code>
+        {/* Demo Keys Section - Only show in preview mode */}
+        {isPreview && (
+          <Card className="border-teal-200">
+            <CardHeader>
+              <CardTitle className="text-sm text-teal-800">Demo License Keys</CardTitle>
+              <CardDescription className="text-xs">
+                For testing purposes, you can use any of these demo keys:
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {DEMO_LICENSE_KEYS.map((key, index) => (
+                <div key={key} className="flex items-center justify-between p-2 bg-teal-50 rounded border">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">
+                      {key.includes("DEV") ? "DEV" : key.includes("PRO") ? "PRO" : "ENT"}
+                    </Badge>
+                    <code className="text-xs font-mono text-teal-700">{key}</code>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyToClipboard(key)}
+                      className="h-6 w-6 p-0 hover:bg-teal-100"
+                      title="Copy to clipboard"
+                      disabled={isValidating}
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDemoKeyClick(key)}
+                      className="h-6 px-2 text-xs hover:bg-teal-100"
+                      disabled={isValidating}
+                    >
+                      Use
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => copyToClipboard(key)}
-                    className="h-6 w-6 p-0 hover:bg-teal-100"
-                    title="Copy to clipboard"
-                    disabled={isValidating}
-                  >
-                    <Copy className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDemoKeyClick(key)}
-                    className="h-6 px-2 text-xs hover:bg-teal-100"
-                    disabled={isValidating}
-                  >
-                    Use
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+              ))}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Footer Info */}
         <div className="text-center">
           <p className="text-xs text-gray-500">
-            License validation requires an internet connection. Demo keys work offline.
+            {isPreview
+              ? "Preview mode: Demo keys work offline for testing."
+              : "License validation requires an internet connection."}
           </p>
         </div>
       </div>
