@@ -10,6 +10,7 @@ class LicenseStateService : PersistentStateComponent<LicenseStateService.State> 
         var email: String? = null,
         var licenseKey: String? = null,
         var isValid: Boolean = false,
+        var lastCheckMillis: Long = 0L,
         var lastCheck: Date = Date(0) // default to epoch (Jan 1, 1970)
     )
 

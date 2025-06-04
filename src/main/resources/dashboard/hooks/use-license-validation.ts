@@ -107,11 +107,35 @@ export const useLicenseValidation = () => {
   /**
    * Logs out the user by clearing the stored license
    */
-  const logout = () => {
-    localStorage.removeItem(LICENSE_STORAGE_KEY)
-    localStorage.removeItem(`${LICENSE_STORAGE_KEY}-last-checked`)
-    setIsLicenseValid(false)
-    setValidatedLicense(null)
+  const logout = async () => {
+    try {
+      // Call the logout API endpoint if we have a valid license
+      if (validatedLicense) {
+        const response = await fetch(`${baseUrl}/api/license/logout`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            license_key: validatedLicense.trim(),
+          }),
+        })
+
+        if (!response.ok) {
+          console.warn("Logout API error:", response.status, response.statusText)
+          // Continue with local logout even if API call fails
+        }
+      }
+    } catch (error) {
+      console.error("Logout API error:", error)
+      // Continue with local logout even if API call fails
+    } finally {
+      // Always clear local storage regardless of API response
+      localStorage.removeItem(LICENSE_STORAGE_KEY)
+      localStorage.removeItem(`${LICENSE_STORAGE_KEY}-last-checked`)
+      setIsLicenseValid(false)
+      setValidatedLicense(null)
+    }
   }
 
   /**

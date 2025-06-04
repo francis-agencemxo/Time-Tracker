@@ -17,6 +17,7 @@ import org.json.JSONArray
 import java.time.Duration
 import java.time.LocalDateTime
 import java.net.URI
+import java.time.Instant
 import java.util.Date
 
 object BrowsingTrackerServer {
@@ -136,39 +137,55 @@ object BrowsingTrackerServer {
             }
             when (exchange.requestMethod.uppercase()) {
                 "POST" -> {
+                    // 1) Load the persisted state
+                    val licenseStateService = LicenseStateService.getInstance()
+                    val licenseState = licenseStateService.state
 
-                    val licenseStateLoaded = LicenseStateService.getInstance().state
-                    println(licenseStateLoaded.licenseKey)
-                    println(licenseStateLoaded.isValid)
+                    // Useful for debugging:
+                    println("Stored licenseKey = ${licenseState.licenseKey}")
+                    println("Stored isValid   = ${licenseState.isValid}")
+                    println("Stored lastCheck = ${licenseState.lastCheckMillis}")
 
-                    // check validity every day
-                    if (licenseStateLoaded.isValid &&
-                        Duration.between(licenseStateLoaded.lastCheck.toInstant(), LocalDateTime.now().toInstant(java.time.ZoneOffset.UTC)).toDays() < 1) {
-                        exchange.sendResponseHeaders(200, 0)
-                        exchange.responseBody.close()
-                        return
+                    // 2) Decide whether to call external API
+                    val nowInstant = Instant.now()
+                    val lastCheckInstant = Instant.ofEpochMilli(licenseState.lastCheckMillis)
+                    val hoursSinceLastCheck = Duration.between(lastCheckInstant, nowInstant).toHours()
+
+                    val oneDayHasPassed = hoursSinceLastCheck >= 24
+
+                    val responseJson = JSONObject()
+                    var responseBytes: ByteArray
+
+                    if (licenseState.isValid && !oneDayHasPassed) {
+                        responseJson.put("valid", true)
+                        responseBytes = responseJson.toString(2).toByteArray()
+                    } else {
+                        val bodyText = exchange.requestBody.bufferedReader().readText()
+                        val requestJson = JSONObject(bodyText)
+                        val licenseKeyFromClient = requestJson.getString("license_key")
+
+                        val apiResult: JSONObject = LicenseValidator.validateKey(
+                            /* email = */ "",
+                            /* licenseKey = */ licenseKeyFromClient
+                        )
+
+                        // Update our persisted state
+                        if (apiResult.getBoolean("valid")) {
+                            licenseState.licenseKey = licenseKeyFromClient
+                            licenseState.isValid = true
+                            licenseState.lastCheckMillis = nowInstant.toEpochMilli()
+                        } else {
+                            licenseState.isValid = false
+                            licenseState.lastCheckMillis = nowInstant.toEpochMilli()
+                        }
+
+                        responseBytes = apiResult.toString(2).toByteArray()
                     }
 
-                    val body = exchange.requestBody.bufferedReader().readText()
-                    val json = JSONObject(body)
-                    val responseJson = LicenseValidator.validateKey("",json.getString("license_key")) // Assuming email is not required for validation
-
-                    if (responseJson.getBoolean("valid")) {
-                        val licenseState = LicenseStateService.getInstance().state
-                        //licenseState.email = json.optString("email", "")
-                        licenseState.licenseKey = json.getString("license_key")
-                        licenseState.isValid = true
-                        licenseState.lastCheck = Date.from(LocalDateTime.now().toInstant(java.time.ZoneOffset.UTC))
-                        LicenseStateService.getInstance().loadState(licenseState)
-                    }
-                    else{
-                        LicenseStateService.getInstance().state.isValid = false
-                    }
-
-                    val response = responseJson.toString(2).toByteArray()
+                    // 3) Send the JSON response
                     exchange.responseHeaders.add("Content-Type", "application/json")
-                    exchange.sendResponseHeaders(200, response.size.toLong())
-                    exchange.responseBody.use { it.write(response) }
+                    exchange.sendResponseHeaders(200, responseBytes.size.toLong())
+                    exchange.responseBody.use { it.write(responseBytes) }
                 }
                 else -> {
                     exchange.sendResponseHeaders(405, 0)
@@ -177,6 +194,56 @@ object BrowsingTrackerServer {
             }
         }
     }
+
+    /**
+     * Handler that “logs out” a license by clearing it from persistent storage.
+     */
+    private class LogoutHandler : HttpHandler {
+        override fun handle(exchange: HttpExchange) {
+            with(exchange.responseHeaders) {
+                add("Access-Control-Allow-Origin", "*")
+                add("Access-Control-Allow-Methods", "POST, OPTIONS")
+                add("Access-Control-Allow-Headers", "Content-Type")
+            }
+
+            // Handle CORS preflight requests
+            if (exchange.requestMethod.equals("OPTIONS", ignoreCase = true)) {
+                exchange.sendResponseHeaders(204, -1)
+                exchange.responseBody.close()
+                return
+            }
+
+            when (exchange.requestMethod.uppercase()) {
+                "POST" -> {
+                    val licenseStateService = LicenseStateService.getInstance()
+                    val licenseState = licenseStateService.state
+
+                    licenseState.licenseKey = null
+                    licenseState.isValid = false
+                    licenseState.lastCheckMillis = 0L
+
+                    val responseJson = JSONObject()
+                        .put("cleared", true)
+                        .put("timestamp", Instant.now().toEpochMilli())
+                    val responseBytes = responseJson.toString(2).toByteArray()
+
+                    println("Stored licenseKey = ${licenseState.licenseKey}")
+                    println("Stored isValid   = ${licenseState.isValid}")
+                    println("Stored lastCheck = ${licenseState.lastCheckMillis}")
+
+                    exchange.responseHeaders.add("Content-Type", "application/json")
+                    exchange.sendResponseHeaders(200, responseBytes.size.toLong())
+                    exchange.responseBody.use { it.write(responseBytes) }
+                }
+                else -> {
+                    // Only POST (and OPTIONS) are allowed here
+                    exchange.sendResponseHeaders(405, 0)
+                    exchange.responseBody.close()
+                }
+            }
+        }
+    }
+
 
     /**
      * Handler for CRUD operations on URL matching patterns.
@@ -241,6 +308,7 @@ object BrowsingTrackerServer {
         server?.createContext("/api/stats", StatsHandler())
         server?.createContext("/api/urls", UrlConfigHandler())
         server?.createContext("/api/license", LicenseHandler())
+        server?.createContext("/api/license/logout", LogoutHandler())
         server?.executor = null
         server?.start()
         println("🌐 BrowsingTrackerServer started on port $port")
