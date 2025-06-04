@@ -42,7 +42,12 @@ object LicenseValidator {
     }
 
     fun postJson(url: String, jsonPayload: String): String {
-        val connection = URL(url).openConnection() as HttpURLConnection
+
+        val uri = URI.create(url)        // parse and validate as a URI
+        val url = uri.toURL()                // convert to URL instance
+
+        val connection = url.openConnection() as HttpURLConnection
+
         connection.requestMethod = "POST"
         connection.setRequestProperty("Content-Type", "application/json")
         connection.doOutput = true
