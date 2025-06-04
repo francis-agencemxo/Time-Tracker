@@ -1,5 +1,7 @@
 package com.codepulse.timetracker
 
+import com.codepulse.timetracker.license.LicenseStateService
+import com.codepulse.timetracker.license.LicenseValidator
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import com.sun.net.httpserver.HttpServer
@@ -15,6 +17,7 @@ import org.json.JSONArray
 import java.time.Duration
 import java.time.LocalDateTime
 import java.net.URI
+import java.util.Date
 
 object BrowsingTrackerServer {
 
@@ -119,6 +122,65 @@ object BrowsingTrackerServer {
     /**
      * Handler for CRUD operations on URL matching patterns.
      */
+    private class LicenseHandler : HttpHandler {
+        override fun handle(exchange: HttpExchange) {
+            with(exchange.responseHeaders) {
+                add("Access-Control-Allow-Origin", "*")
+                add("Access-Control-Allow-Methods", "POST")
+                add("Access-Control-Allow-Headers", "Content-Type")
+            }
+            if (exchange.requestMethod.equals("OPTIONS", ignoreCase = true)) {
+                exchange.sendResponseHeaders(204, -1)
+                exchange.responseBody.close()
+                return
+            }
+            when (exchange.requestMethod.uppercase()) {
+                "POST" -> {
+
+                    val licenseStateLoaded = LicenseStateService.getInstance().state
+                    println(licenseStateLoaded.licenseKey)
+                    println(licenseStateLoaded.isValid)
+
+                    // check validity every day
+                    if (licenseStateLoaded.isValid &&
+                        Duration.between(licenseStateLoaded.lastCheck.toInstant(), LocalDateTime.now().toInstant(java.time.ZoneOffset.UTC)).toDays() < 1) {
+                        exchange.sendResponseHeaders(200, 0)
+                        exchange.responseBody.close()
+                        return
+                    }
+
+                    val body = exchange.requestBody.bufferedReader().readText()
+                    val json = JSONObject(body)
+                    val responseJson = LicenseValidator.validateKey("",json.getString("license_key")) // Assuming email is not required for validation
+
+                    if (responseJson.getBoolean("valid")) {
+                        val licenseState = LicenseStateService.getInstance().state
+                        //licenseState.email = json.optString("email", "")
+                        licenseState.licenseKey = json.getString("license_key")
+                        licenseState.isValid = true
+                        licenseState.lastCheck = Date.from(LocalDateTime.now().toInstant(java.time.ZoneOffset.UTC))
+                        LicenseStateService.getInstance().loadState(licenseState)
+                    }
+                    else{
+                        LicenseStateService.getInstance().state.isValid = false
+                    }
+
+                    val response = responseJson.toString(2).toByteArray()
+                    exchange.responseHeaders.add("Content-Type", "application/json")
+                    exchange.sendResponseHeaders(200, response.size.toLong())
+                    exchange.responseBody.use { it.write(response) }
+                }
+                else -> {
+                    exchange.sendResponseHeaders(405, 0)
+                    exchange.responseBody.close()
+                }
+            }
+        }
+    }
+
+    /**
+     * Handler for CRUD operations on URL matching patterns.
+     */
     private class UrlConfigHandler : HttpHandler {
         override fun handle(exchange: HttpExchange) {
             with(exchange.responseHeaders) {
@@ -178,6 +240,7 @@ object BrowsingTrackerServer {
         server?.createContext("/", StaticFileHandler())
         server?.createContext("/api/stats", StatsHandler())
         server?.createContext("/api/urls", UrlConfigHandler())
+        server?.createContext("/api/license", LicenseHandler())
         server?.executor = null
         server?.start()
         println("🌐 BrowsingTrackerServer started on port $port")

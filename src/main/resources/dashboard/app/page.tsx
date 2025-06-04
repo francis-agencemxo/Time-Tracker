@@ -1,6 +1,8 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import { RefreshCw } from "lucide-react"
+import { LicenseValidation } from "@/components/license/license-validation"
+import { AppLoadingScreen } from "@/components/license/app-loading-screen"
 
 // Types for the API data
 interface Session {
@@ -35,10 +37,10 @@ import { QuickStats } from "@/components/dashboard/quick-stats"
 import { DashboardTabs } from "@/components/dashboard/dashboard-tabs"
 import { RecentActivities } from "@/components/dashboard/recent-activities"
 import { useTimeTrackingData } from "@/hooks/use-time-tracking-data"
-import {} from "lucide-react"
-import {} from "@/components/ui/button"
+import { useLicenseValidation } from "@/hooks/use-license-validation"
 
 export default function TimeTrackingDashboard() {
+  const { isLicenseValid, isInitializing, validateLicense, logout } = useLicenseValidation()
   const {
     statsData,
     projectUrls,
@@ -54,6 +56,16 @@ export default function TimeTrackingDashboard() {
     updateProjectUrl,
     deleteProjectUrl,
   } = useTimeTrackingData()
+
+  // Show loading screen while initializing license check
+  if (isInitializing) {
+    return <AppLoadingScreen />
+  }
+
+  // Show license validation page if not validated
+  if (!isLicenseValid) {
+    return <LicenseValidation onValidate={validateLicense} />
+  }
 
   if (loading) {
     return (
@@ -87,6 +99,7 @@ export default function TimeTrackingDashboard() {
           idleTimeoutMinutes={idleTimeoutMinutes}
           onIdleTimeoutChange={setIdleTimeoutMinutes}
           onRefresh={fetchStats}
+          onLogout={logout}
         />
 
         <WeekNavigation currentWeek={currentWeek} onNavigateWeek={setCurrentWeek} />

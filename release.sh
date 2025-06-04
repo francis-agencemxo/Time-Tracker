@@ -68,10 +68,23 @@ echo "📝 Updating updatePlugins.xml..."
 sed -i"$SED_EXT" "0,/<version>.*<\/version>/s|<version>.*</version>|<version>$NEW_VERSION</version>|" "$UPDATE_XML" && rm -f "$UPDATE_XML$SED_EXT"
 sed -i"$SED_EXT" -E "s|(https://.*/)$ZIP_BASENAME-[0-9]+\.[0-9]+\.[0-9]+\.zip|\1$ZIP_NAME|" "$UPDATE_XML" && rm -f "$UPDATE_XML$SED_EXT"
 
+# --- Parse optional commit message ---
+COMMIT_MESSAGE="Release $NEW_VERSION"
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    -m)
+      shift
+      COMMIT_MESSAGE="$1"
+      ;;
+  esac
+  shift
+done
+
+
 # --- 7. Git commit, tag, and push ---
 echo "🔀 Committing and tagging release..."
 git add . > /dev/null 2>&1
-git commit -m "Release $NEW_VERSION" > /dev/null 2>&1
+git commit -m "$COMMIT_MESSAGE" > /dev/null 2>&1
 git tag -a "v$NEW_VERSION" -m "Release $NEW_VERSION" > /dev/null 2>&1
 git push origin main > /dev/null 2>&1
 git push origin "v$NEW_VERSION" > /dev/null 2>&1

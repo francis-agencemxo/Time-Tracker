@@ -48,7 +48,7 @@ class TrackingStartupActivity : ProjectActivity {
 
     override suspend fun execute(project: Project) {
 
-        val licenseState = LicenseStateService.getInstance().state
+        /*val licenseState = LicenseStateService.getInstance().state
 
         if (!licenseState.isValid) {
             com.intellij.openapi.application.ApplicationManager.getApplication().invokeAndWait {
@@ -83,9 +83,9 @@ class TrackingStartupActivity : ProjectActivity {
 
             // Abort startup if still not valid
             if (!licenseState.isValid) return
-        }
+        }*/
 
-        println("✅ Time Tracker started for: ${project.name}")
+        //println("✅ Time Tracker started for: ${project.name}")
 
         try {
             BrowsingTrackerServer.start()

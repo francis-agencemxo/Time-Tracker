@@ -1,6 +1,7 @@
 package com.codepulse.timetracker.license
 
 import com.intellij.openapi.components.*
+import java.util.Date
 
 @State(name = "TimeTrackerLicenseState", storages = [Storage("TimeTrackerLicense.xml")])
 class LicenseStateService : PersistentStateComponent<LicenseStateService.State> {
@@ -8,7 +9,8 @@ class LicenseStateService : PersistentStateComponent<LicenseStateService.State> 
     data class State(
         var email: String? = null,
         var licenseKey: String? = null,
-        var isValid: Boolean = false
+        var isValid: Boolean = false,
+        var lastCheck: Date = Date(0) // default to epoch (Jan 1, 1970)
     )
 
     private var state = State()
