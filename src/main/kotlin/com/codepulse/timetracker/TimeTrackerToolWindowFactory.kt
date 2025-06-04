@@ -14,9 +14,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
+import com.intellij.openapi.wm.ex.ToolWindowEx
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.content.ContentFactory
+import com.intellij.ui.content.ContentManagerEvent
+import com.intellij.ui.content.ContentManagerListener
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import java.awt.*
@@ -32,7 +35,18 @@ class BackgroundImagePanel(private val backgroundImage: Image) : JPanel() {
 }
 
 class TimeTrackerToolWindowFactory : ToolWindowFactory {
+
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
+        val twEx = toolWindow as? ToolWindowEx ?: return
+
+        twEx.contentManager.addContentManagerListener(object : ContentManagerListener {
+            override fun selectionChanged(event: ContentManagerEvent) {
+                openDashboardAndHide(project, toolWindow)
+            }
+        })
+    }
+
+    private fun openDashboardAndHide(project: Project, toolWindow: ToolWindow) {
         val dashboardUrl = System.getProperty("dashboardUrl")
             ?: System.getenv("DASHBOARD_URL")
             ?: "http://localhost:${TimeTrackerSettings.getInstance().state.dashboardPort}"
