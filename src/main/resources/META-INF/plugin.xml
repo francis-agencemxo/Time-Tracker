@@ -41,6 +41,6 @@
                              displayName="CodePulse Time Tracker"/>
         <applicationService serviceImplementation="com.codepulse.timetracker.settings.TimeTrackerSettings"/>
         <applicationService serviceImplementation="com.codepulse.timetracker.license.LicenseStateService"/>
-        <statusBarWidgetFactory implementation="com.codepulse.timetracker.DashboardStatusBarFactory"/>
+        <statusBarWidgetFactory id="CodePulse.DashboardWidget" implementation="com.codepulse.timetracker.DashboardStatusBarFactory"/>
     </extensions>
 </idea-plugin>
