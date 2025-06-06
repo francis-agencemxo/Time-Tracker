@@ -73,6 +73,22 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
     return `${hours}h ${minutes}m`
   }
 
+  // New function to format hours for charts (e.g., "2h38" format)
+  const formatHoursForChart = (hours: number): string => {
+    const wholeHours = Math.floor(hours)
+    const minutes = Math.round((hours - wholeHours) * 60)
+
+    if (wholeHours === 0 && minutes === 0) {
+      return "0h00"
+    }
+
+    if (minutes === 0) {
+      return `${wholeHours}h00`
+    }
+
+    return `${wholeHours}h${minutes.toString().padStart(2, "0")}`
+  }
+
   const mergeSessions = (sessions: Session[]): Session[] => {
     if (sessions.length === 0) return sessions
 
@@ -99,13 +115,42 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
     return mergedSessions
   }
 
+  // Get all sessions for a day, merged based on idle timeout
+  const getMergedSessionsForDay = (dayData: { [key: string]: any }): Session[] => {
+    const allSessions: Session[] = []
+
+    // Collect all sessions from all projects
+    Object.values(dayData).forEach((projectData) => {
+      allSessions.push(...projectData.sessions)
+    })
+
+    // Sort and merge sessions
+    return mergeSessions(allSessions)
+  }
+
+  // Get merged sessions for a specific project on a specific day
+  const getMergedSessionsForProjectDay = (projectData: any): Session[] => {
+    return mergeSessions(projectData.sessions)
+  }
+
+  // Calculate total duration from merged sessions
+  const calculateMergedDuration = (sessions: Session[]): number => {
+    return sessions.reduce((total, session) => {
+      return total + (new Date(session.end).getTime() - new Date(session.start).getTime()) / 1000
+    }, 0)
+  }
+
+  // Get project totals using merged sessions
   const getProjectTotals = () => {
     const projectTotals: { [key: string]: number } = {}
     const weekData = getCurrentWeekData()
 
-    Object.values(weekData).forEach((dayData) => {
+    Object.entries(weekData).forEach(([date, dayData]) => {
       Object.entries(dayData).forEach(([projectName, projectData]) => {
-        projectTotals[projectName] = (projectTotals[projectName] || 0) + projectData.duration
+        // Use merged sessions for each project
+        const mergedSessions = getMergedSessionsForProjectDay(projectData)
+        const duration = calculateMergedDuration(mergedSessions)
+        projectTotals[projectName] = (projectTotals[projectName] || 0) + duration
       })
     })
 
@@ -121,7 +166,13 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
 
     return weekDates.map((date) => {
       const dayData = weekData[date] || {}
-      const totalSeconds = Object.values(dayData).reduce((sum, project) => sum + project.duration, 0)
+
+      // Get all sessions for the day and merge them based on idle timeout
+      const mergedSessions = getMergedSessionsForDay(dayData)
+
+      // Calculate total seconds from merged sessions
+      const totalSeconds = calculateMergedDuration(mergedSessions)
+
       // Use our EST-aware day name function
       const dayName = getDayName(date)
       // Get target hours based on day of week
@@ -134,6 +185,76 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
         target,
       }
     })
+  }
+
+  // New function for stacked weekly data
+  const getStackedWeeklyData = () => {
+    const weekStart = getWeekStart(currentWeek)
+    const weekDates = getWeekDates(weekStart)
+    const weekData = getCurrentWeekData()
+
+    return weekDates.map((date) => {
+      const dayData = weekData[date] || {}
+      const dayName = getDayName(date)
+      const target = getTargetHoursForDate(date)
+
+      // Calculate hours per project for this day
+      const projectHours: { [key: string]: number } = {}
+
+      Object.entries(dayData).forEach(([projectName, projectData]) => {
+        const mergedSessions = getMergedSessionsForProjectDay(projectData)
+        const duration = calculateMergedDuration(mergedSessions)
+        projectHours[projectName] = duration / 3600
+      })
+
+      return {
+        day: dayName,
+        date,
+        target,
+        ...projectHours,
+      }
+    })
+  }
+
+  // New function for weekly data for a specific project
+  const getWeeklyDataForProject = (projectName: string) => {
+    const weekStart = getWeekStart(currentWeek)
+    const weekDates = getWeekDates(weekStart)
+    const weekData = getCurrentWeekData()
+
+    return weekDates.map((date) => {
+      const dayData = weekData[date] || {}
+      const projectData = dayData[projectName]
+      const dayName = getDayName(date)
+
+      let hours = 0
+      if (projectData) {
+        const mergedSessions = getMergedSessionsForProjectDay(projectData)
+        const duration = calculateMergedDuration(mergedSessions)
+        hours = duration / 3600
+      }
+
+      return {
+        day: dayName,
+        date,
+        hours,
+      }
+    })
+  }
+
+  // New function to get all session details for a project
+  const getProjectSessionDetails = (projectName: string) => {
+    const sessions: (Session & { date: string })[] = []
+    const weekData = getCurrentWeekData()
+
+    Object.entries(weekData).forEach(([date, dayData]) => {
+      if (dayData[projectName]) {
+        const mergedSessions = getMergedSessionsForProjectDay(dayData[projectName])
+        sessions.push(...mergedSessions.map((session) => ({ ...session, date })))
+      }
+    })
+
+    return sessions.sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime())
   }
 
   const getRecentActivities = () => {
@@ -154,7 +275,7 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
       .sort(([a], [b]) => b.localeCompare(a)) // Sort dates descending
       .forEach(([date, dayData]) => {
         Object.entries(dayData).forEach(([projectName, projectData]) => {
-          const mergedSessions = mergeSessions(projectData.sessions)
+          const mergedSessions = getMergedSessionsForProjectDay(projectData)
           mergedSessions
             .slice(-3) // Last 3 merged sessions per project per day
             .forEach((session, index) => {
@@ -201,8 +322,19 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
   }
 
   const getProjectChartData = () => {
-    const projects = getProjectTotals().slice(0, 5) // Top 5 projects
-    const colors = ["#2D5A5A", "#4A7C7C", "#A67C5A", "#8B4513", "#D2B48C"]
+    const projects = getProjectTotals().slice(0, 8) // Top 8 projects for better color variety
+    const colors = [
+      "#2D5A5A",
+      "#4A7C7C",
+      "#A67C5A",
+      "#8B4513",
+      "#D2B48C",
+      "#5F8A8B",
+      "#8FBC8F",
+      "#CD853F",
+      "#DEB887",
+      "#F4A460",
+    ]
 
     return projects.map((project, index) => ({
       name: project.name,
@@ -217,8 +349,15 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
     Object.entries(statsData).forEach(([date, dayData]) => {
       // Use our EST-aware date formatting
       const month = formatDateInEST(date, { month: "short" })
-      const totalSeconds = Object.values(dayData).reduce((sum, project) => sum + project.duration, 0)
-      monthlyData[month] = (monthlyData[month] || 0) + totalSeconds
+
+      // Calculate total duration for the day using merged sessions
+      let totalDayDuration = 0
+      Object.values(dayData).forEach((projectData) => {
+        const mergedSessions = getMergedSessionsForProjectDay(projectData)
+        totalDayDuration += calculateMergedDuration(mergedSessions)
+      })
+
+      monthlyData[month] = (monthlyData[month] || 0) + totalDayDuration
     })
 
     return Object.entries(monthlyData).map(([month, seconds]) => ({
@@ -233,7 +372,7 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
 
     Object.entries(weekData).forEach(([date, dayData]) => {
       if (dayData[projectName]) {
-        const mergedSessions = mergeSessions(dayData[projectName].sessions)
+        const mergedSessions = getMergedSessionsForProjectDay(dayData[projectName])
         sessions.push(...mergedSessions.map((session) => ({ ...session, date })))
       }
     })
@@ -247,10 +386,8 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
 
     Object.entries(weekData).forEach(([date, dayData]) => {
       if (dayData[projectName]) {
-        const mergedSessions = mergeSessions(dayData[projectName].sessions)
-        const totalDuration = mergedSessions.reduce((sum, session) => {
-          return sum + (new Date(session.end).getTime() - new Date(session.start).getTime()) / 1000
-        }, 0)
+        const mergedSessions = getMergedSessionsForProjectDay(dayData[projectName])
+        const totalDuration = calculateMergedDuration(mergedSessions)
 
         dailyData[date] = {
           duration: totalDuration,
@@ -272,13 +409,20 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
     getCurrentWeekData,
     isCurrentWeek,
     formatDuration,
+    formatHoursForChart,
     formatDateInEST,
     formatDateShort,
     formatDateLong,
     getTargetHoursForDate,
     mergeSessions,
+    getMergedSessionsForDay,
+    getMergedSessionsForProjectDay,
+    calculateMergedDuration,
     getProjectTotals,
     getWeeklyData,
+    getStackedWeeklyData,
+    getWeeklyDataForProject,
+    getProjectSessionDetails,
     getRecentActivities,
     getTotalHoursThisWeek,
     getAvgHoursPerDay,

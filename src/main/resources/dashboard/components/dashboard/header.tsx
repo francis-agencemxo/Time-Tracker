@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar, RefreshCw, Settings, LogOut, Shield } from "lucide-react"
+import { Calendar, RefreshCw, Settings, LogOut, Shield, Loader2 } from "lucide-react"
 import { useLicenseValidation } from "@/hooks/use-license-validation"
 
 interface HeaderProps {
@@ -11,9 +11,16 @@ interface HeaderProps {
   onIdleTimeoutChange: (minutes: number) => void
   onRefresh: () => void
   onLogout?: () => void
+  settingsLoading?: boolean
 }
 
-export function Header({ idleTimeoutMinutes, onIdleTimeoutChange, onRefresh, onLogout }: HeaderProps) {
+export function Header({
+  idleTimeoutMinutes,
+  onIdleTimeoutChange,
+  onRefresh,
+  onLogout,
+  settingsLoading = false,
+}: HeaderProps) {
   const { getLicenseInfo } = useLicenseValidation()
   const licenseInfo = getLicenseInfo()
 
@@ -45,6 +52,7 @@ export function Header({ idleTimeoutMinutes, onIdleTimeoutChange, onRefresh, onL
             <Button variant="outline" size="sm" className="border-teal-200 text-teal-700 hover:bg-teal-50">
               <Settings className="w-4 h-4 mr-2" />
               Settings
+              {settingsLoading && <Loader2 className="w-3 h-3 ml-2 animate-spin" />}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-80">
@@ -60,6 +68,7 @@ export function Header({ idleTimeoutMinutes, onIdleTimeoutChange, onRefresh, onL
                     value={idleTimeoutMinutes}
                     onChange={(e) => onIdleTimeoutChange(Number(e.target.value))}
                     className="bg-white border rounded px-2 py-1 text-sm"
+                    disabled={settingsLoading}
                   >
                     <option value={5}>5 minutes</option>
                     <option value={10}>10 minutes</option>
@@ -71,6 +80,12 @@ export function Header({ idleTimeoutMinutes, onIdleTimeoutChange, onRefresh, onL
                 <p className="text-xs text-gray-500">
                   Sessions within {idleTimeoutMinutes} minutes of each other will be merged
                 </p>
+                {settingsLoading && (
+                  <p className="text-xs text-blue-600 flex items-center gap-1">
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    Saving settings...
+                  </p>
+                )}
               </div>
 
               {licenseInfo && (

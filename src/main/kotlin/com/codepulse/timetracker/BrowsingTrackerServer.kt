@@ -299,6 +299,79 @@ object BrowsingTrackerServer {
         }
     }
 
+    /**
+     * Handler for GET and POST /api/settings
+     *
+     * GET  → returns: { "idleTimeoutMinutes": <number> }
+     * POST → expects body: { "idleTimeoutMinutes": <number> }
+     *         and saves it under "config" → "idleTimeoutMinutes" in data.json
+     */
+    private class SettingsHandler : HttpHandler {
+        override fun handle(exchange: HttpExchange) {
+            with(exchange.responseHeaders) {
+                add("Access-Control-Allow-Origin", "*")
+                add("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+                add("Access-Control-Allow-Headers", "Content-Type")
+            }
+            if (exchange.requestMethod.equals("OPTIONS", ignoreCase = true)) {
+                exchange.sendResponseHeaders(204, -1)
+                exchange.responseBody.close()
+                return
+            }
+            when (exchange.requestMethod.uppercase()) {
+                "GET" -> {
+                    val settingsStateService = TimeTrackerSettings.getInstance()
+                    val settingsState = settingsStateService.state
+
+                    // Build response JSON
+                    val responseJson = JSONObject().apply {
+                        put("idleTimeoutMinutes", settingsState.keystrokeTimeoutSeconds)
+                    }
+
+                    val bytes = responseJson.toString().toByteArray()
+                    exchange.responseHeaders.add("Content-Type", "application/json")
+                    exchange.sendResponseHeaders(200, bytes.size.toLong())
+                    exchange.responseBody.use { it.write(bytes) }
+                }
+                "POST" -> {
+                    // Read request body
+                    val bodyText = exchange.requestBody.bufferedReader().readText()
+                    val incoming = JSONObject(bodyText)
+
+                    // Extract the field
+                    if (!incoming.has("idleTimeoutMinutes")) {
+                        val badRequest = """{ "error": "Missing field 'idleTimeoutMinutes'" }"""
+                        exchange.sendResponseHeaders(400, badRequest.toByteArray().size.toLong())
+                        exchange.responseBody.use { it.write(badRequest.toByteArray()) }
+                        return
+                    }
+                    val newTimeout = incoming.getInt("idleTimeoutMinutes")
+
+                    val settingsStateService = TimeTrackerSettings.getInstance()
+                    val settingsState = settingsStateService.state
+
+                    println(newTimeout)
+                    settingsState.keystrokeTimeoutSeconds = newTimeout;
+
+                    // Return success response
+                    val responseJson = JSONObject().apply {
+                        put("idleTimeoutMinutes", newTimeout)
+                        put("message", "Settings saved")
+                    }
+                    val bytes = responseJson.toString().toByteArray()
+                    exchange.responseHeaders.add("Content-Type", "application/json")
+                    exchange.sendResponseHeaders(200, bytes.size.toLong())
+                    exchange.responseBody.use { it.write(bytes) }
+                }
+                else -> {
+                    // Method not allowed
+                    exchange.sendResponseHeaders(405, -1)
+                    exchange.responseBody.close()
+                }
+            }
+        }
+    }
+
     fun start() {
         if (server != null) return
         
@@ -308,6 +381,7 @@ object BrowsingTrackerServer {
         server?.createContext("/api/stats", StatsHandler())
         server?.createContext("/api/urls", UrlConfigHandler())
         server?.createContext("/api/license", LicenseHandler())
+        server?.createContext("/api/setting", SettingsHandler())
         server?.createContext("/api/license/logout", LogoutHandler())
         server?.executor = null
         server?.start()

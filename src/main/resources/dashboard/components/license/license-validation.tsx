@@ -24,7 +24,9 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
   const [isValidating, setIsValidating] = useState(false)
 
   // Check if we're in preview mode (same logic as time tracking data)
-  const isPreview = typeof window === "undefined" || window.location.hostname.includes("v0.dev")
+  const isPreview = typeof window === "undefined" || window.location.hostname.includes("v0.dev") || window.location.hostname.includes("vusercontent.net")
+
+  console.log(window.location)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

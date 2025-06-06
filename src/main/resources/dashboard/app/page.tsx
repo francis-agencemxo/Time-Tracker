@@ -1,4 +1,6 @@
 "use client"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { RefreshCw } from "lucide-react"
 import { LicenseValidation } from "@/components/license/license-validation"
@@ -35,7 +37,6 @@ import { Header } from "@/components/dashboard/header"
 import { WeekNavigation } from "@/components/dashboard/week-navigation"
 import { QuickStats } from "@/components/dashboard/quick-stats"
 import { DashboardTabs } from "@/components/dashboard/dashboard-tabs"
-import { RecentActivities } from "@/components/dashboard/recent-activities"
 import { useTimeTrackingData } from "@/hooks/use-time-tracking-data"
 import { useLicenseValidation } from "@/hooks/use-license-validation"
 
@@ -50,12 +51,16 @@ export default function TimeTrackingDashboard() {
     setCurrentWeek,
     idleTimeoutMinutes,
     setIdleTimeoutMinutes,
+    settingsLoading,
     fetchStats,
     fetchProjectUrls,
     createProjectUrl,
     updateProjectUrl,
     deleteProjectUrl,
   } = useTimeTrackingData()
+
+  // State for project selection
+  const [selectedProject, setSelectedProject] = useState<string | null>(null)
 
   // Show loading screen while initializing license check
   if (isInitializing) {
@@ -100,11 +105,17 @@ export default function TimeTrackingDashboard() {
           onIdleTimeoutChange={setIdleTimeoutMinutes}
           onRefresh={fetchStats}
           onLogout={logout}
+          settingsLoading={settingsLoading}
         />
 
         <WeekNavigation currentWeek={currentWeek} onNavigateWeek={setCurrentWeek} />
 
-        <QuickStats statsData={statsData} currentWeek={currentWeek} idleTimeoutMinutes={idleTimeoutMinutes} />
+        <QuickStats
+          statsData={statsData}
+          currentWeek={currentWeek}
+          idleTimeoutMinutes={idleTimeoutMinutes}
+          onViewProject={setSelectedProject}
+        />
 
         <DashboardTabs
           statsData={statsData}
@@ -115,9 +126,9 @@ export default function TimeTrackingDashboard() {
           onUpdateUrl={updateProjectUrl}
           onDeleteUrl={deleteProjectUrl}
           onRefreshUrls={fetchProjectUrls}
+          selectedProject={selectedProject || undefined}
+          onProjectSelect={setSelectedProject}
         />
-
-        <RecentActivities statsData={statsData} currentWeek={currentWeek} idleTimeoutMinutes={idleTimeoutMinutes} />
       </div>
     </div>
   )

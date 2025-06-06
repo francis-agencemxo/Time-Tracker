@@ -1,5 +1,8 @@
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Clock, TrendingUp, FolderOpen, Users } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Clock, TrendingUp, FolderOpen, Users, Eye } from "lucide-react"
 import type { StatsData } from "@/hooks/use-time-tracking-data"
 import { useTimeCalculations } from "@/hooks/use-time-calculations"
 
@@ -7,9 +10,10 @@ interface QuickStatsProps {
   statsData: StatsData
   currentWeek: Date
   idleTimeoutMinutes: number
+  onViewProject?: (projectName: string) => void
 }
 
-export function QuickStats({ statsData, currentWeek, idleTimeoutMinutes }: QuickStatsProps) {
+export function QuickStats({ statsData, currentWeek, idleTimeoutMinutes, onViewProject }: QuickStatsProps) {
   const {
     getTotalHoursThisWeek,
     getAvgHoursPerDay,
@@ -20,6 +24,7 @@ export function QuickStats({ statsData, currentWeek, idleTimeoutMinutes }: Quick
     getWeekStart,
     getWeekEnd,
     isCurrentWeek,
+    formatHoursForChart,
   } = useTimeCalculations(statsData, currentWeek, idleTimeoutMinutes)
 
   const totalHours = getTotalHoursThisWeek()
@@ -28,6 +33,7 @@ export function QuickStats({ statsData, currentWeek, idleTimeoutMinutes }: Quick
   const activeProjects = getActiveProjects()
   const completedTasks = getCompletedTasks()
   const allProjects = getProjectTotals()
+  const topProject = allProjects[0]
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -39,7 +45,7 @@ export function QuickStats({ statsData, currentWeek, idleTimeoutMinutes }: Quick
           <Clock className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{totalHours.toFixed(1)}h</div>
+          <div className="text-2xl font-bold">{formatHoursForChart(totalHours)}</div>
           <p className="text-xs text-muted-foreground">
             Target: {targetHours}h (
             {getWeekStart(currentWeek).toLocaleDateString("en-US", { month: "short", day: "numeric" })} -{" "}
@@ -54,7 +60,7 @@ export function QuickStats({ statsData, currentWeek, idleTimeoutMinutes }: Quick
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{avgHoursPerDay.toFixed(1)}h</div>
+          <div className="text-2xl font-bold">{formatHoursForChart(avgHoursPerDay)}</div>
           <p className="text-xs text-muted-foreground">Target: 8h per weekday (Mon-Fri)</p>
         </CardContent>
       </Card>
@@ -66,7 +72,22 @@ export function QuickStats({ statsData, currentWeek, idleTimeoutMinutes }: Quick
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{activeProjects}</div>
-          <p className="text-xs text-muted-foreground">{allProjects[0]?.name || "No projects"} is top project</p>
+          <div className="flex items-center justify-between mt-2">
+            <p className="text-xs text-muted-foreground">
+              {topProject ? `${topProject.name} is top project` : "No projects"}
+            </p>
+            {topProject && onViewProject && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onViewProject(topProject.name)}
+                className="h-6 px-2 text-xs text-teal-600 hover:text-teal-700 hover:bg-teal-50"
+              >
+                <Eye className="w-3 h-3 mr-1" />
+                View
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
 

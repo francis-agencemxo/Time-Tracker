@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 
 interface WeekNavigationProps {
   currentWeek: Date
-  onNavigateWeek: (direction: "prev" | "next") => void
+  onNavigateWeek: (direction: "prev" | "next" | "current") => void
 }
 
 export function WeekNavigation({ currentWeek, onNavigateWeek }: WeekNavigationProps) {

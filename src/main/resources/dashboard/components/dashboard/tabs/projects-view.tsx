@@ -1,19 +1,28 @@
+"use client"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts"
 import type { StatsData } from "@/hooks/use-time-tracking-data"
 import { useTimeCalculations } from "@/hooks/use-time-calculations"
+import { ProjectHoursBreakdown } from "@/components/dashboard/project-hours-breakdown"
 
 interface ProjectsViewProps {
   statsData: StatsData
   currentWeek: Date
   idleTimeoutMinutes: number
+  onProjectSelect?: (projectName: string) => void
 }
 
-export function ProjectsView({ statsData, currentWeek, idleTimeoutMinutes }: ProjectsViewProps) {
-  const { getProjectChartData, getProjectTotals } = useTimeCalculations(statsData, currentWeek, idleTimeoutMinutes)
+export function ProjectsView({ statsData, currentWeek, idleTimeoutMinutes, onProjectSelect }: ProjectsViewProps) {
+  const { getProjectChartData, formatHoursForChart } = useTimeCalculations(statsData, currentWeek, idleTimeoutMinutes)
   const projectData = getProjectChartData()
-  const allProjects = getProjectTotals()
+
+  // Custom tooltip formatter for pie chart
+  const customTooltipFormatter = (value: any, name: string) => {
+    const numValue = Number(value)
+    return [formatHoursForChart(numValue), name]
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -41,48 +50,26 @@ export function ProjectsView({ statsData, currentWeek, idleTimeoutMinutes }: Pro
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="hours"
-                  label={({ name, hours }) => `${name}: ${hours}h`}
+                  label={({ name, hours }) => `${name}: ${formatHoursForChart(hours)}`}
                 >
                   {projectData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <ChartTooltip content={<ChartTooltipContent />} />
+                <ChartTooltip content={<ChartTooltipContent />} formatter={customTooltipFormatter} />
               </PieChart>
             </ResponsiveContainer>
           </ChartContainer>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Project Hours Breakdown</CardTitle>
-          <CardDescription>Detailed view of time allocation</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {allProjects.slice(0, 8).map((project, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-4 h-4 rounded-full"
-                    style={{
-                      backgroundColor: projectData.find((p) => p.name === project.name)?.color || "#8884d8",
-                    }}
-                  />
-                  <span className="font-medium">{project.name}</span>
-                </div>
-                <div className="text-right">
-                  <div className="font-bold">{project.hours.toFixed(1)}h</div>
-                  <div className="text-sm text-gray-500">
-                    {((project.duration / allProjects.reduce((sum, p) => sum + p.duration, 0)) * 100).toFixed(1)}%
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Use the extracted component */}
+      <ProjectHoursBreakdown
+        statsData={statsData}
+        currentWeek={currentWeek}
+        idleTimeoutMinutes={idleTimeoutMinutes}
+        onProjectSelect={onProjectSelect}
+      />
     </div>
   )
 }

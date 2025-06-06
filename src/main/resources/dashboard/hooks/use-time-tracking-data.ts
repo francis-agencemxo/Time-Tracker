@@ -31,6 +31,10 @@ export interface ProjectUrl {
   description: string
 }
 
+export interface UserSettings {
+  idleTimeoutMinutes: number
+}
+
 // Fake data for preview - now using proper EST date strings
 const generateFakeData = (): StatsData => {
   const data: StatsData = {}
@@ -159,6 +163,7 @@ export const useTimeTrackingData = () => {
   const [error, setError] = useState<string | null>(null)
   const [currentWeek, setCurrentWeek] = useState<Date>(new Date())
   const [idleTimeoutMinutes, setIdleTimeoutMinutes] = useState<number>(10)
+  const [settingsLoading, setSettingsLoading] = useState(false)
 
   const baseUrl =
     typeof window !== "undefined" && process.env.NODE_ENV === "production"
@@ -166,7 +171,7 @@ export const useTimeTrackingData = () => {
       : `http://localhost:${process.env.NEXT_PUBLIC_TRACKER_SERVER_PORT || "56000"}`
 
   // Better preview detection - use fake data only for v0.dev
-  const isPreview = typeof window === "undefined" || window.location.hostname.includes("v0.dev")
+  const isPreview = typeof window === "undefined" || window.location.hostname.includes("v0.dev") || window.location.hostname.includes("vusercontent.net")
 
   const fetchStats = async () => {
     try {
@@ -251,6 +256,118 @@ export const useTimeTrackingData = () => {
     } catch (err) {
       console.warn("Error fetching project URLs, using fake data:", err)
       setProjectUrls(generateFakeUrls())
+    }
+  }
+
+  const fetchSettings = async () => {
+    try {
+      setSettingsLoading(true)
+
+      // In preview mode, use localStorage as fallback
+      if (isPreview) {
+        const stored = localStorage.getItem("idle-timeout-minutes")
+        if (stored) {
+          setIdleTimeoutMinutes(Number(stored))
+        }
+        setSettingsLoading(false)
+        return
+      }
+
+      // Try to fetch from real API with timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+      try {
+        const response = await fetch(`${baseUrl}/api/settings`, {
+          signal: controller.signal,
+        })
+        clearTimeout(timeoutId)
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        const settings: UserSettings = await response.json()
+        setIdleTimeoutMinutes(settings.idleTimeoutMinutes || 10)
+      } catch (fetchError) {
+        clearTimeout(timeoutId)
+
+        // If API is not available, fall back to localStorage
+        console.warn("Settings API not available, using localStorage:", fetchError)
+        const stored = localStorage.getItem("idle-timeout-minutes")
+        if (stored) {
+          setIdleTimeoutMinutes(Number(stored))
+        }
+      }
+    } catch (err) {
+      console.warn("Error fetching settings, using default:", err)
+      // Keep default value of 10
+    } finally {
+      setSettingsLoading(false)
+    }
+  }
+
+  const saveIdleTimeout = async (minutes: number) => {
+    try {
+      setSettingsLoading(true)
+
+      // In preview mode, save to localStorage
+      if (isPreview) {
+        localStorage.setItem("idle-timeout-minutes", minutes.toString())
+        setIdleTimeoutMinutes(minutes)
+        setSettingsLoading(false)
+        return
+      }
+
+      // Try to save to real API with timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+      try {
+        const response = await fetch(`${baseUrl}/api/settings`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            idleTimeoutMinutes: minutes,
+          }),
+          signal: controller.signal,
+        })
+        clearTimeout(timeoutId)
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        // Update local state
+        setIdleTimeoutMinutes(minutes)
+
+        toast({
+          title: "Settings Saved",
+          description: `Idle timeout updated to ${minutes} minutes`,
+        })
+      } catch (fetchError) {
+        clearTimeout(timeoutId)
+
+        // If API is not available, fall back to localStorage
+        console.warn("Settings API not available, saving to localStorage:", fetchError)
+        localStorage.setItem("idle-timeout-minutes", minutes.toString())
+        setIdleTimeoutMinutes(minutes)
+
+        toast({
+          title: "Settings Saved Locally",
+          description: `Idle timeout updated to ${minutes} minutes (saved locally)`,
+        })
+      }
+    } catch (err) {
+      console.error("Error saving settings:", err)
+      toast({
+        title: "Error",
+        description: "Failed to save idle timeout setting",
+        variant: "destructive",
+      })
+    } finally {
+      setSettingsLoading(false)
     }
   }
 
@@ -376,15 +493,20 @@ export const useTimeTrackingData = () => {
     }
   }
 
-  const navigateWeek = (direction: "prev" | "next") => {
-    const newWeek = new Date(currentWeek)
-    newWeek.setDate(newWeek.getDate() + (direction === "next" ? 7 : -7))
-    setCurrentWeek(newWeek)
+  const navigateWeek = (direction: "prev" | "next" | "current") => {
+    if (direction === "current") {
+      setCurrentWeek(new Date())
+    } else {
+      const newWeek = new Date(currentWeek)
+      newWeek.setDate(newWeek.getDate() + (direction === "next" ? 7 : -7))
+      setCurrentWeek(newWeek)
+    }
   }
 
   useEffect(() => {
     fetchStats()
     fetchProjectUrls()
+    fetchSettings()
   }, [])
 
   return {
@@ -395,9 +517,11 @@ export const useTimeTrackingData = () => {
     currentWeek,
     setCurrentWeek: navigateWeek,
     idleTimeoutMinutes,
-    setIdleTimeoutMinutes,
+    setIdleTimeoutMinutes: saveIdleTimeout,
+    settingsLoading,
     fetchStats,
     fetchProjectUrls,
+    fetchSettings,
     createProjectUrl,
     updateProjectUrl,
     deleteProjectUrl,

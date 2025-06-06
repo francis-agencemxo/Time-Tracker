@@ -1,86 +1,108 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, AreaChart, Area } from "recharts"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend } from "recharts"
 import type { StatsData } from "@/hooks/use-time-tracking-data"
 import { useTimeCalculations } from "@/hooks/use-time-calculations"
+import { ProjectHoursBreakdown } from "@/components/dashboard/project-hours-breakdown"
 
 interface WeeklyViewProps {
   statsData: StatsData
   currentWeek: Date
   idleTimeoutMinutes: number
+  onProjectSelect?: (projectName: string) => void
 }
 
-export function WeeklyView({ statsData, currentWeek, idleTimeoutMinutes }: WeeklyViewProps) {
-  const { getWeeklyData } = useTimeCalculations(statsData, currentWeek, idleTimeoutMinutes)
-  const weeklyData = getWeeklyData()
+export function WeeklyView({ statsData, currentWeek, idleTimeoutMinutes, onProjectSelect }: WeeklyViewProps) {
+  const { getStackedWeeklyData, getProjectChartData, formatHoursForChart } = useTimeCalculations(
+    statsData,
+    currentWeek,
+    idleTimeoutMinutes,
+  )
+  const stackedData = getStackedWeeklyData()
+  const projectColors = getProjectChartData()
+
+  // Create a color map for consistent project colors
+  const colorMap = projectColors.reduce(
+    (acc, project) => {
+      acc[project.name] = project.color
+      return acc
+    },
+    {} as { [key: string]: string },
+  )
+
+  // Get all unique projects from the week
+  const allProjects = Array.from(
+    new Set(stackedData.flatMap((day) => Object.keys(day).filter((key) => !["day", "date", "target"].includes(key)))),
+  )
+
+  // Create chart config for all projects
+  const chartConfig = allProjects.reduce((config, project) => {
+    config[project] = {
+      label: project,
+      color: colorMap[project] || "#8884d8",
+    }
+    return config
+  }, {} as any)
+
+  // Add target to config
+  chartConfig.target = {
+    label: "Target Hours",
+    color: "#e5e7eb",
+  }
+
+  // Custom tooltip formatter
+  const customTooltipFormatter = (value: any, name: string) => {
+    const numValue = Number(value)
+    if (name === "target") {
+      return [formatHoursForChart(numValue), " - Target Hours"]
+    }
+    return [formatHoursForChart(numValue), " - "+name]
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card>
+      <Card className="h-full flex flex-col">
         <CardHeader>
           <CardTitle>Daily Hours This Week</CardTitle>
-          <CardDescription>Hours worked vs target hours</CardDescription>
+          <CardDescription>Hours worked by project vs target hours</CardDescription>
         </CardHeader>
-        <CardContent>
-          <ChartContainer
-            config={{
-              hours: {
-                label: "Hours Worked",
-                color: "#8884d8",
-              },
-              target: {
-                label: "Target Hours",
-                color: "#82ca9d",
-              },
-            }}
-            className="h-[300px]"
-          >
+        <CardContent className="flex-1 flex flex-col">
+          <ChartContainer config={chartConfig} className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={weeklyData}>
+              <BarChart data={stackedData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="day" />
                 <YAxis />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="hours" fill="#2D5A5A" name="Hours Worked" />
-                <Bar dataKey="target" fill="#4A7C7C" name="Target Hours" />
+                <ChartTooltip content={<ChartTooltipContent />} formatter={customTooltipFormatter} />
+                <Legend />
+
+                {/* Target hours bar (background) */}
+                <Bar dataKey="target" fill="var(--color-target)" name="Target Hours" opacity={0.3} />
+
+                {/* Stacked bars for each project */}
+                {allProjects.map((project) => (
+                  <Bar
+                    key={project}
+                    dataKey={project}
+                    stackId="projects"
+                    fill={`var(--color-${project.replace(/\s+/g, "-").toLowerCase()})`}
+                    name={project}
+                  />
+                ))}
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Weekly Progress</CardTitle>
-          <CardDescription>Cumulative hours throughout the week</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer
-            config={{
-              cumulative: {
-                label: "Cumulative Hours",
-                color: "#8884d8",
-              },
-            }}
-            className="h-[300px]"
-          >
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={weeklyData.map((item, index) => ({
-                  ...item,
-                  cumulative: weeklyData.slice(0, index + 1).reduce((sum, day) => sum + day.hours, 0),
-                }))}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="day" />
-                <YAxis />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Area type="monotone" dataKey="cumulative" stroke="#2D5A5A" fill="#2D5A5A" fillOpacity={0.3} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-        </CardContent>
-      </Card>
+      {/* Project Hours Breakdown - now in 50/50 layout */}
+      <ProjectHoursBreakdown
+        statsData={statsData}
+        currentWeek={currentWeek}
+        idleTimeoutMinutes={idleTimeoutMinutes}
+        onProjectSelect={onProjectSelect}
+        limit={8} // Increased limit since we have more space
+      />
     </div>
   )
 }

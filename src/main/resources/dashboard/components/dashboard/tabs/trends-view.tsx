@@ -10,8 +10,14 @@ interface TrendsViewProps {
 }
 
 export function TrendsView({ statsData, idleTimeoutMinutes }: TrendsViewProps) {
-  const { getMonthlyTrend } = useTimeCalculations(statsData, new Date(), idleTimeoutMinutes)
+  const { getMonthlyTrend, formatHoursForChart } = useTimeCalculations(statsData, new Date(), idleTimeoutMinutes)
   const monthlyTrend = getMonthlyTrend()
+
+  // Custom tooltip formatter
+  const customTooltipFormatter = (value: any, name: string) => {
+    const numValue = Number(value)
+    return [formatHoursForChart(numValue), name]
+  }
 
   return (
     <Card>
@@ -34,7 +40,7 @@ export function TrendsView({ statsData, idleTimeoutMinutes }: TrendsViewProps) {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
               <YAxis />
-              <ChartTooltip content={<ChartTooltipContent />} />
+              <ChartTooltip content={<ChartTooltipContent />} formatter={customTooltipFormatter} />
               <Line type="monotone" dataKey="hours" stroke="#2D5A5A" strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
