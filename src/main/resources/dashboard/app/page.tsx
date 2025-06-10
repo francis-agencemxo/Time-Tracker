@@ -42,6 +42,8 @@ import { useLicenseValidation } from "@/hooks/use-license-validation"
 
 export default function TimeTrackingDashboard() {
   const { isLicenseValid, isInitializing, validateLicense, logout } = useLicenseValidation()
+
+  // Pass license validation status to the data hook
   const {
     statsData,
     projectUrls,
@@ -57,7 +59,7 @@ export default function TimeTrackingDashboard() {
     createProjectUrl,
     updateProjectUrl,
     deleteProjectUrl,
-  } = useTimeTrackingData()
+  } = useTimeTrackingData(isLicenseValid)
 
   // State for project selection
   const [selectedProject, setSelectedProject] = useState<string | null>(null)

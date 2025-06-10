@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar, RefreshCw, Settings, LogOut, Shield, Loader2 } from "lucide-react"
+import { Calendar, RefreshCw, Settings, LogOut, Shield, Loader2, Clock } from "lucide-react"
 import { useLicenseValidation } from "@/hooks/use-license-validation"
 
 interface HeaderProps {
@@ -27,7 +27,15 @@ export function Header({
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-4">
-        <img src="/mxo-logo.png" alt="MXO Logo" className="h-12 w-auto" />
+        {/* Custom Logo Design */}
+        <div className="relative">
+          <div className="w-10 h-10 bg-gradient-to-br from-teal-600 to-teal-800 rounded-lg flex items-center justify-center shadow-md">
+            <Clock className="h-6 w-6 text-white" />
+          </div>
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-amber-500 rounded-full flex items-center justify-center">
+            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+          </div>
+        </div>
         <div>
           <h1 className="text-3xl font-bold text-teal-800">Development Time Tracking</h1>
           <p className="text-gray-600 mt-1">Monitor your development productivity and project progress</p>

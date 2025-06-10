@@ -54,9 +54,9 @@ export function WeeklyView({ statsData, currentWeek, idleTimeoutMinutes, onProje
   const customTooltipFormatter = (value: any, name: string) => {
     const numValue = Number(value)
     if (name === "target") {
-      return [formatHoursForChart(numValue), " - Target Hours"]
+      return [formatHoursForChart(numValue), "Target Hours"]
     }
-    return [formatHoursForChart(numValue), " - "+name]
+    return [formatHoursForChart(numValue), name]
   }
 
   return (

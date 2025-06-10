@@ -24,11 +24,12 @@ export interface StatsData {
   [date: string]: DayData
 }
 
+// Update the ProjectUrl interface to make description optional
 export interface ProjectUrl {
   id: string
   project: string
   url: string
-  description: string
+  description?: string
 }
 
 export interface UserSettings {
@@ -156,10 +157,10 @@ const normalizeStatsData = (rawData: StatsData): StatsData => {
   return normalizedData
 }
 
-export const useTimeTrackingData = () => {
+export const useTimeTrackingData = (isLicenseValid = false) => {
   const [statsData, setStatsData] = useState<StatsData>({})
   const [projectUrls, setProjectUrls] = useState<ProjectUrl[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [currentWeek, setCurrentWeek] = useState<Date>(new Date())
   const [idleTimeoutMinutes, setIdleTimeoutMinutes] = useState<number>(10)
@@ -171,9 +172,19 @@ export const useTimeTrackingData = () => {
       : `http://localhost:${process.env.NEXT_PUBLIC_TRACKER_SERVER_PORT || "56000"}`
 
   // Better preview detection - use fake data only for v0.dev
-  const isPreview = typeof window === "undefined" || window.location.hostname.includes("v0.dev") || window.location.hostname.includes("vusercontent.net")
+  const isPreview =
+    typeof window === "undefined" ||
+    window.location.hostname.includes("v0.dev") ||
+    window.location.hostname.includes("vusercontent.net")
 
   const fetchStats = async () => {
+    // Don't fetch data if license is not valid
+    if (!isLicenseValid) {
+      setStatsData({})
+      setLoading(false)
+      return
+    }
+
     try {
       setLoading(true)
       setError(null)
@@ -222,6 +233,12 @@ export const useTimeTrackingData = () => {
   }
 
   const fetchProjectUrls = async () => {
+    // Don't fetch URLs if license is not valid
+    if (!isLicenseValid) {
+      setProjectUrls([])
+      return
+    }
+
     try {
       setError(null)
 
@@ -260,6 +277,12 @@ export const useTimeTrackingData = () => {
   }
 
   const fetchSettings = async () => {
+    // Don't fetch settings if license is not valid
+    if (!isLicenseValid) {
+      setIdleTimeoutMinutes(10) // Reset to default
+      return
+    }
+
     try {
       setSettingsLoading(true)
 
@@ -307,6 +330,11 @@ export const useTimeTrackingData = () => {
   }
 
   const saveIdleTimeout = async (minutes: number) => {
+    // Don't save settings if license is not valid
+    if (!isLicenseValid) {
+      return
+    }
+
     try {
       setSettingsLoading(true)
 
@@ -372,6 +400,11 @@ export const useTimeTrackingData = () => {
   }
 
   const createProjectUrl = async (formData: { project: string; url: string; description: string }) => {
+    // Don't create URLs if license is not valid
+    if (!isLicenseValid) {
+      return
+    }
+
     try {
       // Always simulate in preview mode
       if (isPreview) {
@@ -416,6 +449,11 @@ export const useTimeTrackingData = () => {
   }
 
   const updateProjectUrl = async (id: string, formData: { project: string; url: string; description: string }) => {
+    // Don't update URLs if license is not valid
+    if (!isLicenseValid) {
+      return
+    }
+
     try {
       // Always simulate in preview mode
       if (isPreview) {
@@ -460,6 +498,11 @@ export const useTimeTrackingData = () => {
   }
 
   const deleteProjectUrl = async (id: string) => {
+    // Don't delete URLs if license is not valid
+    if (!isLicenseValid) {
+      return
+    }
+
     try {
       // Always simulate in preview mode
       if (isPreview) {
@@ -503,11 +546,25 @@ export const useTimeTrackingData = () => {
     }
   }
 
+  // Clear data when license becomes invalid
   useEffect(() => {
-    fetchStats()
-    fetchProjectUrls()
-    fetchSettings()
-  }, [])
+    if (!isLicenseValid) {
+      setStatsData({})
+      setProjectUrls([])
+      setIdleTimeoutMinutes(10)
+      setError(null)
+      setLoading(false)
+    }
+  }, [isLicenseValid])
+
+  // Only fetch data when license is valid
+  useEffect(() => {
+    if (isLicenseValid) {
+      fetchStats()
+      fetchProjectUrls()
+      fetchSettings()
+    }
+  }, [isLicenseValid])
 
   return {
     statsData,

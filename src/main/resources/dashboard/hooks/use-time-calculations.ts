@@ -33,6 +33,11 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
   }
 
   const getCurrentWeekData = () => {
+    // Return empty data if statsData is empty (not authenticated)
+    if (!statsData || Object.keys(statsData).length === 0) {
+      return {}
+    }
+
     const weekStart = getWeekStart(currentWeek)
     const weekDates = getWeekDates(weekStart)
 
@@ -79,11 +84,11 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
     const minutes = Math.round((hours - wholeHours) * 60)
 
     if (wholeHours === 0 && minutes === 0) {
-      return "0h00"
+      return "0h"
     }
 
     if (minutes === 0) {
-      return `${wholeHours}h00`
+      return `${wholeHours}h`
     }
 
     return `${wholeHours}h${minutes.toString().padStart(2, "0")}`
@@ -144,6 +149,11 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
   const getProjectTotals = () => {
     const projectTotals: { [key: string]: number } = {}
     const weekData = getCurrentWeekData()
+
+    // Return empty array if no data
+    if (Object.keys(weekData).length === 0) {
+      return []
+    }
 
     Object.entries(weekData).forEach(([date, dayData]) => {
       Object.entries(dayData).forEach(([projectName, projectData]) => {
@@ -270,6 +280,11 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
 
     const weekData = getCurrentWeekData()
 
+    // Return empty array if no data
+    if (Object.keys(weekData).length === 0) {
+      return []
+    }
+
     // Get sessions from current week
     Object.entries(weekData)
       .sort(([a], [b]) => b.localeCompare(a)) // Sort dates descending
@@ -345,6 +360,11 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
 
   const getMonthlyTrend = () => {
     const monthlyData: { [key: string]: number } = {}
+
+    // Return empty array if no data
+    if (!statsData || Object.keys(statsData).length === 0) {
+      return []
+    }
 
     Object.entries(statsData).forEach(([date, dayData]) => {
       // Use our EST-aware date formatting

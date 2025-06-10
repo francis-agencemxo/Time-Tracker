@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
-import { Shield, Key, CheckCircle, AlertCircle, Copy, Loader2, Globe } from "lucide-react"
+import { Shield, Key, CheckCircle, AlertCircle, Copy, Loader2, Globe, Clock } from "lucide-react"
 
 interface LicenseValidationProps {
   onValidate: (licenseKey: string) => Promise<boolean>
@@ -24,7 +24,10 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
   const [isValidating, setIsValidating] = useState(false)
 
   // Check if we're in preview mode (same logic as time tracking data)
-  const isPreview = typeof window === "undefined" || window.location.hostname.includes("v0.dev") || window.location.hostname.includes("vusercontent.net")
+  const isPreview =
+    typeof window === "undefined" ||
+    window.location.hostname.includes("v0.dev") ||
+    window.location.hostname.includes("vusercontent.net")
 
   console.log(window.location)
 
@@ -58,10 +61,17 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
   return (
     <div className="min-h-screen bg-stone-50 flex items-center justify-center p-6">
       <div className="w-full max-w-md space-y-6">
-        {/* Logo and Title */}
+        {/* Custom Logo and Title */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-3">
-            <img src="/mxo-logo.png" alt="MXO Logo" className="h-12 w-auto" />
+            <div className="relative">
+              <div className="w-12 h-12 bg-gradient-to-br from-teal-600 to-teal-800 rounded-xl flex items-center justify-center shadow-lg">
+                <Clock className="h-7 w-7 text-white" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 rounded-full flex items-center justify-center">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+              </div>
+            </div>
             <Shield className="h-8 w-8 text-teal-600" />
           </div>
           <div>
