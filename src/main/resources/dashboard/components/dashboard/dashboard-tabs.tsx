@@ -52,7 +52,7 @@ export function DashboardTabs({
       <TabsList>
         <TabsTrigger value="weekly">Weekly View</TabsTrigger>
         <TabsTrigger value="projects">Projects</TabsTrigger>
-        <TabsTrigger value="breakdown">Project Breakdown</TabsTrigger>
+        { /*<TabsTrigger value="breakdown">Project Breakdown</TabsTrigger>*/ }
         <TabsTrigger value="trends">Trends</TabsTrigger>
         <TabsTrigger value="urls">Project URLs</TabsTrigger>
       </TabsList>
@@ -73,6 +73,7 @@ export function DashboardTabs({
             currentWeek={currentWeek}
             idleTimeoutMinutes={idleTimeoutMinutes}
             selectedProject={selectedProject}
+            projectUrls={projectUrls}
             onBack={() => handleProjectSelect(null)}
           />
         ) : (
@@ -85,10 +86,11 @@ export function DashboardTabs({
         )}
       </TabsContent>
 
+{ /* Project Breakdown Tab
       <TabsContent value="breakdown">
         <ProjectBreakdownView statsData={statsData} currentWeek={currentWeek} idleTimeoutMinutes={idleTimeoutMinutes} />
       </TabsContent>
-
+{ */}
       <TabsContent value="trends">
         <TrendsView statsData={statsData} idleTimeoutMinutes={idleTimeoutMinutes} />
       </TabsContent>

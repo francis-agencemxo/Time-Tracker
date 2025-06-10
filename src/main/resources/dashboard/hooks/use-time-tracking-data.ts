@@ -9,6 +9,9 @@ export interface Session {
   start: string
   end: string
   type: "coding" | "browsing"
+  file?: string // Add file field for coding sessions
+  host?: string // Add host field for browsing sessions
+  url?: string // Add url field for browsing sessions
 }
 
 export interface ProjectData {
@@ -42,15 +45,36 @@ const generateFakeData = (): StatsData => {
   const projects = ["Dashboard Redesign", "API Integration", "Mobile App", "Documentation", "Bug Fixes"]
   const today = new Date()
 
+  // Mock file paths for coding sessions
+  const mockFiles = [
+    "src/components/dashboard.tsx",
+    "src/hooks/use-time-tracking-data.ts",
+    "src/pages/api/stats.ts",
+    "src/components/header.tsx",
+    "src/utils/date-utils.ts",
+    "src/components/project-detail-view.tsx",
+    "src/hooks/use-time-calculations.ts",
+    "package.json",
+    "README.md",
+    "src/styles/globals.css",
+  ]
+
+  // Mock URLs for browsing sessions
+  const mockUrls = [
+    "https://github.com/company/project",
+    "https://stackoverflow.com/questions/react-hooks",
+    "https://docs.nextjs.org/api-reference",
+    "https://tailwindcss.com/docs",
+    "https://localhost:3000/dashboard",
+  ]
+
   for (let i = 0; i < 14; i++) {
     const date = new Date(today)
     date.setDate(date.getDate() - i)
-    // Use our EST date utility to ensure consistent date strings
     const dateStr = dateToESTString(date)
 
     data[dateStr] = {}
 
-    // Add random projects for each day
     const numProjects = Math.floor(Math.random() * 3) + 1
     const selectedProjects = projects.slice(0, numProjects)
 
@@ -60,16 +84,29 @@ const generateFakeData = (): StatsData => {
 
       for (let j = 0; j < numSessions; j++) {
         const startHour = 9 + Math.floor(Math.random() * 8)
-        const duration = Math.floor(Math.random() * 120) + 30 // 30-150 minutes
+        const duration = Math.floor(Math.random() * 120) + 30
         const start = new Date(date)
         start.setHours(startHour, Math.floor(Math.random() * 60))
         const end = new Date(start.getTime() + duration * 60000)
 
-        sessions.push({
+        const sessionType = Math.random() > 0.3 ? "coding" : "browsing"
+        const session: Session = {
           start: start.toISOString(),
           end: end.toISOString(),
-          type: Math.random() > 0.3 ? "coding" : "browsing",
-        })
+          type: sessionType,
+        }
+
+        // Add file data for coding sessions
+        if (sessionType === "coding") {
+          session.file = mockFiles[Math.floor(Math.random() * mockFiles.length)]
+        } else {
+          // Add URL data for browsing sessions
+          const url = mockUrls[Math.floor(Math.random() * mockUrls.length)]
+          session.url = url
+          session.host = new URL(url).hostname
+        }
+
+        sessions.push(session)
       }
 
       const totalDuration = sessions.reduce((sum, session) => {

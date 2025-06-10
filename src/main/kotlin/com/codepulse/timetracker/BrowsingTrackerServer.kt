@@ -104,6 +104,9 @@ object BrowsingTrackerServer {
                         .put("start", session.start)
                         .put("end", session.end)
                         .put("type", type)
+                        .put("file", session.file)
+                        .put("host", session.host)
+                        .put("url", session.url)
                     projectNode.getJSONArray("sessions").put(sessionJson)
                 }
 

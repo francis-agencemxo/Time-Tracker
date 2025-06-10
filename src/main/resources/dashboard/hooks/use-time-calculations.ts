@@ -422,6 +422,98 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
       .slice(0, 14) // Last 14 days
   }
 
+  // Get file activity data for a specific project and date
+  const getFileActivityForProject = (projectName: string, dateString: string) => {
+      debugger;
+    const weekData = getCurrentWeekData()
+    const dayData = weekData[dateString]
+
+    if (!dayData || !dayData[projectName]) {
+      return []
+    }
+
+    const projectData = dayData[projectName]
+    const codingSessions = projectData.sessions.filter((session) => session.type === "coding" && session.file)
+
+    // Group by file
+    const fileGroups: { [filename: string]: Session[] } = {}
+
+    codingSessions.forEach((session) => {
+      if (session.file) {
+        const filename = session.file.split("/").pop() || session.file
+        if (!fileGroups[filename]) {
+          fileGroups[filename] = []
+        }
+        fileGroups[filename].push(session)
+      }
+    })
+
+    // Calculate activity data
+    return Object.entries(fileGroups)
+      .map(([filename, sessions]) => {
+        const totalSeconds = sessions.reduce((total, session) => {
+          return total + (new Date(session.end).getTime() - new Date(session.start).getTime()) / 1000
+        }, 0)
+
+        const timeByHour = Array(24).fill(0)
+        sessions.forEach((session) => {
+          const hour = new Date(session.start).getHours()
+          const duration = (new Date(session.end).getTime() - new Date(session.start).getTime()) / 1000
+          timeByHour[hour] += duration
+        })
+
+        return {
+          filename,
+          extension: filename.split(".").pop() || "",
+          totalSeconds,
+          timeByHour,
+          fullPath: sessions[0].file, // Keep the full path for reference
+        }
+      })
+      .sort((a, b) => b.totalSeconds - a.totalSeconds)
+  }
+
+  // Get URL activity data for browsing sessions
+  const getUrlActivityForProject = (projectName: string, dateString: string) => {
+    const weekData = getCurrentWeekData()
+    const dayData = weekData[dateString]
+
+    if (!dayData || !dayData[projectName]) {
+      return []
+    }
+
+    const projectData = dayData[projectName]
+    const browsingSessions = projectData.sessions.filter((session) => session.type === "browsing" && session.url)
+
+    // Group by URL
+    const urlGroups: { [url: string]: Session[] } = {}
+
+    browsingSessions.forEach((session) => {
+      if (session.url) {
+        if (!urlGroups[session.url]) {
+          urlGroups[session.url] = []
+        }
+        urlGroups[session.url].push(session)
+      }
+    })
+
+    // Calculate activity data
+    return Object.entries(urlGroups)
+      .map(([url, sessions]) => {
+        const totalSeconds = sessions.reduce((total, session) => {
+          return total + (new Date(session.end).getTime() - new Date(session.start).getTime()) / 1000
+        }, 0)
+
+        return {
+          url,
+          host: sessions[0].host || new URL(url).hostname,
+          totalSeconds,
+          sessionCount: sessions.length,
+        }
+      })
+      .sort((a, b) => b.totalSeconds - a.totalSeconds)
+  }
+
   return {
     getWeekStart,
     getWeekEnd,
@@ -453,5 +545,7 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
     getMonthlyTrend,
     getProjectBreakdown,
     getDailyTotalsForProject,
+    getFileActivityForProject,
+    getUrlActivityForProject,
   }
 }
