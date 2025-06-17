@@ -12,6 +12,7 @@ interface ActivityBreakdownViewProps {
   statsData: StatsData
   currentWeek: Date
   idleTimeoutMinutes: number
+  ignoredProjects?: string[] // Add this prop
   selectedProject?: string
 }
 
@@ -19,6 +20,7 @@ export function ActivityBreakdownView({
   statsData,
   currentWeek,
   idleTimeoutMinutes,
+  ignoredProjects = [], // Add default value
   selectedProject,
 }: ActivityBreakdownViewProps) {
   const [selectedDate, setSelectedDate] = useState<string>("")
@@ -31,7 +33,7 @@ export function ActivityBreakdownView({
     getFileActivityForProject,
     getUrlActivityForProject,
     dateToESTString,
-  } = useTimeCalculations(statsData, currentWeek, idleTimeoutMinutes)
+  } = useTimeCalculations(statsData, currentWeek, idleTimeoutMinutes, ignoredProjects)
 
   // Get all sessions for the selected project
   const allSessions = selectedProject ? getProjectSessionDetails(selectedProject) : []

@@ -10,6 +10,7 @@ interface ProjectHoursBreakdownProps {
   statsData: StatsData
   currentWeek: Date
   idleTimeoutMinutes: number
+  ignoredProjects?: string[] // Add this prop
   onProjectSelect?: (projectName: string) => void
   limit?: number
 }
@@ -18,6 +19,7 @@ export function ProjectHoursBreakdown({
   statsData,
   currentWeek,
   idleTimeoutMinutes,
+  ignoredProjects = [], // Add default value
   onProjectSelect,
   limit = 8,
 }: ProjectHoursBreakdownProps) {
@@ -25,6 +27,7 @@ export function ProjectHoursBreakdown({
     statsData,
     currentWeek,
     idleTimeoutMinutes,
+    ignoredProjects, // Pass ignored projects
   )
   const projectData = getProjectChartData()
   const allProjects = getProjectTotals()

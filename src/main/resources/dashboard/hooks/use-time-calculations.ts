@@ -8,12 +8,7 @@ import {
   createESTDate,
 } from "@/lib/date-utils"
 
-export const useTimeCalculations = (
-  statsData: StatsData,
-  currentWeek: Date,
-  idleTimeoutMinutes: number,
-  ignoredProjects: string[] = [],
-) => {
+export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idleTimeoutMinutes: number) => {
   // Week navigation helpers
   const getWeekStart = (date: Date) => {
     const d = new Date(date)
@@ -38,7 +33,7 @@ export const useTimeCalculations = (
   }
 
   const getCurrentWeekData = () => {
-    // Return empty data if statsData is empty (not authenticated)
+    // Return empty data if statsData is empty (not authenticated or no data)
     if (!statsData || Object.keys(statsData).length === 0) {
       return {}
     }
@@ -49,16 +44,8 @@ export const useTimeCalculations = (
     const weekData: StatsData = {}
     weekDates.forEach((date) => {
       if (statsData[date]) {
-
-      debugger;
-        // Filter out ignored projects
-        const filteredDayData: { [key: string]: any } = {}
-        Object.entries(statsData[date]).forEach(([projectName, projectData]) => {
-          if (!ignoredProjects.includes(projectName)) {
-            filteredDayData[projectName] = projectData
-          }
-        })
-        weekData[date] = filteredDayData
+        // No need to filter ignored projects here - they're already filtered in useTimeTrackingData
+        weekData[date] = statsData[date]
       }
     })
 
@@ -384,13 +371,11 @@ export const useTimeCalculations = (
       // Use our EST-aware date formatting
       const month = formatDateInEST(date, { month: "short" })
 
-      // Calculate total duration for the day using merged sessions, filtering ignored projects
+      // Calculate total duration for the day using merged sessions
       let totalDayDuration = 0
       Object.entries(dayData).forEach(([projectName, projectData]) => {
-        if (!ignoredProjects.includes(projectName)) {
-          const mergedSessions = getMergedSessionsForProjectDay(projectData)
-          totalDayDuration += calculateMergedDuration(mergedSessions)
-        }
+        const mergedSessions = getMergedSessionsForProjectDay(projectData)
+        totalDayDuration += calculateMergedDuration(mergedSessions)
       })
 
       monthlyData[month] = (monthlyData[month] || 0) + totalDayDuration
@@ -562,5 +547,7 @@ export const useTimeCalculations = (
     getDailyTotalsForProject,
     getFileActivityForProject,
     getUrlActivityForProject,
+    dateToESTString,
+    createESTDate, // Add this line
   }
 }

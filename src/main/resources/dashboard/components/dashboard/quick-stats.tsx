@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Clock, TrendingUp, FolderOpen, Users, Eye } from "lucide-react"
+import { Clock, TrendingUp, FolderOpen, Users, Eye, ExternalLink } from "lucide-react"
 import type { StatsData } from "@/hooks/use-time-tracking-data"
 import { useTimeCalculations } from "@/hooks/use-time-calculations"
 
@@ -10,17 +10,10 @@ interface QuickStatsProps {
   statsData: StatsData
   currentWeek: Date
   idleTimeoutMinutes: number
-  ignoredProjects?: string[]
   onViewProject?: (projectName: string) => void
 }
 
-export function QuickStats({
-  statsData,
-  currentWeek,
-  idleTimeoutMinutes,
-  ignoredProjects = [],
-  onViewProject,
-}: QuickStatsProps) {
+export function QuickStats({ statsData, currentWeek, idleTimeoutMinutes, onViewProject }: QuickStatsProps) {
   const {
     getTotalHoursThisWeek,
     getAvgHoursPerDay,
@@ -32,7 +25,7 @@ export function QuickStats({
     getWeekEnd,
     isCurrentWeek,
     formatHoursForChart,
-  } = useTimeCalculations(statsData, currentWeek, idleTimeoutMinutes, ignoredProjects)
+  } = useTimeCalculations(statsData, currentWeek, idleTimeoutMinutes)
 
   const totalHours = getTotalHoursThisWeek()
   const targetHours = getTargetHoursThisWeek()
@@ -42,6 +35,17 @@ export function QuickStats({
   const allProjects = getProjectTotals()
   const topProject = allProjects[0]
 
+  // Create shareable link for current view
+  const createShareableLink = () => {
+    const currentUrl = new URL(window.location.href)
+    const shareUrl = `${currentUrl.origin}/dashboard?tab=weekly&week=${currentWeek.toISOString().split("T")[0]}`
+
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      // You could add a toast notification here
+      console.log("Link copied to clipboard!")
+    })
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
       <Card>
@@ -49,7 +53,18 @@ export function QuickStats({
           <CardTitle className="text-sm font-medium">
             {isCurrentWeek() ? "Total Hours This Week" : "Total Hours Selected Week"}
           </CardTitle>
-          <Clock className="h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={createShareableLink}
+              className="h-6 w-6 p-0 hover:bg-gray-100"
+              title="Copy shareable link"
+            >
+              <ExternalLink className="h-3 w-3" />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{formatHoursForChart(totalHours)}</div>

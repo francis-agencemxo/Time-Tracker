@@ -23,8 +23,9 @@ interface ProjectDetailViewProps {
   statsData: StatsData
   currentWeek: Date
   idleTimeoutMinutes: number
+  ignoredProjects?: string[] // Add this prop
   selectedProject?: string
-  projectUrls?: ProjectUrl[] // Make this optional with default
+  projectUrls?: ProjectUrl[]
   onBack: () => void
 }
 
@@ -32,8 +33,9 @@ export function ProjectDetailView({
   statsData,
   currentWeek,
   idleTimeoutMinutes,
+  ignoredProjects = [], // Add default value
   selectedProject: initialProject,
-  projectUrls = [], // Add default empty array
+  projectUrls = [],
   onBack,
 }: ProjectDetailViewProps) {
   const [selectedProject, setSelectedProject] = useState<string>(initialProject || "")
@@ -49,7 +51,7 @@ export function ProjectDetailView({
     formatHoursForChart,
     getWeeklyDataForProject,
     getProjectSessionDetails,
-  } = useTimeCalculations(statsData, currentWeek, idleTimeoutMinutes)
+  } = useTimeCalculations(statsData, currentWeek, idleTimeoutMinutes, ignoredProjects)
 
   const allProjects = getProjectTotals()
   const projectColors = getProjectChartData()

@@ -201,14 +201,41 @@ const normalizeStatsData = (rawData: StatsData): StatsData => {
   return normalizedData
 }
 
+/**
+ * Filters out ignored projects from the stats data
+ */
+const filterIgnoredProjects = (statsData: StatsData, ignoredProjectNames: string[]): StatsData => {
+  if (ignoredProjectNames.length === 0) {
+    return statsData
+  }
+
+  const filteredData: StatsData = {}
+
+  Object.entries(statsData).forEach(([date, dayData]) => {
+    const filteredDayData: DayData = {}
+
+    Object.entries(dayData).forEach(([projectName, projectData]) => {
+      if (!ignoredProjectNames.includes(projectName)) {
+        filteredDayData[projectName] = projectData
+      }
+    })
+
+    // Only include the date if there's at least one non-ignored project
+    if (Object.keys(filteredDayData).length > 0) {
+      filteredData[date] = filteredDayData
+    }
+  })
+
+  return filteredData
+}
+
 export const useTimeTrackingData = (isLicenseValid = false) => {
-  const [statsData, setStatsData] = useState<StatsData>({})
+  const [rawStatsData, setRawStatsData] = useState<StatsData>({}) // Store raw data
+  const [statsData, setStatsData] = useState<StatsData>({}) // Store filtered data
   const [projectUrls, setProjectUrls] = useState<ProjectUrl[]>([])
-  // Add this to the hook's state variables (around line 85)
   const [ignoredProjects, setIgnoredProjects] = useState<IgnoredProject[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [currentWeek, setCurrentWeek] = useState<Date>(new Date())
   const [idleTimeoutMinutes, setIdleTimeoutMinutes] = useState<number>(10)
   const [settingsLoading, setSettingsLoading] = useState(false)
 
@@ -218,14 +245,22 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
       : `http://localhost:${process.env.NEXT_PUBLIC_TRACKER_SERVER_PORT || "56000"}`
 
   // Better preview detection - use fake data only for v0.dev
-  const isPreview = false &&(
+  const isPreview =
     typeof window === "undefined" ||
     window.location.hostname.includes("v0.dev") ||
-    window.location.hostname.includes("vusercontent.net"))
+    window.location.hostname.includes("vusercontent.net")
+
+  // Filter stats data whenever raw data or ignored projects change
+  useEffect(() => {
+    const ignoredProjectNames = ignoredProjects.map((p) => p.projectName)
+    const filteredData = filterIgnoredProjects(rawStatsData, ignoredProjectNames)
+    setStatsData(filteredData)
+  }, [rawStatsData, ignoredProjects])
 
   const fetchStats = async () => {
     // Don't fetch data if license is not valid
     if (!isLicenseValid) {
+      setRawStatsData({})
       setStatsData({})
       setLoading(false)
       return
@@ -238,7 +273,8 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
       // Always use fake data in preview mode
       if (isPreview) {
         setTimeout(() => {
-          setStatsData(generateFakeData())
+          const fakeData = generateFakeData()
+          setRawStatsData(fakeData)
           setLoading(false)
         }, 1000)
         return
@@ -261,18 +297,20 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
 
         // Normalize the data to ensure consistent EST date handling
         const normalizedData = normalizeStatsData(rawData)
-        setStatsData(normalizedData)
+        setRawStatsData(normalizedData)
       } catch (fetchError) {
         clearTimeout(timeoutId)
 
         // If API is not available, fall back to fake data
         console.warn("API not available, using fake data:", fetchError)
-        setStatsData(generateFakeData())
+        const fakeData = generateFakeData()
+        setRawStatsData(fakeData)
       }
     } catch (err) {
       // Final fallback to fake data
       console.warn("Error in fetchStats, using fake data:", err)
-      setStatsData(generateFakeData())
+      const fakeData = generateFakeData()
+      setRawStatsData(fakeData)
     } finally {
       setLoading(false)
     }
@@ -582,17 +620,6 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     }
   }
 
-  const navigateWeek = (direction: "prev" | "next" | "current") => {
-    if (direction === "current") {
-      setCurrentWeek(new Date())
-    } else {
-      const newWeek = new Date(currentWeek)
-      newWeek.setDate(newWeek.getDate() + (direction === "next" ? 7 : -7))
-      setCurrentWeek(newWeek)
-    }
-  }
-
-  // Add these functions before the return statement
   const fetchIgnoredProjects = async () => {
     if (!isLicenseValid) {
       setIgnoredProjects([])
@@ -652,7 +679,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
         localStorage.setItem("ignored-projects", JSON.stringify(updated))
         toast({
           title: "Success",
-          description: `"${projectName}" has been ignored (preview mode)`,
+          description: `"${projectName}" has been ignored and will be excluded from all calculations`,
         })
         return
       }
@@ -672,7 +699,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
       await fetchIgnoredProjects()
       toast({
         title: "Success",
-        description: `"${projectName}" has been ignored`,
+        description: `"${projectName}" has been ignored and will be excluded from all calculations`,
       })
     } catch (err) {
       toast({
@@ -687,13 +714,16 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     if (!isLicenseValid) return
 
     try {
+      const project = ignoredProjects.find((p) => p.id === id)
+      const projectName = project?.projectName || "Project"
+
       if (isPreview) {
         const updated = ignoredProjects.filter((p) => p.id !== id)
         setIgnoredProjects(updated)
         localStorage.setItem("ignored-projects", JSON.stringify(updated))
         toast({
           title: "Success",
-          description: "Project has been unignored (preview mode)",
+          description: `"${projectName}" has been unignored and will be included in calculations`,
         })
         return
       }
@@ -709,7 +739,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
       await fetchIgnoredProjects()
       toast({
         title: "Success",
-        description: "Project has been unignored",
+        description: `"${projectName}" has been unignored and will be included in calculations`,
       })
     } catch (err) {
       toast({
@@ -720,7 +750,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     }
   }
 
-  // Update the useEffect that fetches data (around line 400)
+  // Update the useEffect that fetches data
   useEffect(() => {
     if (isLicenseValid) {
       fetchStats()
@@ -730,15 +760,13 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     }
   }, [isLicenseValid])
 
-  // Update the return statement to include the new functions and state
+  // Return the filtered statsData instead of raw data - NO WEEK NAVIGATION
   return {
-    statsData,
+    statsData, // This is now the filtered data
     projectUrls,
     ignoredProjects,
     loading,
     error,
-    currentWeek,
-    setCurrentWeek: navigateWeek,
     idleTimeoutMinutes,
     setIdleTimeoutMinutes: saveIdleTimeout,
     settingsLoading,

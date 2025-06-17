@@ -305,8 +305,8 @@ object DBManager {
             while (rs.next()) {
                 val obj = JSONObject()
                 obj.put("id",    rs.getInt("id"))
-                obj.put("project_name", rs.getString("project_name"))
-                obj.put("ignored_at",   rs.getDate("ignored_at"))
+                obj.put("projectName", rs.getString("project_name"))
+                obj.put("ignoredAt",   rs.getDate("ignored_at"))
                 arr.put(obj)
             }
         }

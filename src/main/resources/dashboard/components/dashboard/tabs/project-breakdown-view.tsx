@@ -8,11 +8,17 @@ interface ProjectBreakdownViewProps {
   statsData: StatsData
   currentWeek: Date
   idleTimeoutMinutes: number
+  ignoredProjects?: string[] // Add this prop
 }
 
-export function ProjectBreakdownView({ statsData, currentWeek, idleTimeoutMinutes }: ProjectBreakdownViewProps) {
+export function ProjectBreakdownView({
+  statsData,
+  currentWeek,
+  idleTimeoutMinutes,
+  ignoredProjects = [],
+}: ProjectBreakdownViewProps) {
   const { getProjectTotals, getProjectBreakdown, getDailyTotalsForProject, getProjectChartData, formatDuration } =
-    useTimeCalculations(statsData, currentWeek, idleTimeoutMinutes)
+    useTimeCalculations(statsData, currentWeek, idleTimeoutMinutes, ignoredProjects)
 
   const allProjects = getProjectTotals()
   const projectData = getProjectChartData()

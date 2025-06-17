@@ -49,7 +49,7 @@ export function Header({
             <div className="text-right">
               <div className="text-xs font-medium text-teal-800">{licenseInfo.type}</div>
               <div className="text-xs text-gray-500">
-                {licenseInfo.isDemo ? "Demo License" : licenseInfo.key.slice(-3)}
+                {licenseInfo.isDemo ? "Demo License" : `...${licenseInfo.key.slice(-6)}`}
               </div>
             </div>
           </div>

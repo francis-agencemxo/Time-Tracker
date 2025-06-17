@@ -18,6 +18,7 @@ interface FileActivityViewProps {
   statsData: StatsData
   currentWeek: Date
   idleTimeoutMinutes: number
+  ignoredProjects?: string[] // Add this prop
   selectedProject?: string
 }
 
@@ -25,6 +26,7 @@ export function FileActivityView({
   statsData,
   currentWeek,
   idleTimeoutMinutes,
+  ignoredProjects = [], // Add default value
   selectedProject,
 }: FileActivityViewProps) {
   const [selectedDate, setSelectedDate] = useState<string>("")
@@ -34,6 +36,7 @@ export function FileActivityView({
     statsData,
     currentWeek,
     idleTimeoutMinutes,
+    ignoredProjects, // Pass ignored projects
   )
 
   // Get all sessions for the selected project

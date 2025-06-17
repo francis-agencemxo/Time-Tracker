@@ -27,7 +27,10 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
   const isPreview =
     typeof window === "undefined" ||
     window.location.hostname.includes("v0.dev") ||
-    window.location.hostname.includes("vusercontent.net")
+    window.location.hostname.includes("vusercontent.net") ||
+    process.env.NODE_ENV === "development"
+
+  console.log(window.location)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

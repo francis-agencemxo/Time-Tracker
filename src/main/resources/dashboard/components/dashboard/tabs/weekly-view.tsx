@@ -11,14 +11,22 @@ interface WeeklyViewProps {
   statsData: StatsData
   currentWeek: Date
   idleTimeoutMinutes: number
+  ignoredProjects?: string[]
   onProjectSelect?: (projectName: string) => void
 }
 
-export function WeeklyView({ statsData, currentWeek, idleTimeoutMinutes, onProjectSelect }: WeeklyViewProps) {
+export function WeeklyView({
+  statsData,
+  currentWeek,
+  idleTimeoutMinutes,
+  ignoredProjects = [],
+  onProjectSelect,
+}: WeeklyViewProps) {
   const { getStackedWeeklyData, getProjectChartData, formatHoursForChart, formatDuration } = useTimeCalculations(
     statsData,
     currentWeek,
     idleTimeoutMinutes,
+    ignoredProjects,
   )
   const stackedData = getStackedWeeklyData()
   const projectColors = getProjectChartData()

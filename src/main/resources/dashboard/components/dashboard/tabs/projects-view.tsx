@@ -11,11 +11,23 @@ interface ProjectsViewProps {
   statsData: StatsData
   currentWeek: Date
   idleTimeoutMinutes: number
+  ignoredProjects?: string[] // Add this prop
   onProjectSelect?: (projectName: string) => void
 }
 
-export function ProjectsView({ statsData, currentWeek, idleTimeoutMinutes, onProjectSelect }: ProjectsViewProps) {
-  const { getProjectChartData, formatHoursForChart } = useTimeCalculations(statsData, currentWeek, idleTimeoutMinutes)
+export function ProjectsView({
+  statsData,
+  currentWeek,
+  idleTimeoutMinutes,
+  ignoredProjects = [],
+  onProjectSelect,
+}: ProjectsViewProps) {
+  const { getProjectChartData, formatHoursForChart } = useTimeCalculations(
+    statsData,
+    currentWeek,
+    idleTimeoutMinutes,
+    ignoredProjects,
+  )
   const projectData = getProjectChartData()
 
   // Custom tooltip formatter for pie chart

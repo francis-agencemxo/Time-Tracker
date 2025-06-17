@@ -17,6 +17,7 @@ interface ProjectUrlsViewProps {
   statsData: StatsData
   currentWeek: Date
   idleTimeoutMinutes: number
+  ignoredProjects?: string[] // Add this prop
   onCreateUrl: (formData: { project: string; url: string; description: string }) => Promise<void>
   onUpdateUrl: (id: string, formData: { project: string; url: string; description: string }) => Promise<void>
   onDeleteUrl: (id: string) => Promise<void>
@@ -28,6 +29,7 @@ export function ProjectUrlsView({
   statsData,
   currentWeek,
   idleTimeoutMinutes,
+  ignoredProjects = [], // Add default value
   onCreateUrl,
   onUpdateUrl,
   onDeleteUrl,
@@ -43,7 +45,13 @@ export function ProjectUrlsView({
     description: "", // Keep for API compatibility
   })
 
-  const { getProjectTotals, getProjectChartData } = useTimeCalculations(statsData, currentWeek, idleTimeoutMinutes)
+  // Update the useTimeCalculations call
+  const { getProjectTotals, getProjectChartData } = useTimeCalculations(
+    statsData,
+    currentWeek,
+    idleTimeoutMinutes,
+    ignoredProjects,
+  )
   const projectNames = getProjectTotals().map((project) => project.name)
   const projectData = getProjectChartData()
 
