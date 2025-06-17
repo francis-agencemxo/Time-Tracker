@@ -8,10 +8,6 @@ import { Code, FileCode, FileText, Package, File, Globe, ExternalLink } from "lu
 import type { StatsData } from "@/hooks/use-time-tracking-data"
 import { useTimeCalculations } from "@/hooks/use-time-calculations"
 
-import {
-  dateToESTString
-} from "@/lib/date-utils"
-
 interface ActivityBreakdownViewProps {
   statsData: StatsData
   currentWeek: Date
@@ -34,11 +30,12 @@ export function ActivityBreakdownView({
     formatDuration,
     getFileActivityForProject,
     getUrlActivityForProject,
+    dateToESTString,
   } = useTimeCalculations(statsData, currentWeek, idleTimeoutMinutes)
 
   // Get all sessions for the selected project
   const allSessions = selectedProject ? getProjectSessionDetails(selectedProject) : []
-debugger;
+
   // Get unique dates from sessions
   const uniqueDates = Array.from(
     new Set(
@@ -58,7 +55,7 @@ debugger;
 
   const urlActivityData =
     selectedProject && effectiveDate ? getUrlActivityForProject(selectedProject, effectiveDate) : []
-debugger;
+
   // Filter data based on search input
   const filteredFiles = fileFilter
     ? fileActivityData.filter((file) => file.filename.toLowerCase().includes(fileFilter.toLowerCase()))

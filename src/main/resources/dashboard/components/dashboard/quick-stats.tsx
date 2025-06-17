@@ -10,10 +10,17 @@ interface QuickStatsProps {
   statsData: StatsData
   currentWeek: Date
   idleTimeoutMinutes: number
+  ignoredProjects?: string[]
   onViewProject?: (projectName: string) => void
 }
 
-export function QuickStats({ statsData, currentWeek, idleTimeoutMinutes, onViewProject }: QuickStatsProps) {
+export function QuickStats({
+  statsData,
+  currentWeek,
+  idleTimeoutMinutes,
+  ignoredProjects = [],
+  onViewProject,
+}: QuickStatsProps) {
   const {
     getTotalHoursThisWeek,
     getAvgHoursPerDay,
@@ -25,7 +32,7 @@ export function QuickStats({ statsData, currentWeek, idleTimeoutMinutes, onViewP
     getWeekEnd,
     isCurrentWeek,
     formatHoursForChart,
-  } = useTimeCalculations(statsData, currentWeek, idleTimeoutMinutes)
+  } = useTimeCalculations(statsData, currentWeek, idleTimeoutMinutes, ignoredProjects)
 
   const totalHours = getTotalHoursThisWeek()
   const targetHours = getTargetHoursThisWeek()

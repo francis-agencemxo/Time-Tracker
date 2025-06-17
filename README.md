@@ -68,10 +68,9 @@ Open a separate terminal in the project root and run:
 
 ```bash
 # Pick up the port saved in Settings (default 56000) and open the dashboard at that port:
-./gradlew runIde
-
-# — or, to override the port
-./gradlew runIde -PtrackerServerPort=55000
+./gradlew runIde \
+      -PtrackerServerPort=55000 \
+      -PdashboardUrl=http://localhost:55001
 ```
 
 This launches the plugin sandbox. The Tracker API server and Next.js dashboard will both listen on the same port (from Settings or CLI override).

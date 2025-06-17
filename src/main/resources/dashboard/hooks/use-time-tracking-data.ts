@@ -39,6 +39,13 @@ export interface UserSettings {
   idleTimeoutMinutes: number
 }
 
+// Add this interface after the existing interfaces
+export interface IgnoredProject {
+  id: string
+  projectName: string
+  ignoredAt: string
+}
+
 // Fake data for preview - now using proper EST date strings
 const generateFakeData = (): StatsData => {
   const data: StatsData = {}
@@ -197,6 +204,8 @@ const normalizeStatsData = (rawData: StatsData): StatsData => {
 export const useTimeTrackingData = (isLicenseValid = false) => {
   const [statsData, setStatsData] = useState<StatsData>({})
   const [projectUrls, setProjectUrls] = useState<ProjectUrl[]>([])
+  // Add this to the hook's state variables (around line 85)
+  const [ignoredProjects, setIgnoredProjects] = useState<IgnoredProject[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [currentWeek, setCurrentWeek] = useState<Date>(new Date())
@@ -209,10 +218,10 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
       : `http://localhost:${process.env.NEXT_PUBLIC_TRACKER_SERVER_PORT || "56000"}`
 
   // Better preview detection - use fake data only for v0.dev
-  const isPreview =
+  const isPreview = false &&(
     typeof window === "undefined" ||
     window.location.hostname.includes("v0.dev") ||
-    window.location.hostname.includes("vusercontent.net")
+    window.location.hostname.includes("vusercontent.net"))
 
   const fetchStats = async () => {
     // Don't fetch data if license is not valid
@@ -583,29 +592,149 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     }
   }
 
-  // Clear data when license becomes invalid
-  useEffect(() => {
+  // Add these functions before the return statement
+  const fetchIgnoredProjects = async () => {
     if (!isLicenseValid) {
-      setStatsData({})
-      setProjectUrls([])
-      setIdleTimeoutMinutes(10)
-      setError(null)
-      setLoading(false)
+      setIgnoredProjects([])
+      return
     }
-  }, [isLicenseValid])
 
-  // Only fetch data when license is valid
+    try {
+      if (isPreview) {
+        // In preview mode, use localStorage
+        const stored = localStorage.getItem("ignored-projects")
+        if (stored) {
+          setIgnoredProjects(JSON.parse(stored))
+        }
+        return
+      }
+
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+      try {
+        const response = await fetch(`${baseUrl}/api/ignored-projects`, {
+          signal: controller.signal,
+        })
+        clearTimeout(timeoutId)
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        const data = await response.json()
+        setIgnoredProjects(data)
+      } catch (fetchError) {
+        clearTimeout(timeoutId)
+        console.warn("Ignored projects API not available, using localStorage:", fetchError)
+        const stored = localStorage.getItem("ignored-projects")
+        if (stored) {
+          setIgnoredProjects(JSON.parse(stored))
+        }
+      }
+    } catch (err) {
+      console.warn("Error fetching ignored projects:", err)
+    }
+  }
+
+  const addIgnoredProject = async (projectName: string) => {
+    if (!isLicenseValid) return
+
+    try {
+      const newIgnoredProject: IgnoredProject = {
+        id: Date.now().toString(),
+        projectName,
+        ignoredAt: new Date().toISOString(),
+      }
+
+      if (isPreview) {
+        const updated = [...ignoredProjects, newIgnoredProject]
+        setIgnoredProjects(updated)
+        localStorage.setItem("ignored-projects", JSON.stringify(updated))
+        toast({
+          title: "Success",
+          description: `"${projectName}" has been ignored (preview mode)`,
+        })
+        return
+      }
+
+      const response = await fetch(`${baseUrl}/api/ignored-projects`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ projectName }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      await fetchIgnoredProjects()
+      toast({
+        title: "Success",
+        description: `"${projectName}" has been ignored`,
+      })
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to ignore project",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const removeIgnoredProject = async (id: string) => {
+    if (!isLicenseValid) return
+
+    try {
+      if (isPreview) {
+        const updated = ignoredProjects.filter((p) => p.id !== id)
+        setIgnoredProjects(updated)
+        localStorage.setItem("ignored-projects", JSON.stringify(updated))
+        toast({
+          title: "Success",
+          description: "Project has been unignored (preview mode)",
+        })
+        return
+      }
+
+      const response = await fetch(`${baseUrl}/api/ignored-projects/${id}`, {
+        method: "DELETE",
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      await fetchIgnoredProjects()
+      toast({
+        title: "Success",
+        description: "Project has been unignored",
+      })
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to unignore project",
+        variant: "destructive",
+      })
+    }
+  }
+
+  // Update the useEffect that fetches data (around line 400)
   useEffect(() => {
     if (isLicenseValid) {
       fetchStats()
       fetchProjectUrls()
       fetchSettings()
+      fetchIgnoredProjects()
     }
   }, [isLicenseValid])
 
+  // Update the return statement to include the new functions and state
   return {
     statsData,
     projectUrls,
+    ignoredProjects,
     loading,
     error,
     currentWeek,
@@ -616,8 +745,11 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     fetchStats,
     fetchProjectUrls,
     fetchSettings,
+    fetchIgnoredProjects,
     createProjectUrl,
     updateProjectUrl,
     deleteProjectUrl,
+    addIgnoredProject,
+    removeIgnoredProject,
   }
 }

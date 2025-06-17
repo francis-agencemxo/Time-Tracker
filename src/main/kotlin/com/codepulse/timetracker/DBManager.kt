@@ -52,6 +52,25 @@ object DBManager {
 
         conn.createStatement().use { st ->
             st.executeUpdate("""
+         CREATE TABLE IF NOT EXISTS ignored_projects (
+            id INTEGER PRIMARY KEY,
+            project_name TEXT NOT NULL,
+            ignored_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            
+            -- SQLite uses different syntax for unique constraints
+            UNIQUE(project_name)
+        );
+        
+        -- Indexes for better query performance
+        CREATE INDEX IF NOT EXISTS idx_ignored_projects_project_name ON ignored_projects(project_name);
+        CREATE INDEX IF NOT EXISTS idx_ignored_projects_ignored_at ON ignored_projects(ignored_at);
+      """.trimIndent())
+        }
+
+        conn.createStatement().use { st ->
+            st.executeUpdate("""
         CREATE TABLE IF NOT EXISTS urls (
           id      INTEGER PRIMARY KEY AUTOINCREMENT,
           project TEXT    NOT NULL,
@@ -59,6 +78,8 @@ object DBManager {
         );
       """.trimIndent())
         }
+
+        println("→→→→→→ Opened SQLite DB at ${dbFile.absolutePath}")
     }
 
     fun insertUrl(
@@ -272,5 +293,50 @@ object DBManager {
             }
         }
         return arr
+    }
+
+    fun getAllIgnoredProjects(): JSONArray {
+
+        val arr = JSONArray()
+        conn.prepareStatement("""
+      SELECT * FROM ignored_projects
+    """.trimIndent()).use { ps ->
+            val rs = ps.executeQuery()
+            while (rs.next()) {
+                val obj = JSONObject()
+                obj.put("id",    rs.getInt("id"))
+                obj.put("project_name", rs.getString("project_name"))
+                obj.put("ignored_at",   rs.getDate("ignored_at"))
+                arr.put(obj)
+            }
+        }
+        return arr
+    }
+
+    fun insertIgnoredProject(
+        project: String
+    ) {
+        conn.prepareStatement("""
+      INSERT INTO ignored_projects (project_name)
+      VALUES (?)
+    """.trimIndent()).use { ps ->
+            ps.setString(1, project)
+            ps.executeUpdate()
+        }
+    }
+
+    /**
+     * Delete a specific URL pattern for a project.
+     */
+    fun deleteIgnoredProject(
+        id: Int
+    ) {
+        conn.prepareStatement("""
+      DELETE FROM ignored_projects
+      WHERE id = ?
+    """.trimIndent()).use { ps ->
+            ps.setInt(1, id)
+            ps.executeUpdate()
+        }
     }
 }

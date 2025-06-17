@@ -8,17 +8,21 @@ import { ProjectBreakdownView } from "./tabs/project-breakdown-view"
 import { TrendsView } from "./tabs/trends-view"
 import { ProjectUrlsView } from "./tabs/project-urls-view"
 import { ProjectDetailView } from "./tabs/project-detail-view"
-import type { StatsData, ProjectUrl } from "@/hooks/use-time-tracking-data"
+import { ProjectManagementView } from "./tabs/project-management-view"
+import type { StatsData, ProjectUrl, IgnoredProject } from "@/hooks/use-time-tracking-data"
 
 interface DashboardTabsProps {
   statsData: StatsData
   projectUrls: ProjectUrl[]
+  ignoredProjects: IgnoredProject[]
   currentWeek: Date
   idleTimeoutMinutes: number
   onCreateUrl: (formData: { project: string; url: string; description: string }) => Promise<void>
   onUpdateUrl: (id: string, formData: { project: string; url: string; description: string }) => Promise<void>
   onDeleteUrl: (id: string) => Promise<void>
   onRefreshUrls: () => Promise<void>
+  onAddIgnoredProject: (projectName: string) => Promise<void>
+  onRemoveIgnoredProject: (id: string) => Promise<void>
   selectedProject?: string
   onProjectSelect?: (projectName: string | null) => void
 }
@@ -26,12 +30,15 @@ interface DashboardTabsProps {
 export function DashboardTabs({
   statsData,
   projectUrls,
+  ignoredProjects,
   currentWeek,
   idleTimeoutMinutes,
   onCreateUrl,
   onUpdateUrl,
   onDeleteUrl,
   onRefreshUrls,
+  onAddIgnoredProject,
+  onRemoveIgnoredProject,
   selectedProject,
   onProjectSelect,
 }: DashboardTabsProps) {
@@ -47,14 +54,17 @@ export function DashboardTabs({
     }
   }
 
+  const ignoredProjectNames = ignoredProjects.map((p) => p.projectName)
+
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
       <TabsList>
         <TabsTrigger value="weekly">Weekly View</TabsTrigger>
         <TabsTrigger value="projects">Projects</TabsTrigger>
-        { /*<TabsTrigger value="breakdown">Project Breakdown</TabsTrigger>*/ }
+        <TabsTrigger value="breakdown">Project Breakdown</TabsTrigger>
         <TabsTrigger value="trends">Trends</TabsTrigger>
         <TabsTrigger value="urls">Project URLs</TabsTrigger>
+        <TabsTrigger value="management">Project Management</TabsTrigger>
       </TabsList>
 
       <TabsContent value="weekly">
@@ -62,6 +72,7 @@ export function DashboardTabs({
           statsData={statsData}
           currentWeek={currentWeek}
           idleTimeoutMinutes={idleTimeoutMinutes}
+          ignoredProjects={ignoredProjectNames}
           onProjectSelect={handleProjectSelect}
         />
       </TabsContent>
@@ -72,6 +83,7 @@ export function DashboardTabs({
             statsData={statsData}
             currentWeek={currentWeek}
             idleTimeoutMinutes={idleTimeoutMinutes}
+            ignoredProjects={ignoredProjectNames}
             selectedProject={selectedProject}
             projectUrls={projectUrls}
             onBack={() => handleProjectSelect(null)}
@@ -81,18 +93,27 @@ export function DashboardTabs({
             statsData={statsData}
             currentWeek={currentWeek}
             idleTimeoutMinutes={idleTimeoutMinutes}
+            ignoredProjects={ignoredProjectNames}
             onProjectSelect={handleProjectSelect}
           />
         )}
       </TabsContent>
 
-{ /* Project Breakdown Tab
       <TabsContent value="breakdown">
-        <ProjectBreakdownView statsData={statsData} currentWeek={currentWeek} idleTimeoutMinutes={idleTimeoutMinutes} />
+        <ProjectBreakdownView
+          statsData={statsData}
+          currentWeek={currentWeek}
+          idleTimeoutMinutes={idleTimeoutMinutes}
+          ignoredProjects={ignoredProjectNames}
+        />
       </TabsContent>
-{ */}
+
       <TabsContent value="trends">
-        <TrendsView statsData={statsData} idleTimeoutMinutes={idleTimeoutMinutes} />
+        <TrendsView
+          statsData={statsData}
+          idleTimeoutMinutes={idleTimeoutMinutes}
+          ignoredProjects={ignoredProjectNames}
+        />
       </TabsContent>
 
       <TabsContent value="urls">
@@ -101,10 +122,22 @@ export function DashboardTabs({
           statsData={statsData}
           currentWeek={currentWeek}
           idleTimeoutMinutes={idleTimeoutMinutes}
+          ignoredProjects={ignoredProjectNames}
           onCreateUrl={onCreateUrl}
           onUpdateUrl={onUpdateUrl}
           onDeleteUrl={onDeleteUrl}
           onRefresh={onRefreshUrls}
+        />
+      </TabsContent>
+
+      <TabsContent value="management">
+        <ProjectManagementView
+          statsData={statsData}
+          ignoredProjects={ignoredProjects}
+          currentWeek={currentWeek}
+          idleTimeoutMinutes={idleTimeoutMinutes}
+          onAddIgnoredProject={onAddIgnoredProject}
+          onRemoveIgnoredProject={onRemoveIgnoredProject}
         />
       </TabsContent>
     </Tabs>

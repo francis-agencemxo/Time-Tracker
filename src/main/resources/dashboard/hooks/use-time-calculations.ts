@@ -8,7 +8,12 @@ import {
   createESTDate,
 } from "@/lib/date-utils"
 
-export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idleTimeoutMinutes: number) => {
+export const useTimeCalculations = (
+  statsData: StatsData,
+  currentWeek: Date,
+  idleTimeoutMinutes: number,
+  ignoredProjects: string[] = [],
+) => {
   // Week navigation helpers
   const getWeekStart = (date: Date) => {
     const d = new Date(date)
@@ -44,7 +49,16 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
     const weekData: StatsData = {}
     weekDates.forEach((date) => {
       if (statsData[date]) {
-        weekData[date] = statsData[date]
+
+      debugger;
+        // Filter out ignored projects
+        const filteredDayData: { [key: string]: any } = {}
+        Object.entries(statsData[date]).forEach(([projectName, projectData]) => {
+          if (!ignoredProjects.includes(projectName)) {
+            filteredDayData[projectName] = projectData
+          }
+        })
+        weekData[date] = filteredDayData
       }
     })
 
@@ -370,11 +384,13 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
       // Use our EST-aware date formatting
       const month = formatDateInEST(date, { month: "short" })
 
-      // Calculate total duration for the day using merged sessions
+      // Calculate total duration for the day using merged sessions, filtering ignored projects
       let totalDayDuration = 0
-      Object.values(dayData).forEach((projectData) => {
-        const mergedSessions = getMergedSessionsForProjectDay(projectData)
-        totalDayDuration += calculateMergedDuration(mergedSessions)
+      Object.entries(dayData).forEach(([projectName, projectData]) => {
+        if (!ignoredProjects.includes(projectName)) {
+          const mergedSessions = getMergedSessionsForProjectDay(projectData)
+          totalDayDuration += calculateMergedDuration(mergedSessions)
+        }
       })
 
       monthlyData[month] = (monthlyData[month] || 0) + totalDayDuration
@@ -424,7 +440,6 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
 
   // Get file activity data for a specific project and date
   const getFileActivityForProject = (projectName: string, dateString: string) => {
-      debugger;
     const weekData = getCurrentWeekData()
     const dayData = weekData[dateString]
 

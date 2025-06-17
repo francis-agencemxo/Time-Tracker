@@ -29,8 +29,6 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
     window.location.hostname.includes("v0.dev") ||
     window.location.hostname.includes("vusercontent.net")
 
-  console.log(window.location)
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")

@@ -47,6 +47,7 @@ export default function TimeTrackingDashboard() {
   const {
     statsData,
     projectUrls,
+    ignoredProjects,
     loading,
     error,
     currentWeek,
@@ -59,6 +60,8 @@ export default function TimeTrackingDashboard() {
     createProjectUrl,
     updateProjectUrl,
     deleteProjectUrl,
+    addIgnoredProject,
+    removeIgnoredProject,
   } = useTimeTrackingData(isLicenseValid)
 
   // State for project selection
@@ -122,12 +125,15 @@ export default function TimeTrackingDashboard() {
         <DashboardTabs
           statsData={statsData}
           projectUrls={projectUrls}
+          ignoredProjects={ignoredProjects}
           currentWeek={currentWeek}
           idleTimeoutMinutes={idleTimeoutMinutes}
           onCreateUrl={createProjectUrl}
           onUpdateUrl={updateProjectUrl}
           onDeleteUrl={deleteProjectUrl}
           onRefreshUrls={fetchProjectUrls}
+          onAddIgnoredProject={addIgnoredProject}
+          onRemoveIgnoredProject={removeIgnoredProject}
           selectedProject={selectedProject || undefined}
           onProjectSelect={setSelectedProject}
         />

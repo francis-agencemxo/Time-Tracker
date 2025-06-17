@@ -303,6 +303,63 @@ object BrowsingTrackerServer {
     }
 
     /**
+     * Handler for CRUD operations on IGNORED_PROJECT matching patterns.
+     */
+    private class IgnoredProjectsConfigHandler : HttpHandler {
+        override fun handle(exchange: HttpExchange) {
+            with(exchange.responseHeaders) {
+                add("Access-Control-Allow-Origin", "*")
+                add("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+                add("Access-Control-Allow-Headers", "Content-Type")
+            }
+            if (exchange.requestMethod.equals("OPTIONS", ignoreCase = true)) {
+                exchange.sendResponseHeaders(204, -1)
+                exchange.responseBody.close()
+                return
+            }
+            when (exchange.requestMethod.uppercase()) {
+                "GET" -> {
+                    println("GET /api/ignored-projects")
+                    val ignoredProjects = DBManager.getAllIgnoredProjects()
+
+                    val response = ignoredProjects.toString(2).toByteArray()
+                    exchange.responseHeaders.add("Content-Type", "application/json")
+                    exchange.sendResponseHeaders(200, response.size.toLong())
+                    exchange.responseBody.use { it.write(response) }
+                }
+                "POST" -> {
+                    println("POST /api/ignored-projects")
+                    val body = exchange.requestBody.bufferedReader().readText()
+                    val json = JSONObject(body)
+                    DBManager.insertIgnoredProject(
+                        project = json.getString("projectName")
+                    )
+                    exchange.sendResponseHeaders(201, -1)
+                }
+                "DELETE" -> {
+                    println("DELETE /api/ignored-projects")
+                    val fullPath = exchange.requestURI.path
+                    val idSegment = fullPath.substringAfterLast("/", missingDelimiterValue = "")
+                    val id = idSegment.toIntOrNull()
+
+                    if (id != null) {
+                        DBManager.deleteIgnoredProject(id)
+                        exchange.sendResponseHeaders(204, -1)
+                    } else {
+                        exchange.sendResponseHeaders(400, -1)
+                    }
+
+                    exchange.responseBody.close()
+                }
+                else -> {
+                    exchange.sendResponseHeaders(405, 0)
+                    exchange.responseBody.close()
+                }
+            }
+        }
+    }
+
+    /**
      * Handler for GET and POST /api/settings
      *
      * GET  → returns: { "idleTimeoutMinutes": <number> }
@@ -385,6 +442,7 @@ object BrowsingTrackerServer {
         server?.createContext("/api/urls", UrlConfigHandler())
         server?.createContext("/api/license", LicenseHandler())
         server?.createContext("/api/setting", SettingsHandler())
+        server?.createContext("/api/ignored-projects", IgnoredProjectsConfigHandler())
         server?.createContext("/api/license/logout", LogoutHandler())
         server?.executor = null
         server?.start()
