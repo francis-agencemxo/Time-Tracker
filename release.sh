@@ -13,13 +13,25 @@ ZIP_BASENAME="$PLUGIN_NAME"
 SED_EXT=".bak"
 # ----------------------
 
-# --- Parse optional commit message ---
+# --- Parse optional commit message and change note ---
 COMMIT_MESSAGE="Release $NEW_VERSION"
+CHANGE_NOTE=""
+
 while [[ "$#" -gt 0 ]]; do
   case "$1" in
-    -m)
+    -m|--message)
       shift
       COMMIT_MESSAGE="$1"
+      ;;
+    -cn|--change-note)
+      shift
+        # If $1 is empty or another flag, fallback to COMMIT_MESSAGE
+        if [[ -z "$1" || "$1" == -* ]]; then
+          CHANGE_NOTE="$COMMIT_MESSAGE"
+          continue  # don't shift again
+        else
+          CHANGE_NOTE="$1"
+        fi
       ;;
   esac
   shift
@@ -57,23 +69,25 @@ sed -i"$SED_EXT" "s|<version>$CURRENT_VERSION</version>|<version>$NEW_VERSION</v
 
 # --- 3b. Inject <li> release note into <change-notes> ---
 RELEASE_DATE=$(date +%F)
-INJECTED_LI="<li>$RELEASE_DATE: $COMMIT_MESSAGE</li>"
+if [[ -z "$CHANGE_NOTE" ]]; then
+  INJECTED_LI="<li>$RELEASE_DATE: $CHANGE_NOTE</li>"
 
-# Backup original plugin.xml
-cp "$PLUGIN_XML" "$PLUGIN_XML$SED_EXT"
+  # Backup original plugin.xml
+  cp "$PLUGIN_XML" "$PLUGIN_XML$SED_EXT"
 
-# Use awk to inject before the first <li> line inside <change-notes>
-awk -v note="$INJECTED_LI" '
-  BEGIN { inside = 0 }
-  /<change-notes>/ { inside = 1 }
-  inside && /<li>/ && !done {
-    print note
-    done = 1
-  }
-  { print }
-' "$PLUGIN_XML$SED_EXT" > "$PLUGIN_XML"
+  # Use awk to inject before the first <li> line inside <change-notes>
+  awk -v note="$INJECTED_LI" '
+    BEGIN { inside = 0 }
+    /<change-notes>/ { inside = 1 }
+    inside && /<li>/ && !done {
+      print note
+      done = 1
+    }
+    { print }
+  ' "$PLUGIN_XML$SED_EXT" > "$PLUGIN_XML"
 
-rm -f "$PLUGIN_XML$SED_EXT"
+  rm -f "$PLUGIN_XML$SED_EXT"
+fi
 
 # --- 4. Build plugin ---
 echo "⚙️ Building plugin..."
