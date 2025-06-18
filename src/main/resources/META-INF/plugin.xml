@@ -21,6 +21,7 @@
 
     <change-notes><![CDATA[
         <ul>
+<li>2025-06-17: test</li>
 <li>2025-06-17: Update plugin description and enhance release script for change notes injection</li>
             <li>2025-06-17: Update plugin description and enhance release script for change notes injection</li>
             <li>New: Real-time Chrome URL tracking with host grouping</li>

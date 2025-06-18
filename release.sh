@@ -69,7 +69,8 @@ sed -i"$SED_EXT" "s|<version>$CURRENT_VERSION</version>|<version>$NEW_VERSION</v
 
 # --- 3b. Inject <li> release note into <change-notes> ---
 RELEASE_DATE=$(date +%F)
-if [[ -z "$CHANGE_NOTE" ]]; then
+
+if [[ -n "$CHANGE_NOTE" ]]; then
   INJECTED_LI="<li>$RELEASE_DATE: $CHANGE_NOTE</li>"
 
   # Backup original plugin.xml
