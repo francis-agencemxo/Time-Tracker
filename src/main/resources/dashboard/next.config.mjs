@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename)
 const nextConfig = {
   // Only use static export in production builds; dev server will handle CSS in-memory
   output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
+  trailingSlash: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
