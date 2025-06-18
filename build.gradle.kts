@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.codepulse.timetracker"
-version = "2.9.13"
+version = "2.9.14"
 
 repositories {
     mavenCentral()
@@ -70,7 +70,6 @@ tasks.processResources {
 tasks.patchPluginXml {
     sinceBuild.set("241")
     untilBuild.set("251.*")
-    changeNotes.set("Auto-refresh duration every 60s for current day")
 }
 
 tasks.buildPlugin {

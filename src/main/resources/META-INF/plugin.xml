@@ -6,18 +6,22 @@
 
     <description><![CDATA[
         <h2>CodePulse</h2>
-        <p><b>Track developer productivity across coding and browsing activity.</b></p>
-        <p>This plugin monitors project file activity in PhpStorm, as well as associated URLs opened in Chrome, allowing you to:</p>
-        <ul>
-            <li>Track time spent coding per file and project</li>
-            <li>Monitor web activity across configured domains</li>
-            <li>Display daily and weekly summaries with project breakdowns</li>
-            <li>Export or sync data to external reporting systems</li>
-        </ul>
+    <p><strong>Track developer productivity across coding and browsing activity.</strong></p>
+    <p>
+      This plugin monitors file‑editing in PhpStorm and active tabs in Chrome,
+      records time by project and domain, and provides daily/weekly breakdowns
+      with export or Google Sheets sync.
+    </p>
+    <ul>
+      <li><strong>IntelliJ Plugin</strong> – hooks into the IDE to record coding activity and serve a built‑in Tracker API.</li>
+      <li><strong>Chrome Extension</strong> – captures active‑tab URLs and reports browsing time back to the plugin’s API.</li>
+      <li><strong>Next.js Dashboard</strong> – real‑time and static dashboard (HMR in dev, static export for prod) to visualize time stats with configurable scopes, domains, and refresh intervals.</li>
+    </ul>
     ]]></description>
 
     <change-notes><![CDATA[
         <ul>
+<li>2025-06-17: </li>
             <li>New: Real-time Chrome URL tracking with host grouping</li>
             <li>Improved: Auto-refresh of summary every 60s</li>
             <li>Enhanced: Visual breakdown of Coding vs Browsing</li>

@@ -43,6 +43,26 @@ sed -i"$SED_EXT" "s/version = \"$CURRENT_VERSION\"/version = \"$NEW_VERSION\"/" 
 # --- 3. Update version in plugin.xml ---
 sed -i"$SED_EXT" "s|<version>$CURRENT_VERSION</version>|<version>$NEW_VERSION</version>|" "$PLUGIN_XML" && rm -f "$PLUGIN_XML$SED_EXT"
 
+# --- 3b. Inject <li> release note into <change-notes> ---
+RELEASE_DATE=$(date +%F)
+INJECTED_LI="<li>$RELEASE_DATE: $COMMIT_MESSAGE</li>"
+
+# Backup original plugin.xml
+cp "$PLUGIN_XML" "$PLUGIN_XML$SED_EXT"
+
+# Use awk to inject before the first <li> line inside <change-notes>
+awk -v note="$INJECTED_LI" '
+  BEGIN { inside = 0 }
+  /<change-notes>/ { inside = 1 }
+  inside && /<li>/ && !done {
+    print note
+    done = 1
+  }
+  { print }
+' "$PLUGIN_XML$SED_EXT" > "$PLUGIN_XML"
+
+rm -f "$PLUGIN_XML$SED_EXT"
+
 # --- 4. Build plugin ---
 echo "⚙️ Building plugin..."
 ./gradlew clean buildPlugin > /dev/null 2>&1
