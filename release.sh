@@ -13,6 +13,18 @@ ZIP_BASENAME="$PLUGIN_NAME"
 SED_EXT=".bak"
 # ----------------------
 
+# --- Parse optional commit message ---
+COMMIT_MESSAGE="Release $NEW_VERSION"
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    -m)
+      shift
+      COMMIT_MESSAGE="$1"
+      ;;
+  esac
+  shift
+done
+
 export PORT=
 export TRACKER_SERVER_PORT=
 export NEXT_PUBLIC_TRACKER_SERVER_PORT=
@@ -87,18 +99,6 @@ mv "$ZIP_PATH" "$RELEASE_DIR/"
 echo "📝 Updating updatePlugins.xml..."
 sed -i"$SED_EXT" "0,/<version>.*<\/version>/s|<version>.*</version>|<version>$NEW_VERSION</version>|" "$UPDATE_XML" && rm -f "$UPDATE_XML$SED_EXT"
 sed -i"$SED_EXT" -E "s|(https://.*/)$ZIP_BASENAME-[0-9]+\.[0-9]+\.[0-9]+\.zip|\1$ZIP_NAME|" "$UPDATE_XML" && rm -f "$UPDATE_XML$SED_EXT"
-
-# --- Parse optional commit message ---
-COMMIT_MESSAGE="Release $NEW_VERSION"
-while [[ "$#" -gt 0 ]]; do
-  case "$1" in
-    -m)
-      shift
-      COMMIT_MESSAGE="$1"
-      ;;
-  esac
-  shift
-done
 
 
 # --- 7. Git commit, tag, and push ---
