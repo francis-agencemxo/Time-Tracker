@@ -9,6 +9,8 @@ import { useLicenseValidation } from "@/hooks/use-license-validation"
 interface HeaderProps {
   idleTimeoutMinutes: number
   onIdleTimeoutChange: (minutes: number) => void
+  storageType: "cloud" | "local"
+  onStorageTypeChange: (type: "cloud" | "local") => void
   onRefresh: () => void
   onLogout?: () => void
   settingsLoading?: boolean
@@ -17,6 +19,8 @@ interface HeaderProps {
 export function Header({
   idleTimeoutMinutes,
   onIdleTimeoutChange,
+  storageType,
+  onStorageTypeChange,
   onRefresh,
   onLogout,
   settingsLoading = false,
@@ -60,7 +64,7 @@ export function Header({
             <Button variant="outline" size="sm" className="border-teal-200 text-teal-700 hover:bg-teal-50">
               <Settings className="w-4 h-4 mr-2" />
               Settings
-              {settingsLoading && <Loader2 className="w-3 h-3 ml-2 animate-spin" />}
+              { /* settingsLoading && <Loader2 className="w-3 h-3 ml-2 animate-spin" /> */}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-80">
@@ -88,13 +92,37 @@ export function Header({
                 <p className="text-xs text-gray-500">
                   Sessions within {idleTimeoutMinutes} minutes of each other will be merged
                 </p>
-                {settingsLoading && (
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="storage-type" className="text-sm font-medium">
+                    Data Storage
+                  </label>
+                  <select
+                    id="storage-type"
+                    value={storageType}
+                    onChange={(e) => onStorageTypeChange(e.target.value as "cloud" | "local")}
+                    className="bg-white border rounded px-2 py-1 text-sm"
+                    disabled={settingsLoading}
+                  >
+                    <option value="cloud">Cloud Storage</option>
+                    <option value="local">Local Storage</option>
+                  </select>
+                </div>
+                <p className="text-xs text-gray-500">
+                  {storageType === "cloud"
+                    ? "Data is stored on cloud"
+                    : "Data is stored locally on your computer"}
+                </p>
+              </div>
+
+              {false && settingsLoading && (
                   <p className="text-xs text-blue-600 flex items-center gap-1">
                     <Loader2 className="w-3 h-3 animate-spin" />
                     Saving settings...
                   </p>
                 )}
-              </div>
 
               {licenseInfo && (
                 <>

@@ -50,6 +50,8 @@ export default function HomePage() {
     error,
     idleTimeoutMinutes,
     setIdleTimeoutMinutes,
+    storageType,
+    setStorageType,
     settingsLoading,
     fetchStats,
     fetchProjectUrls,
@@ -180,6 +182,8 @@ export default function HomePage() {
         <Header
           idleTimeoutMinutes={idleTimeoutMinutes}
           onIdleTimeoutChange={setIdleTimeoutMinutes}
+          storageType={storageType}
+          onStorageTypeChange={setStorageType}
           onRefresh={fetchStats}
           onLogout={logout}
           settingsLoading={settingsLoading}

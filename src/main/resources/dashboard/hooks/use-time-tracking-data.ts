@@ -37,6 +37,7 @@ export interface ProjectUrl {
 
 export interface UserSettings {
   idleTimeoutMinutes: number
+  storageType: "cloud" | "local"
 }
 
 // Add this interface after the existing interfaces
@@ -238,6 +239,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
   const [error, setError] = useState<string | null>(null)
   const [idleTimeoutMinutes, setIdleTimeoutMinutes] = useState<number>(10)
   const [settingsLoading, setSettingsLoading] = useState(false)
+  const [storageType, setStorageType] = useState<"cloud" | "local">("cloud")
 
   const baseUrl =
     typeof window !== "undefined" && process.env.NODE_ENV === "production"
@@ -376,6 +378,10 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
         if (stored) {
           setIdleTimeoutMinutes(Number(stored))
         }
+        const storedStorageType = localStorage.getItem("storage-type") as "cloud" | "local"
+        if (storedStorageType) {
+          setStorageType(storedStorageType)
+        }
         setSettingsLoading(false)
         return
       }
@@ -395,6 +401,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
         }
         const settings: UserSettings = await response.json()
         setIdleTimeoutMinutes(settings.idleTimeoutMinutes || 10)
+        setStorageType(settings.storageType || "cloud")
       } catch (fetchError) {
         clearTimeout(timeoutId)
 
@@ -476,6 +483,70 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
       toast({
         title: "Error",
         description: "Failed to save idle timeout setting",
+        variant: "destructive",
+      })
+    } finally {
+      setSettingsLoading(false)
+    }
+  }
+
+  const saveStorageType = async (type: "cloud" | "local") => {
+    if (!isLicenseValid) {
+      return
+    }
+
+    try {
+      setSettingsLoading(true)
+
+      if (isPreview) {
+        localStorage.setItem("storage-type", type)
+        setStorageType(type)
+        setSettingsLoading(false)
+        return
+      }
+
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+      try {
+        const response = await fetch(`${baseUrl}/api/settings`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            idleTimeoutMinutes,
+            storageType: type,
+          }),
+          signal: controller.signal,
+        })
+        clearTimeout(timeoutId)
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        setStorageType(type)
+
+        toast({
+          title: "Settings Saved",
+          description: `Storage preference updated to ${type}`,
+        })
+      } catch (fetchError) {
+        clearTimeout(timeoutId)
+        localStorage.setItem("storage-type", type)
+        setStorageType(type)
+
+        toast({
+          title: "Settings Saved Locally",
+          description: `Storage preference updated to ${type} (saved locally)`,
+        })
+      }
+    } catch (err) {
+      console.error("Error saving storage type:", err)
+      toast({
+        title: "Error",
+        description: "Failed to save storage preference",
         variant: "destructive",
       })
     } finally {
@@ -779,5 +850,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     deleteProjectUrl,
     addIgnoredProject,
     removeIgnoredProject,
+    storageType,
+    setStorageType: saveStorageType,
   }
 }

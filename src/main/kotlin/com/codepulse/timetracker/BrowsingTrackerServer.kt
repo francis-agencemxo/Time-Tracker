@@ -386,6 +386,7 @@ object BrowsingTrackerServer {
                     // Build response JSON
                     val responseJson = JSONObject().apply {
                         put("idleTimeoutMinutes", settingsState.keystrokeTimeoutSeconds)
+                        put("storageType", settingsState.storageType)
                     }
 
                     val bytes = responseJson.toString().toByteArray()
@@ -406,12 +407,15 @@ object BrowsingTrackerServer {
                         return
                     }
                     val newTimeout = incoming.getInt("idleTimeoutMinutes")
+                    val newStorageType = incoming.getString("storageType")
 
                     val settingsStateService = TimeTrackerSettings.getInstance()
                     val settingsState = settingsStateService.state
 
                     println(newTimeout)
+                    println(newStorageType)
                     settingsState.keystrokeTimeoutSeconds = newTimeout;
+                    settingsState.storageType = newStorageType
 
                     // Return success response
                     val responseJson = JSONObject().apply {
