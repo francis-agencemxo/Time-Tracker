@@ -1,0 +1,22 @@
+{
+  "name": "phpstorm-time-tracker-ui-v7",
+  "version": "1.0.0",
+  "description": "A JetBrains plugin for PhpStorm that tracks coding and browsing activity, with a Next.js dashboard for visualizing time statistics.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently --names \"IDE,DASH\" --prefix-colors \"blue,green\" './gradlew runIde -q -PtrackerServerPort=55000 -PdashboardUrl=http://localhost:55001' 'cd src/main/resources/dashboard npm install\nexport TRACKER_SERVER_PORT=55000\nexport NEXT_PUBLIC_TRACKER_SERVER_PORT=55000\nexport DASHBOARD_PORT=55001\nnpm run dev'"
+
+
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/francis-agencemxo/Time-Tracker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/francis-agencemxo/Time-Tracker/issues"
+  },
+  "homepage": "https://github.com/francis-agencemxo/Time-Tracker#readme"
+}
