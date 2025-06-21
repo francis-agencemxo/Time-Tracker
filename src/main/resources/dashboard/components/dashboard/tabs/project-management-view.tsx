@@ -10,14 +10,12 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
   EyeOff,
   Eye,
   Trash2,
   Plus,
   Search,
-  AlertTriangle,
   Settings,
   FolderOpen,
   Clock,
@@ -27,14 +25,18 @@ import {
   Loader2,
   Globe,
   Link,
+  Tag,
+  Save,
+  X,
 } from "lucide-react"
-import type { StatsData, IgnoredProject, ProjectUrl } from "@/hooks/use-time-tracking-data"
+import type { StatsData, IgnoredProject, ProjectUrl, ProjectCustomName } from "@/hooks/use-time-tracking-data"
 import { useTimeCalculations } from "@/hooks/use-time-calculations"
 
 interface ProjectManagementViewProps {
   statsData: StatsData
   projectUrls: ProjectUrl[]
   ignoredProjects: IgnoredProject[]
+  projectCustomNames: ProjectCustomName[]
   currentWeek: Date
   idleTimeoutMinutes: number
   onCreateUrl: (formData: { project: string; url: string; description: string }) => Promise<void>
@@ -43,12 +45,15 @@ interface ProjectManagementViewProps {
   onRefreshUrls: () => Promise<void>
   onAddIgnoredProject: (projectName: string) => Promise<void>
   onRemoveIgnoredProject: (id: string) => Promise<void>
+  onSaveProjectCustomName: (projectName: string, customName: string) => Promise<void>
+  onRemoveProjectCustomName: (id: string) => Promise<void>
 }
 
 export function ProjectManagementView({
   statsData,
   projectUrls,
   ignoredProjects,
+  projectCustomNames,
   currentWeek,
   idleTimeoutMinutes,
   onCreateUrl,
@@ -57,6 +62,8 @@ export function ProjectManagementView({
   onRefreshUrls,
   onAddIgnoredProject,
   onRemoveIgnoredProject,
+  onSaveProjectCustomName,
+  onRemoveProjectCustomName,
 }: ProjectManagementViewProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [isIgnoreDialogOpen, setIsIgnoreDialogOpen] = useState(false)
@@ -64,6 +71,8 @@ export function ProjectManagementView({
   const [editingUrl, setEditingUrl] = useState<ProjectUrl | null>(null)
   const [newProjectName, setNewProjectName] = useState("")
   const [loading, setLoading] = useState(false)
+  const [editingCustomName, setEditingCustomName] = useState<string | null>(null)
+  const [customNameInput, setCustomNameInput] = useState("")
   const [urlFormData, setUrlFormData] = useState({
     project: "",
     url: "",
@@ -90,6 +99,17 @@ export function ProjectManagementView({
     return Array.from(projectNames).sort()
   }
 
+  // Helper function to get display name for a project
+  const getProjectDisplayName = (projectName: string): string => {
+    const customName = projectCustomNames.find((p) => p.projectName === projectName)
+    return customName ? customName.customName : projectName
+  }
+
+  // Helper function to get custom name object for a project
+  const getProjectCustomName = (projectName: string): ProjectCustomName | undefined => {
+    return projectCustomNames.find((p) => p.projectName === projectName)
+  }
+
   const allProjectNames = getAllProjectNames()
   const activeProjects = getFilteredProjectTotals()
   const ignoredProjectNames = ignoredProjects.map((p) => p.projectName)
@@ -99,11 +119,16 @@ export function ProjectManagementView({
   const filteredActiveProjects = activeProjects.filter(
     (project) =>
       !ignoredProjectNames.includes(project.name) &&
-      (searchQuery === "" || project.name.toLowerCase().includes(searchQuery.toLowerCase())),
+      (searchQuery === "" ||
+        project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        getProjectDisplayName(project.name).toLowerCase().includes(searchQuery.toLowerCase())),
   )
 
   const filteredIgnoredProjects = ignoredProjects.filter(
-    (project) => searchQuery === "" || project.projectName.toLowerCase().includes(searchQuery.toLowerCase()),
+    (project) =>
+      searchQuery === "" ||
+      project.projectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      getProjectDisplayName(project.projectName).toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
   // Helper functions for project URLs
@@ -129,7 +154,11 @@ export function ProjectManagementView({
 
     const query = searchQuery.toLowerCase()
     return Object.entries(grouped).filter(([projectName, urls]) => {
-      return projectName.toLowerCase().includes(query) || urls.some((url) => url.url.toLowerCase().includes(query))
+      return (
+        projectName.toLowerCase().includes(query) ||
+        getProjectDisplayName(projectName).toLowerCase().includes(query) ||
+        urls.some((url) => url.url.toLowerCase().includes(query))
+      )
     })
   }
 
@@ -217,6 +246,42 @@ export function ProjectManagementView({
     }
   }
 
+  const handleEditCustomName = (projectName: string) => {
+    const existingCustomName = getProjectCustomName(projectName)
+    setEditingCustomName(projectName)
+    setCustomNameInput(existingCustomName?.customName || "")
+  }
+
+  const handleSaveCustomName = async (projectName: string) => {
+    if (!customNameInput.trim()) return
+
+    setLoading(true)
+    try {
+      await onSaveProjectCustomName(projectName, customNameInput.trim())
+      setEditingCustomName(null)
+      setCustomNameInput("")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleRemoveCustomName = async (projectName: string) => {
+    const customName = getProjectCustomName(projectName)
+    if (!customName) return
+
+    setLoading(true)
+    try {
+      await onRemoveProjectCustomName(customName.id)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCancelCustomName = () => {
+    setEditingCustomName(null)
+    setCustomNameInput("")
+  }
+
   const filteredProjectUrls = getFilteredProjectUrls()
   const totalProjects = Object.keys(getGroupedProjectUrls()).length
 
@@ -230,7 +295,7 @@ export function ProjectManagementView({
               <Settings className="w-6 h-6 text-teal-600" />
               <div>
                 <CardTitle>Project Management</CardTitle>
-                <CardDescription>Manage project visibility, URLs, and settings</CardDescription>
+                <CardDescription>Manage project visibility, custom names, URLs, and settings</CardDescription>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -241,6 +306,10 @@ export function ProjectManagementView({
               <Badge variant="secondary" className="px-3 py-1">
                 <EyeOff className="w-4 h-4 mr-1" />
                 {ignoredProjects.length} Ignored
+              </Badge>
+              <Badge variant="outline" className="px-3 py-1">
+                <Tag className="w-4 h-4 mr-1" />
+                {projectCustomNames.length} Custom Names
               </Badge>
               <Badge variant="outline" className="px-3 py-1">
                 <Link className="w-4 h-4 mr-1" />
@@ -257,7 +326,7 @@ export function ProjectManagementView({
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
-              placeholder="Search projects, URLs..."
+              placeholder="Search projects, custom names, URLs..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -269,13 +338,17 @@ export function ProjectManagementView({
       {/* Tabs for different management sections */}
       <Tabs defaultValue="projects" className="w-full">
         <TabsList>
-          <TabsTrigger value="urls">
-            <Globe className="w-4 h-4 mr-2" />
-            Project URLs
-          </TabsTrigger>
           <TabsTrigger value="projects">
             <Settings className="w-4 h-4 mr-2" />
             Project Visibility
+          </TabsTrigger>
+          <TabsTrigger value="names">
+            <Tag className="w-4 h-4 mr-2" />
+            Custom Names
+          </TabsTrigger>
+          <TabsTrigger value="urls">
+            <Globe className="w-4 h-4 mr-2" />
+            Project URLs
           </TabsTrigger>
         </TabsList>
 
@@ -320,7 +393,10 @@ export function ProjectManagementView({
                               className="w-full justify-start text-left"
                               onClick={() => setNewProjectName(projectName)}
                             >
-                              {projectName}
+                              {getProjectDisplayName(projectName)}
+                              {getProjectDisplayName(projectName) !== projectName && (
+                                <span className="text-gray-500 ml-2">({projectName})</span>
+                              )}
                             </Button>
                           ))}
                       </div>
@@ -364,7 +440,10 @@ export function ProjectManagementView({
                         <div className="flex items-center gap-3">
                           <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                           <div>
-                            <div className="font-medium">{project.name}</div>
+                            <div className="font-medium">{getProjectDisplayName(project.name)}</div>
+                            {getProjectDisplayName(project.name) !== project.name && (
+                              <div className="text-xs text-gray-500">Original: {project.name}</div>
+                            )}
                             <div className="text-sm text-gray-500 flex items-center gap-1">
                               <Clock className="w-3 h-3" />
                               {formatDuration(project.duration)} this week
@@ -412,7 +491,10 @@ export function ProjectManagementView({
                         <div className="flex items-center gap-3">
                           <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
                           <div>
-                            <div className="font-medium">{project.projectName}</div>
+                            <div className="font-medium">{getProjectDisplayName(project.projectName)}</div>
+                            {getProjectDisplayName(project.projectName) !== project.projectName && (
+                              <div className="text-xs text-gray-500">Original: {project.projectName}</div>
+                            )}
                             <div className="text-sm text-gray-500">
                               Ignored {new Date(project.ignoredAt).toLocaleDateString()}
                             </div>
@@ -435,6 +517,115 @@ export function ProjectManagementView({
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        {/* Custom Names Tab */}
+        <TabsContent value="names" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Tag className="w-5 h-5 text-blue-600" />
+                Project Custom Names
+              </CardTitle>
+              <CardDescription>
+                Set custom display names for your projects. The original project names will still be used for tracking.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {allProjectNames.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  No projects found. Start tracking time to see projects here.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {allProjectNames
+                    .filter(
+                      (projectName) =>
+                        searchQuery === "" ||
+                        projectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        getProjectDisplayName(projectName).toLowerCase().includes(searchQuery.toLowerCase()),
+                    )
+                    .map((projectName) => {
+                      const customName = getProjectCustomName(projectName)
+                      const isEditing = editingCustomName === projectName
+
+                      return (
+                        <div
+                          key={projectName}
+                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+                        >
+                          <div className="flex-1">
+                            <div className="font-medium text-gray-900">{projectName}</div>
+                            {isEditing ? (
+                              <div className="mt-2 flex items-center gap-2">
+                                <Input
+                                  value={customNameInput}
+                                  onChange={(e) => setCustomNameInput(e.target.value)}
+                                  placeholder="Enter custom name"
+                                  className="flex-1"
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      handleSaveCustomName(projectName)
+                                    } else if (e.key === "Escape") {
+                                      handleCancelCustomName()
+                                    }
+                                  }}
+                                />
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleSaveCustomName(projectName)}
+                                  disabled={!customNameInput.trim() || loading}
+                                >
+                                  <Save className="w-4 h-4" />
+                                </Button>
+                                <Button size="sm" variant="outline" onClick={handleCancelCustomName}>
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="text-sm text-gray-600 mt-1">
+                                {customName ? (
+                                  <>
+                                    Display name:{" "}
+                                    <span className="font-medium text-blue-600">{customName.customName}</span>
+                                  </>
+                                ) : (
+                                  "No custom name set"
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          {!isEditing && (
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleEditCustomName(projectName)}
+                                className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                              >
+                                <Pencil className="w-4 h-4 mr-1" />
+                                {customName ? "Edit" : "Set Name"}
+                              </Button>
+                              {customName && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleRemoveCustomName(projectName)}
+                                  disabled={loading}
+                                  className="text-red-600 border-red-200 hover:bg-red-50"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Project URLs Tab */}
@@ -482,7 +673,10 @@ export function ProjectManagementView({
                             <SelectContent>
                               {allProjectNames.map((name) => (
                                 <SelectItem key={name} value={name}>
-                                  {name}
+                                  {getProjectDisplayName(name)}
+                                  {getProjectDisplayName(name) !== name && (
+                                    <span className="text-gray-500 ml-2">({name})</span>
+                                  )}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -554,7 +748,11 @@ export function ProjectManagementView({
                         }}
                       />
                       <CardTitle className="text-lg">
-                        {projectName} <span className="text-gray-500 text-sm font-normal">({urls.length} URLs)</span>
+                        {getProjectDisplayName(projectName)}
+                        {getProjectDisplayName(projectName) !== projectName && (
+                          <span className="text-gray-500 text-sm font-normal ml-2">({projectName})</span>
+                        )}
+                        <span className="text-gray-500 text-sm font-normal ml-2">({urls.length} URLs)</span>
                       </CardTitle>
                     </div>
                   </CardHeader>

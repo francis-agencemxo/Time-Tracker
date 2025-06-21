@@ -2,35 +2,68 @@ let currentTabUrl = null;
 let currentStart = null;
 let trackerServerPort = 56000;
 
+// Load initial settings
 chrome.storage.sync.get({ trackerServerPort }, (items) => {
   trackerServerPort = items.trackerServerPort;
 });
 
+// Listen for settings changes
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'sync' && changes.trackerServerPort) {
-    trackerServerPort = changes.trackerServerPort.newValue;
+  if (area === 'sync') {
+    if (changes.trackerServerPort) {
+      trackerServerPort = changes.trackerServerPort.newValue;
+    }
+
+    if (changes.activeProject) {
+      const newProject = changes.activeProject.newValue;
+      updateBadge(newProject);
+    }
   }
 });
+
+// Set badge when extension loads
+chrome.runtime.onStartup.addListener(() => {
+  chrome.storage.sync.get("activeProject", ({ activeProject }) => {
+    updateBadge(activeProject);
+  });
+});
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.storage.sync.get("activeProject", ({ activeProject }) => {
+    updateBadge(activeProject);
+  });
+});
+
+function updateBadge(projectName) {
+  if (!projectName) {
+    chrome.action.setBadgeText({ text: '' });
+  } else {
+    chrome.action.setBadgeText({ text: projectName.slice(0, 4).toLowerCase() });
+    chrome.action.setBadgeBackgroundColor({ color: '#00BCD4' });
+  }
+}
 
 function sendTimeSpent(url, durationSeconds, startTimestamp, endTimestamp) {
   if (!url || durationSeconds <= 0) return;
 
-  fetch(`http://localhost:${trackerServerPort}/url-track`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      url,
-      duration: durationSeconds,
-      start: new Date(startTimestamp).toISOString(),
-      end: new Date(endTimestamp).toISOString()
-    })
-  }).catch(err => console.warn('Failed to send browsing data:', err));
+  chrome.storage.sync.get("activeProject", ({ activeProject }) => {
+    fetch(`http://localhost:${trackerServerPort}/url-track`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url,
+        duration: durationSeconds,
+        start: new Date(startTimestamp).toISOString(),
+        end: new Date(endTimestamp).toISOString(),
+        project: activeProject || null
+      })
+    }).catch(err => console.warn('❌ Failed to send tracking data:', err));
+  });
 }
 
 function handleTabUpdate(activeInfo) {
   chrome.tabs.get(activeInfo.tabId, (tab) => {
-    const newUrl = tab.url;
-    if (!newUrl || newUrl.startsWith('chrome://')) return;
+    if (!tab || !tab.url || tab.url.startsWith('chrome://')) return;
 
     const now = Date.now();
 
@@ -39,19 +72,22 @@ function handleTabUpdate(activeInfo) {
       sendTimeSpent(currentTabUrl, duration, currentStart, now);
     }
 
-    currentTabUrl = newUrl;
+    currentTabUrl = tab.url;
     currentStart = now;
   });
 }
 
+// Track active tab switching
 chrome.tabs.onActivated.addListener(handleTabUpdate);
 
+// Track URL changes
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === "complete" && tab.active) {
     handleTabUpdate({ tabId: tab.id });
   }
 });
 
+// Handle window focus changes
 chrome.windows.onFocusChanged.addListener((windowId) => {
   if (windowId === chrome.windows.WINDOW_ID_NONE) return;
   chrome.tabs.query({ active: true, windowId }, (tabs) => {
@@ -61,6 +97,7 @@ chrome.windows.onFocusChanged.addListener((windowId) => {
   });
 });
 
+// Save on suspend
 chrome.runtime.onSuspend.addListener(() => {
   if (currentTabUrl && currentStart) {
     const now = Date.now();

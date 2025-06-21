@@ -360,6 +360,115 @@ object BrowsingTrackerServer {
     }
 
     /**
+     * Handler for CRUD operations on IGNORED_PROJECT matching patterns.
+     */
+    private class ProjectNamesHandler : HttpHandler {
+        override fun handle(exchange: HttpExchange) {
+            with(exchange.responseHeaders) {
+                add("Access-Control-Allow-Origin", "*")
+                add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                add("Access-Control-Allow-Headers", "Content-Type")
+            }
+            if (exchange.requestMethod.equals("OPTIONS", ignoreCase = true)) {
+                exchange.sendResponseHeaders(204, -1)
+                exchange.responseBody.close()
+                return
+            }
+            when (exchange.requestMethod.uppercase()) {
+                "GET" -> {
+                    println("GET /api/project-names")
+                    val projectNames = DBManager.getAllProjectNames()
+
+                    val response = projectNames.toString(2).toByteArray()
+                    exchange.responseHeaders.add("Content-Type", "application/json")
+                    exchange.sendResponseHeaders(200, response.size.toLong())
+                    exchange.responseBody.use { it.write(response) }
+                }
+                "POST" -> {
+                    println("POST /api/project-names")
+                    val body = exchange.requestBody.bufferedReader().readText()
+                    val json = JSONObject(body)
+                    DBManager.insertProjectName(
+                        project_name = json.getString("projectName"),
+                        custom_name = json.getString("customName")
+                    )
+                    exchange.sendResponseHeaders(201, -1)
+                }
+                "PUT" -> {
+                    println("PUT /api/project-names")
+                    val body = exchange.requestBody.bufferedReader().readText()
+                    val json = JSONObject(body)
+
+                    val fullPath = exchange.requestURI.path
+                    val idSegment = fullPath.substringAfterLast("/", missingDelimiterValue = "")
+                    val id = idSegment.toIntOrNull()
+
+                    val customName = json.getString("customName")
+
+                    if (id != null) {
+                        DBManager.updateProjectName(id, customName)
+                        exchange.sendResponseHeaders(204, -1)
+                    } else {
+                        exchange.sendResponseHeaders(400, -1)
+                    }
+                }
+                "DELETE" -> {
+                    println("DELETE /api/project-names")
+                    val fullPath = exchange.requestURI.path
+                    val idSegment = fullPath.substringAfterLast("/", missingDelimiterValue = "")
+                    val id = idSegment.toIntOrNull()
+
+                    if (id != null) {
+                        DBManager.deleteProjectName(id)
+                        exchange.sendResponseHeaders(204, -1)
+                    } else {
+                        exchange.sendResponseHeaders(400, -1)
+                    }
+
+                    exchange.responseBody.close()
+                }
+                else -> {
+                    exchange.sendResponseHeaders(405, 0)
+                    exchange.responseBody.close()
+                }
+            }
+        }
+    }
+
+    /**
+     * Handler for CRUD operations on IGNORED_PROJECT matching patterns.
+     */
+    private class ProjectsHandler : HttpHandler {
+        override fun handle(exchange: HttpExchange) {
+            with(exchange.responseHeaders) {
+                add("Access-Control-Allow-Origin", "*")
+                add("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+                add("Access-Control-Allow-Headers", "Content-Type")
+            }
+            if (exchange.requestMethod.equals("OPTIONS", ignoreCase = true)) {
+                exchange.sendResponseHeaders(204, -1)
+                exchange.responseBody.close()
+                return
+            }
+            when (exchange.requestMethod.uppercase()) {
+                "GET" -> {
+                    println("GET /api/projects")
+                    val activeProjects = DBManager.getAllActiveProjects()
+
+                    val response = activeProjects.toString(2).toByteArray()
+                    exchange.responseHeaders.add("Content-Type", "application/json")
+                    exchange.sendResponseHeaders(200, response.size.toLong())
+                    exchange.responseBody.use { it.write(response) }
+                }
+                else -> {
+                    exchange.sendResponseHeaders(405, 0)
+                    exchange.responseBody.close()
+                }
+            }
+        }
+    }
+
+    /**
      * Handler for GET and POST /api/settings
      *
      * GET  → returns: { "idleTimeoutMinutes": <number> }
@@ -443,6 +552,8 @@ object BrowsingTrackerServer {
         server?.createContext("/url-track", UrlTrackHandler())
         server?.createContext("/", StaticFileHandler())
         server?.createContext("/api/stats", StatsHandler())
+        server?.createContext("/api/projects", ProjectsHandler())
+        server?.createContext("/api/project-names", ProjectNamesHandler())
         server?.createContext("/api/urls", UrlConfigHandler())
         server?.createContext("/api/license", LicenseHandler())
         server?.createContext("/api/setting", SettingsHandler())
@@ -465,6 +576,7 @@ object BrowsingTrackerServer {
             try {
                 val json = JSONObject(body)
                 val fullUrl = json.getString("url")
+                val projectFromBody = json.getString("project")
                 val uri = URI.create(fullUrl)
                 val url = uri.toURL()
                 val host = url.host
@@ -475,6 +587,9 @@ object BrowsingTrackerServer {
                 if (matchedProject != null) {
                     addBrowsingTime(matchedProject, host, fullUrl, duration)
                     println("🕒 Added $duration seconds browsing time to project '$matchedProject' from $url")
+                } else if (projectFromBody !== null && projectFromBody.isNotEmpty()) {
+                    addBrowsingTime(projectFromBody, host, fullUrl, duration)
+                    println("🕒 Added $duration seconds browsing time to project '$projectFromBody' from $url")
                 } else {
                     println("⚠️ URL $url did not match any project")
                 }

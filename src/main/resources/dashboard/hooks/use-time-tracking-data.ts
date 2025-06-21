@@ -47,6 +47,13 @@ export interface IgnoredProject {
   ignoredAt: string
 }
 
+export interface ProjectCustomName {
+  id: string
+  projectName: string
+  customName: string
+  updatedAt: string
+}
+
 // Fake data for preview - now using proper EST date strings
 const generateFakeData = (): StatsData => {
   const data: StatsData = {}
@@ -235,6 +242,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
   const [statsData, setStatsData] = useState<StatsData>({}) // Store filtered data
   const [projectUrls, setProjectUrls] = useState<ProjectUrl[]>([])
   const [ignoredProjects, setIgnoredProjects] = useState<IgnoredProject[]>([])
+  const [projectCustomNames, setProjectCustomNames] = useState<ProjectCustomName[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [idleTimeoutMinutes, setIdleTimeoutMinutes] = useState<number>(10)
@@ -734,6 +742,48 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     }
   }
 
+  const fetchProjectCustomNames = async () => {
+    if (!isLicenseValid) {
+      setProjectCustomNames([])
+      return
+    }
+
+    try {
+      if (isPreview) {
+        const stored = localStorage.getItem("project-custom-names")
+        if (stored) {
+          setProjectCustomNames(JSON.parse(stored))
+        }
+        return
+      }
+
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+      try {
+        const response = await fetch(`${baseUrl}/api/project-names`, {
+          signal: controller.signal,
+        })
+        clearTimeout(timeoutId)
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        const data = await response.json()
+        setProjectCustomNames(data)
+      } catch (fetchError) {
+        clearTimeout(timeoutId)
+        console.warn("Project custom names API not available, using localStorage:", fetchError)
+        const stored = localStorage.getItem("project-custom-names")
+        if (stored) {
+          setProjectCustomNames(JSON.parse(stored))
+        }
+      }
+    } catch (err) {
+      console.warn("Error fetching project custom names:", err)
+    }
+  }
+
   const addIgnoredProject = async (projectName: string) => {
     if (!isLicenseValid) return
 
@@ -821,6 +871,107 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     }
   }
 
+  const saveProjectCustomName = async (projectName: string, customName: string) => {
+    if (!isLicenseValid) return
+
+    try {
+      const existingCustomName = projectCustomNames.find((p) => p.projectName === projectName)
+
+      if (isPreview) {
+        let updated: ProjectCustomName[]
+        if (existingCustomName) {
+          updated = projectCustomNames.map((p) =>
+            p.projectName === projectName ? { ...p, customName, updatedAt: new Date().toISOString() } : p,
+          )
+        } else {
+          const newCustomName: ProjectCustomName = {
+            id: Date.now().toString(),
+            projectName,
+            customName,
+            updatedAt: new Date().toISOString(),
+          }
+          updated = [...projectCustomNames, newCustomName]
+        }
+        setProjectCustomNames(updated)
+        localStorage.setItem("project-names", JSON.stringify(updated))
+        toast({
+          title: "Success",
+          description: `Custom name for "${projectName}" has been saved`,
+        })
+        return
+      }
+
+      const method = existingCustomName ? "PUT" : "POST"
+      const url = existingCustomName
+        ? `${baseUrl}/api/project-names/${existingCustomName.id}`
+        : `${baseUrl}/api/project-names`
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ projectName, customName }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      await fetchProjectCustomNames()
+      toast({
+        title: "Success",
+        description: `Custom name for "${projectName}" has been saved`,
+      })
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to save custom name",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const removeProjectCustomName = async (id: string) => {
+    if (!isLicenseValid) return
+
+    try {
+      const customName = projectCustomNames.find((p) => p.id === id)
+      const projectName = customName?.projectName || "Project"
+
+      if (isPreview) {
+        const updated = projectCustomNames.filter((p) => p.id !== id)
+        setProjectCustomNames(updated)
+        localStorage.setItem("project-custom-names", JSON.stringify(updated))
+        toast({
+          title: "Success",
+          description: `Custom name for "${projectName}" has been removed`,
+        })
+        return
+      }
+
+      const response = await fetch(`${baseUrl}/api/project-names/${id}`, {
+        method: "DELETE",
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      await fetchProjectCustomNames()
+      toast({
+        title: "Success",
+        description: `Custom name for "${projectName}" has been removed`,
+      })
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to remove custom name",
+        variant: "destructive",
+      })
+    }
+  }
+
   // Update the useEffect that fetches data
   useEffect(() => {
     if (isLicenseValid) {
@@ -828,6 +979,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
       fetchProjectUrls()
       fetchSettings()
       fetchIgnoredProjects()
+      fetchProjectCustomNames()
     }
   }, [isLicenseValid])
 
@@ -836,6 +988,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     statsData, // This is now the filtered data
     projectUrls,
     ignoredProjects,
+    projectCustomNames,
     loading,
     error,
     idleTimeoutMinutes,
@@ -845,6 +998,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     fetchProjectUrls,
     fetchSettings,
     fetchIgnoredProjects,
+    fetchProjectCustomNames,
     createProjectUrl,
     updateProjectUrl,
     deleteProjectUrl,
@@ -852,5 +1006,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     removeIgnoredProject,
     storageType,
     setStorageType: saveStorageType,
+    saveProjectCustomName,
+    removeProjectCustomName,
   }
 }

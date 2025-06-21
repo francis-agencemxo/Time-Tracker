@@ -71,6 +71,20 @@ object DBManager {
 
         conn.createStatement().use { st ->
             st.executeUpdate("""
+         CREATE TABLE IF NOT EXISTS project_names (
+            id INTEGER PRIMARY KEY,
+            project_name TEXT NOT NULL,
+            custom_name DATETIME DEFAULT CURRENT_TIMESTAMP,
+            logo_url TEXT,
+            
+            -- SQLite uses different syntax for unique constraints
+            UNIQUE(project_name)
+        );
+      """.trimIndent())
+        }
+
+        conn.createStatement().use { st ->
+            st.executeUpdate("""
         CREATE TABLE IF NOT EXISTS urls (
           id      INTEGER PRIMARY KEY AUTOINCREMENT,
           project TEXT    NOT NULL,
@@ -294,6 +308,88 @@ object DBManager {
         }
         return arr
     }
+
+    fun getAllActiveProjects(): JSONArray {
+
+        val arr = JSONArray()
+        conn.prepareStatement("""
+      SELECT project, MAX("end") AS last_worked_on
+        FROM sessions
+        GROUP BY project
+        ORDER BY last_worked_on DESC;
+    """.trimIndent()).use { ps ->
+            val rs = ps.executeQuery()
+            while (rs.next()) {
+                val obj = JSONObject()
+                obj.put("name", rs.getString("project"))
+                arr.put(obj)
+            }
+        }
+        return arr
+    }
+
+    fun getAllProjectNames(): JSONArray {
+
+        val arr = JSONArray()
+        conn.prepareStatement("""
+      SELECT * FROM project_names
+    """.trimIndent()).use { ps ->
+            val rs = ps.executeQuery()
+            while (rs.next()) {
+                val obj = JSONObject()
+                obj.put("id",    rs.getInt("id"))
+                obj.put("projectName", rs.getString("project_name"))
+                obj.put("customName", rs.getString("custom_name"))
+                arr.put(obj)
+            }
+        }
+        return arr
+    }
+
+    fun insertProjectName(
+        project_name: String,
+        custom_name: String
+    ) {
+        conn.prepareStatement("""
+      INSERT INTO project_names (project_name, custom_name)
+      VALUES (?, ?)
+    """.trimIndent()).use { ps ->
+            ps.setString(1, project_name)
+            ps.setString(2, custom_name)
+            ps.executeUpdate()
+        }
+    }
+
+    fun updateProjectName(
+        id: Int,
+        custom_name: String
+    ) {
+        conn.prepareStatement("""
+      UPDATE project_names SET custom_name = ?)
+      WHERE id = ?
+    """.trimIndent()).use { ps ->
+            ps.setString(1, custom_name)
+            ps.setInt(2, id)
+            ps.executeUpdate()
+        }
+    }
+
+    /**
+     * Delete a specific URL pattern for a project.
+     */
+    fun deleteProjectName(
+        id: Int
+    ) {
+        conn.prepareStatement("""
+      DELETE FROM project_names
+      WHERE id = ?
+    """.trimIndent()).use { ps ->
+            ps.setInt(1, id)
+            ps.executeUpdate()
+        }
+    }
+
+
 
     fun getAllIgnoredProjects(): JSONArray {
 

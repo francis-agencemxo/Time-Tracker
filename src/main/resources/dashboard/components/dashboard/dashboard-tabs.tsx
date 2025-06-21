@@ -7,12 +7,13 @@ import { ProjectBreakdownView } from "./tabs/project-breakdown-view"
 import { TrendsView } from "./tabs/trends-view"
 import { ProjectDetailView } from "./tabs/project-detail-view"
 import { ProjectManagementView } from "./tabs/project-management-view"
-import type { StatsData, ProjectUrl, IgnoredProject } from "@/hooks/use-time-tracking-data"
+import type { StatsData, ProjectUrl, IgnoredProject, ProjectCustomName } from "@/hooks/use-time-tracking-data"
 
 interface DashboardTabsProps {
   statsData: StatsData
   projectUrls: ProjectUrl[]
   ignoredProjects: IgnoredProject[]
+  projectCustomNames: ProjectCustomName[]
   currentWeek: Date
   idleTimeoutMinutes: number
   onCreateUrl: (formData: { project: string; url: string; description: string }) => Promise<void>
@@ -21,6 +22,8 @@ interface DashboardTabsProps {
   onRefreshUrls: () => Promise<void>
   onAddIgnoredProject: (projectName: string) => Promise<void>
   onRemoveIgnoredProject: (id: string) => Promise<void>
+  onSaveProjectCustomName: (projectName: string, customName: string) => Promise<void>
+  onRemoveProjectCustomName: (id: string) => Promise<void>
   selectedProject?: string
   onProjectSelect?: (projectName: string | null) => void
   activeTab: string
@@ -31,6 +34,7 @@ export function DashboardTabs({
   statsData,
   projectUrls,
   ignoredProjects,
+  projectCustomNames,
   currentWeek,
   idleTimeoutMinutes,
   onCreateUrl,
@@ -39,6 +43,8 @@ export function DashboardTabs({
   onRefreshUrls,
   onAddIgnoredProject,
   onRemoveIgnoredProject,
+  onSaveProjectCustomName,
+  onRemoveProjectCustomName,
   selectedProject,
   onProjectSelect,
   activeTab,
@@ -106,6 +112,7 @@ export function DashboardTabs({
           statsData={statsData}
           projectUrls={projectUrls}
           ignoredProjects={ignoredProjects}
+          projectCustomNames={projectCustomNames}
           currentWeek={currentWeek}
           idleTimeoutMinutes={idleTimeoutMinutes}
           onCreateUrl={onCreateUrl}
@@ -114,6 +121,8 @@ export function DashboardTabs({
           onRefreshUrls={onRefreshUrls}
           onAddIgnoredProject={onAddIgnoredProject}
           onRemoveIgnoredProject={onRemoveIgnoredProject}
+          onSaveProjectCustomName={onSaveProjectCustomName}
+          onRemoveProjectCustomName={onRemoveProjectCustomName}
         />
       </TabsContent>
     </Tabs>

@@ -46,6 +46,7 @@ export default function HomePage() {
     statsData,
     projectUrls,
     ignoredProjects,
+    projectCustomNames,
     loading,
     error,
     idleTimeoutMinutes,
@@ -60,6 +61,8 @@ export default function HomePage() {
     deleteProjectUrl,
     addIgnoredProject,
     removeIgnoredProject,
+    saveProjectCustomName,
+    removeProjectCustomName,
   } = useTimeTrackingData(isLicenseValid)
 
   // Update selected project from URL parameter
@@ -202,6 +205,7 @@ export default function HomePage() {
           statsData={statsData}
           projectUrls={projectUrls}
           ignoredProjects={ignoredProjects}
+          projectCustomNames={projectCustomNames}
           currentWeek={currentWeek}
           idleTimeoutMinutes={idleTimeoutMinutes}
           onCreateUrl={createProjectUrl}
@@ -210,6 +214,8 @@ export default function HomePage() {
           onRefreshUrls={fetchProjectUrls}
           onAddIgnoredProject={addIgnoredProject}
           onRemoveIgnoredProject={removeIgnoredProject}
+          onSaveProjectCustomName={saveProjectCustomName}
+          onRemoveProjectCustomName={removeProjectCustomName}
           selectedProject={selectedProject || undefined}
           onProjectSelect={handleProjectSelect}
           activeTab={tab}
