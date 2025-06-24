@@ -21,6 +21,7 @@
 
     <change-notes><![CDATA[
         <ul>
+<li>2025-06-24: Add custom project input and floating toolbar enhancements</li>
 <li>2025-06-21: Implement project custom names feature with CRUD operations and UI updates</li>
 <li>2025-06-19: Rollback to using / url instead of /dashboard</li>
             <li>2025-06-17: Update plugin description and enhance release script for change notes injection</li>

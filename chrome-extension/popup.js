@@ -5,6 +5,7 @@ let allProjects = [];
 // DOM elements
 const searchInput = document.getElementById("search");
 const listElement = document.getElementById("project-list");
+const customInput = document.getElementById("custom-project-input");
 
 // Load settings and fetch projects
 (async function () {
@@ -43,6 +44,22 @@ const listElement = document.getElementById("project-list");
   }
 
   renderProjects();
+
+  customInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const value = customInput.value.trim();
+      if (!value) return;
+
+      chrome.storage.sync.set({ activeProject: value }, () => {
+        activeProject = value;
+        updateBadge(value);
+        customInput.value = "";
+        renderProjects(searchInput.value); // show as active if it exists in the list
+        // Optional: close popup
+        // window.close();
+      });
+    }
+  });
 })();
 
 // Renders the filtered + sorted list

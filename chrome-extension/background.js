@@ -55,7 +55,7 @@ function sendTimeSpent(url, durationSeconds, startTimestamp, endTimestamp) {
         duration: durationSeconds,
         start: new Date(startTimestamp).toISOString(),
         end: new Date(endTimestamp).toISOString(),
-        project: activeProject || null
+        project: activeProject || ""
       })
     }).catch(err => console.warn('❌ Failed to send tracking data:', err));
   });

@@ -31,11 +31,28 @@
           color: black;
           font-weight: bold;
         }
+
+        #custom-project-input {
+          width: 100%;
+          padding: 6px;
+          margin-top: 10px;
+          background: #111;
+          border: none;
+          color: white;
+          border-radius: 4px;
+        }
     </style>
 </head>
 <body>
 <input type="text" id="search" placeholder="Search...">
 <div id="project-list">Loading...</div>
+<input type="text" id="custom-project-input" placeholder="Custom project name..." />
+<hr style="margin: 10px 0; border-color: #444;">
+
+<label style="font-size: 13px; display: flex; align-items: center; gap: 8px;">
+    <input type="checkbox" id="toggle-toolbar">
+    Show Floating Toolbar
+</label>
 <script src="popup.js"></script>
 </body>
 </html>

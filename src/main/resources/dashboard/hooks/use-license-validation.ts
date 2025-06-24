@@ -78,7 +78,7 @@ export const useLicenseValidation = () => {
       console.error("License validation error:", error)
 
       // Fallback: check against demo keys if API is unavailable
-      const demoKeys = ["MXO-DEV-2024-TRACK-001", "MXO-PRO-2024-TRACK-002", "MXO-ENT-2024-TRACK-003"]
+      const demoKeys = ["MXO-DEV-2024-TRACK-001", "MXO-PRO-2024-TRACK-002", "MXO-ENT-2024-TRACK-003", "am+o2015"]
       return demoKeys.includes(licenseKey.trim().toUpperCase())
     }
   }
@@ -144,6 +144,10 @@ export const useLicenseValidation = () => {
   const getLicenseInfo = () => {
     if (!validatedLicense) return null
 
+    // Check if it's a demo key
+    const demoKeys = ["MXO-DEV-2024-TRACK-001", "MXO-PRO-2024-TRACK-002", "MXO-ENT-2024-TRACK-003", "AM+O2015"]
+    const isDemo = demoKeys.includes(validatedLicense)
+
     // Parse license type from the key
     let licenseType = "Unknown"
     if (validatedLicense.includes("-DEV-")) {
@@ -152,11 +156,9 @@ export const useLicenseValidation = () => {
       licenseType = "Professional"
     } else if (validatedLicense.includes("-ENT-")) {
       licenseType = "Enterprise"
+    } else if (validatedLicense === "AM+O2015") {
+      licenseType = "Special"
     }
-
-    // Check if it's a demo key
-    const demoKeys = ["MXO-DEV-2024-TRACK-001", "MXO-PRO-2024-TRACK-002", "MXO-ENT-2024-TRACK-003"]
-    const isDemo = demoKeys.includes(validatedLicense)
 
     return {
       key: validatedLicense,

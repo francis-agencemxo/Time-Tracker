@@ -310,7 +310,6 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
         setRawStatsData(normalizedData)
       } catch (fetchError) {
         clearTimeout(timeoutId)
-
         // If API is not available, fall back to fake data
         console.warn("API not available, using fake data:", fetchError)
         const fakeData = generateFakeData()
