@@ -90,6 +90,10 @@ if [[ -n "$CHANGE_NOTE" ]]; then
   rm -f "$PLUGIN_XML$SED_EXT"
 fi
 
+# --- 3c. Update chrome-extension/version.txt ---
+echo "$NEW_VERSION" > chrome-extension/version.txt
+echo "🪪 Updated chrome-extension/version.txt to $NEW_VERSION"
+
 # --- 4. Build plugin ---
 echo "⚙️ Building plugin..."
 ./gradlew clean buildPlugin > /dev/null 2>&1

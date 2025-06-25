@@ -17,6 +17,16 @@
       <li><strong>Chrome Extension</strong> – captures active‑tab URLs and reports browsing time back to the plugin’s API.</li>
       <li><strong>Next.js Dashboard</strong> – real‑time and static dashboard (HMR in dev, static export for prod) to visualize time stats with configurable scopes, domains, and refresh intervals.</li>
     </ul>
+
+    ## 🔗 Chrome Extension Installation
+
+To enable browser activity tracking:
+
+1. Open **Chrome** and go to `chrome://extensions`
+2. Toggle **Developer Mode** (top-right)
+3. Click **"Load unpacked"**
+4. Select the `chrome-extension` folder from the plugin installation directory:
+
     ]]></description>
 
     <change-notes><![CDATA[

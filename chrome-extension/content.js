@@ -15,13 +15,12 @@
     "pinFloatingToolbar"
   ]);
 
-  if (!showFloatingToolbar) return;
-  if (document.getElementById("mxo-toolbar")) return;
+  if (!showFloatingToolbar || document.getElementById("mxo-toolbar")) return;
 
   let currentActive = activeProject;
   let collapsed = floatingToolbarCollapsed;
 
-  // Load projects from local API
+  // Fetch project list
   let projects = [];
   try {
     const res = await fetch(`http://localhost:${trackerServerPort}/api/projects`);
@@ -33,16 +32,25 @@
 
   const toolbar = document.createElement("div");
   toolbar.id = "mxo-toolbar";
+  toolbar.style.position = "fixed";
+  toolbar.style.top = toolbarPosition?.top ? `${toolbarPosition.top}px` : "100px";
+  toolbar.style.left = toolbarPosition?.left !== null ? `${toolbarPosition.left}px` : "auto";
+  toolbar.style.right = toolbarPosition?.left === null ? "20px" : "auto";
+  toolbar.style.zIndex = "9999";
 
   const header = document.createElement("div");
   header.id = "mxo-toolbar-header";
-  header.innerHTML = `<span id="mxo-header-label">CodePulse</span> <button id="mxo-pin-toggle" title="Pin toolbar">${pinFloatingToolbar ? "📌" : "📍"}</button> <button id="mxo-collapse-toggle">${collapsed ? "▸" : "▾"}</button>`;
+  header.innerHTML = `
+    <span id="mxo-header-label">CodePulse</span>
+    <button id="mxo-pin-toggle" title="Pin toolbar">${pinFloatingToolbar ? "📌" : "📍"}</button>
+    <button id="mxo-collapse-toggle">${collapsed ? "▸" : "▾"}</button>
+  `;
   toolbar.appendChild(header);
 
   const projectList = document.createElement("div");
   projectList.id = "mxo-project-list";
   projectList.style.transition = "max-height 0.3s ease, opacity 0.3s ease";
-  projectList.style.overflow = "auto";
+  projectList.style.overflowY = "auto";
   projectList.style.maxHeight = collapsed ? "0px" : "500px";
   projectList.style.opacity = collapsed ? "0" : "1";
   toolbar.appendChild(projectList);
@@ -87,9 +95,30 @@
 
   renderProjects();
 
-  let collapseTimeout;
+  document.body.appendChild(toolbar);
 
-  // Auto-collapse on mouse leave (only if not pinned)
+  const collapseBtn = document.getElementById("mxo-collapse-toggle");
+  const pinBtn = document.getElementById("mxo-pin-toggle");
+
+  // Collapse toggle
+  collapseBtn.addEventListener("click", () => {
+    collapsed = !collapsed;
+    projectList.style.maxHeight = collapsed ? "0px" : "500px";
+    projectList.style.opacity = collapsed ? "0" : "1";
+    collapseBtn.textContent = collapsed ? "▸" : "▾";
+    chrome.storage.sync.set({ floatingToolbarCollapsed: collapsed });
+    renderProjects();
+  });
+
+  // Pin toggle
+  pinBtn.addEventListener("click", () => {
+    pinFloatingToolbar = !pinFloatingToolbar;
+    chrome.storage.sync.set({ pinFloatingToolbar });
+    pinBtn.textContent = pinFloatingToolbar ? "📌" : "📍";
+  });
+
+  // Auto-collapse on mouse leave
+  let collapseTimeout;
   toolbar.addEventListener("mouseleave", () => {
     if (!pinFloatingToolbar && !collapsed) {
       collapseTimeout = setTimeout(() => {
@@ -103,37 +132,13 @@
     }
   });
 
-  // Listen for storage change to sync with popup
-  chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === "sync" && changes.activeProject) {
-      currentActive = changes.activeProject.newValue;
-      renderProjects();
-    }
-  });
-
-  document.body.appendChild(toolbar);
-
-  // Collapse toggle
-  const collapseBtn = document.getElementById("mxo-collapse-toggle");
-  collapseBtn.addEventListener("click", () => {
-    collapsed = !collapsed;
-    projectList.style.maxHeight = collapsed ? "0px" : "500px";
-    projectList.style.opacity = collapsed ? "0" : "1";
-    collapseBtn.textContent = collapsed ? "▸" : "▾";
-    chrome.storage.sync.set({ floatingToolbarCollapsed: collapsed });
-    renderProjects();
-  });
-
-  // Pin toggle
-  const pinBtn = document.getElementById("mxo-pin-toggle");
-  pinBtn.addEventListener("click", () => {
-    chrome.storage.sync.set({ pinFloatingToolbar: !pinFloatingToolbar });
-    pinBtn.textContent = !pinFloatingToolbar ? "📌" : "📍";
-    pinFloatingToolbar = !pinFloatingToolbar;
-  });
-
-  // Auto-expand on hover (only if not pinned)
+  // Cancel auto-collapse on hover
   toolbar.addEventListener("mouseenter", () => {
+    if (collapseTimeout) {
+      clearTimeout(collapseTimeout);
+      collapseTimeout = null;
+    }
+
     if (!pinFloatingToolbar && collapsed) {
       collapsed = false;
       projectList.style.maxHeight = "500px";
@@ -144,7 +149,15 @@
     }
   });
 
-  // Drag logic with animation and snap to right
+  // Sync project change from popup
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "sync" && changes.activeProject) {
+      currentActive = changes.activeProject.newValue;
+      renderProjects();
+    }
+  });
+
+  // Drag logic (no snap-to-right)
   let isDragging = false;
   let offsetX = 0;
   let offsetY = 0;
@@ -170,18 +183,9 @@
     isDragging = false;
     header.style.cursor = "";
     toolbar.style.transition = "left 0.3s ease, top 0.3s ease";
-    const viewportWidth = window.innerWidth;
-    const { top, left, width } = toolbar.getBoundingClientRect();
-    let snapToRight = (viewportWidth - left - width) < left;
-    snapToRight = false
-    if (snapToRight) {
-      toolbar.style.left = "auto";
-      toolbar.style.right = "20px";
-      chrome.storage.sync.set({ toolbarPosition: { top, left: null } });
-    } else {
-      toolbar.style.left = `${left}px`;
-      toolbar.style.right = "auto";
-      chrome.storage.sync.set({ toolbarPosition: { top, left } });
-    }
+    const { top, left } = toolbar.getBoundingClientRect();
+    toolbar.style.left = `${left}px`;
+    toolbar.style.right = "auto";
+    chrome.storage.sync.set({ toolbarPosition: { top, left } });
   });
 })();

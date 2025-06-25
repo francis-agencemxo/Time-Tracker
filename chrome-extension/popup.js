@@ -6,16 +6,20 @@ let allProjects = [];
 const searchInput = document.getElementById("search");
 const listElement = document.getElementById("project-list");
 const customInput = document.getElementById("custom-project-input");
+const toolbarCheckbox = document.getElementById("toggle-toolbar");
 
 // Load settings and fetch projects
 (async function () {
   const storage = await chrome.storage.sync.get([
     "activeProject",
-    "trackerServerPort"
+    "trackerServerPort",
+    "showFloatingToolbar"
   ]);
 
   activeProject = storage.activeProject || null;
   trackerServerPort = storage.trackerServerPort || 56000;
+
+  toolbarCheckbox.checked = storage.showFloatingToolbar !== false;
 
   try {
     const [projectsRes, namesRes] = await Promise.all([
@@ -26,16 +30,16 @@ const customInput = document.getElementById("custom-project-input");
     const projects = await projectsRes.json();
     const customNames = await namesRes.json();
 
-    // Build map: projectName => custoName
+    // Map projectName => customName
     const nameMap = {};
     customNames.forEach(entry => {
       nameMap[entry.projectName] = entry.customName;
     });
 
-    // Merge names into projects
+    // Merge
     allProjects = projects.map(p => ({
       ...p,
-      label: nameMap[p.name] || p.name  // use customName if available
+      label: nameMap[p.name] || p.name
     }));
 
   } catch (e) {
@@ -45,6 +49,7 @@ const customInput = document.getElementById("custom-project-input");
 
   renderProjects();
 
+  // Listen to custom entry
   customInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       const value = customInput.value.trim();
@@ -54,9 +59,7 @@ const customInput = document.getElementById("custom-project-input");
         activeProject = value;
         updateBadge(value);
         customInput.value = "";
-        renderProjects(searchInput.value); // show as active if it exists in the list
-        // Optional: close popup
-        // window.close();
+        renderProjects(searchInput.value);
       });
     }
   });
@@ -71,7 +74,7 @@ function renderProjects(filter = "") {
     const noneBtn = document.createElement("div");
     noneBtn.className = "project";
     if (!activeProject) noneBtn.classList.add("active");
-    noneBtn.innerHTML = "&#x1F6AB; No Project";
+    noneBtn.innerHTML = "🚫 No Project";
     noneBtn.addEventListener("click", () => {
       chrome.storage.sync.set({ activeProject: null }, () => {
         activeProject = null;
@@ -82,7 +85,6 @@ function renderProjects(filter = "") {
     listElement.appendChild(noneBtn);
   }
 
-  // Filtered project list (keep API order)
   const filtered = allProjects.filter(p =>
     p.name.toLowerCase().includes(filter.toLowerCase())
   );
@@ -91,7 +93,7 @@ function renderProjects(filter = "") {
     const btn = document.createElement("div");
     btn.className = "project";
     if (project.name === activeProject) btn.classList.add("active");
-    btn.textContent = project.name;
+    btn.textContent = project.label;
 
     btn.addEventListener("click", () => {
       chrome.storage.sync.set({ activeProject: project.name }, () => {
@@ -105,19 +107,22 @@ function renderProjects(filter = "") {
   });
 }
 
-
-
 // Update Chrome badge
-function updateBadge(projectName) {
-  if (!projectName) {
+function updateBadge(label) {
+  if (!label) {
     chrome.action.setBadgeText({ text: "" });
   } else {
-    chrome.action.setBadgeText({ text: projectName.slice(0, 4).toLowerCase() });
+    chrome.action.setBadgeText({ text: label.slice(0, 4).toLowerCase() });
     chrome.action.setBadgeBackgroundColor({ color: "#00BCD4" });
   }
 }
 
-// Search input live filter
+// Live search
 searchInput.addEventListener("input", () => {
   renderProjects(searchInput.value);
+});
+
+// Toolbar toggle checkbox
+toolbarCheckbox.addEventListener("change", () => {
+  chrome.storage.sync.set({ showFloatingToolbar: toolbarCheckbox.checked });
 });

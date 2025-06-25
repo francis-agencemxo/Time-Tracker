@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.codepulse.timetracker"
-version = "2.9.25"
+version = "2.9.26"
 
 repositories {
     mavenCentral()
@@ -83,6 +83,10 @@ tasks.jar {
     exclude("dashboard/**")
     from("src/main/resources") {
         include("META-INF/**")
+    }
+
+    from("chrome-extension") {
+        into("chrome-extension")
     }
 }
 

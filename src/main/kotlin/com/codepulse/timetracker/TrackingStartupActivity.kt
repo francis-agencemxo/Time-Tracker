@@ -24,6 +24,8 @@ import org.json.JSONArray
 import java.net.BindException
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.net.URL
+import java.nio.file.*
 import java.time.LocalDateTime
 
 class TrackingStartupActivity : ProjectActivity {
@@ -47,45 +49,7 @@ class TrackingStartupActivity : ProjectActivity {
     }
 
     override suspend fun execute(project: Project) {
-
-        /*val licenseState = LicenseStateService.getInstance().state
-
-        if (!licenseState.isValid) {
-            com.intellij.openapi.application.ApplicationManager.getApplication().invokeAndWait {
-                val dialog = LicenseDialog(project)
-                if (dialog.showAndGet()) {
-                    val email = dialog.getEmail()
-                    val key = dialog.getLicenseKey()
-
-                    if (LicenseValidator.validate(email, key)) {
-                        licenseState.email = email
-                        licenseState.licenseKey = key
-                        licenseState.isValid = true
-                        NotificationGroupManager
-                            .getInstance()
-                            .getNotificationGroup("CodePulse")
-                            .createNotification(
-                                "License activated successfully!",      // NO leading emoji/icon
-                                NotificationType.INFORMATION
-                            )
-                            .notify(project)
-                    } else {
-                        Messages.showErrorDialog(
-                            project,
-                            "Invalid license key or email.\nPlease contact support or try again.",
-                            "License Error"
-                        )
-                    }
-                } else {
-                    println("❌ License dialog was cancelled. Plugin not activated.")
-                }
-            }
-
-            // Abort startup if still not valid
-            if (!licenseState.isValid) return
-        }*/
-
-        //println("✅ Time Tracker started for: ${project.name}")
+        extractChromeExtensionIfNeeded() // ← Add this line early in startup
 
         try {
             BrowsingTrackerServer.start()
@@ -107,11 +71,9 @@ class TrackingStartupActivity : ProjectActivity {
         if (relativePath != null) {
             currentFileMap[project] = relativePath
         } else {
-            // no file open → remove any old entry
             currentFileMap.remove(project)
         }
 
-        // Listen to file switch events
         project.messageBus.connect().subscribe(
             FileEditorManagerListener.FILE_EDITOR_MANAGER,
             object : FileEditorManagerListener {
@@ -127,14 +89,12 @@ class TrackingStartupActivity : ProjectActivity {
                     if (relativePath != null) {
                         currentFileMap[project] = relativePath
                     } else {
-                        // no file open → remove any old entry
                         currentFileMap.remove(project)
                     }
                 }
             }
         )
 
-        // Create a per-project timer
         val timer = Timer(1000, ActionListener {
             val seconds = secondsMap.getOrDefault(project, 0) + 1
             secondsMap[project] = seconds
@@ -152,7 +112,7 @@ class TrackingStartupActivity : ProjectActivity {
         timer.start()
         timerMap[project] = timer
 
-        val serverWatchdogTimer = Timer(1 * 60 * 1000) {
+        val serverWatchdogTimer = Timer(60_000) {
             if (!isBrowsingServerRunning()) {
                 println("BrowsingTrackerServer is not running. Restarting...")
                 try {
@@ -175,5 +135,47 @@ class TrackingStartupActivity : ProjectActivity {
             type      = "coding",
             file      = filePath
         )
+    }
+
+    private fun extractChromeExtensionIfNeeded() {
+        val outputDir = File(System.getProperty("user.home"), ".cache/phpstorm-time-tracker/chrome-extension")
+        val localVersionFile = File(outputDir, "version.txt")
+        val jarVersionStream = javaClass.classLoader.getResourceAsStream("chrome-extension/version.txt")
+
+        val jarVersion = jarVersionStream?.bufferedReader()?.readText()?.trim()
+        val localVersion = if (localVersionFile.exists()) localVersionFile.readText().trim() else null
+
+        if (jarVersion != null && jarVersion == localVersion && outputDir.exists()) {
+            return // up to date, skip extraction
+        }
+
+        try {
+            println("📦 Updating Chrome extension files...")
+
+            // clean previous
+            if (outputDir.exists()) outputDir.deleteRecursively()
+
+            val manifestUrl = javaClass.classLoader.getResource("chrome-extension/manifest.json")
+                ?: return println("⚠️ manifest.json not found in JAR (chrome-extension)")
+
+            val jarUri = manifestUrl.toURI()
+            val fs = if (jarUri.scheme == "jar") FileSystems.newFileSystem(jarUri, emptyMap<String, Any>()) else FileSystems.getDefault()
+
+            val jarRoot = fs.getPath("/chrome-extension")
+            Files.walk(jarRoot).forEach { path ->
+                val relative = jarRoot.relativize(path).toString()
+                val outFile = File(outputDir, relative)
+                if (Files.isDirectory(path)) {
+                    outFile.mkdirs()
+                } else {
+                    outFile.parentFile.mkdirs()
+                    Files.copy(path, outFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                }
+            }
+
+            println("✅ Extracted Chrome extension to ${outputDir.absolutePath}")
+        } catch (e: Exception) {
+            println("❌ Failed to extract Chrome extension: ${e.message}")
+        }
     }
 }
