@@ -7,6 +7,7 @@ import { ProjectBreakdownView } from "./tabs/project-breakdown-view"
 import { TrendsView } from "./tabs/trends-view"
 import { ProjectDetailView } from "./tabs/project-detail-view"
 import { ProjectManagementView } from "./tabs/project-management-view"
+import { DailyDetailsView } from "./tabs/daily-details-view"
 import type { StatsData, ProjectUrl, IgnoredProject, ProjectCustomName } from "@/hooks/use-time-tracking-data"
 
 interface DashboardTabsProps {
@@ -63,12 +64,22 @@ export function DashboardTabs({
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-4">
       <TabsList>
+        <TabsTrigger value="daily">Daily Details</TabsTrigger>
         <TabsTrigger value="weekly">Weekly View</TabsTrigger>
         <TabsTrigger value="projects">Projects</TabsTrigger>
         <TabsTrigger value="breakdown">Project Breakdown</TabsTrigger>
         <TabsTrigger value="trends">Trends</TabsTrigger>
         <TabsTrigger value="management">Project Management</TabsTrigger>
       </TabsList>
+
+      <TabsContent value="daily">
+        <DailyDetailsView
+          statsData={statsData}
+          currentWeek={currentWeek}
+          idleTimeoutMinutes={idleTimeoutMinutes}
+          ignoredProjects={ignoredProjects.map((p) => p.projectName)}
+        />
+      </TabsContent>
 
       <TabsContent value="weekly">
         <WeeklyView

@@ -54,9 +54,6 @@ export const useLicenseValidation = () => {
    */
   const validateLicenseWithAPI = async (licenseKey: string): Promise<boolean> => {
     try {
-
-      if (licenseKey.trim() === 'am+o2015')
-        return result.valid === true || result.status === "valid"
         
       const response = await fetch(`${baseUrl}/api/license`, {
         method: "POST",
