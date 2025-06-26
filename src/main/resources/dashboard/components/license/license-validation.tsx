@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,6 +22,42 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
   const [licenseKey, setLicenseKey] = useState("")
   const [error, setError] = useState("")
   const [isValidating, setIsValidating] = useState(false)
+
+  // Handle URL parameters for license key return
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search)
+      const licenseFromUrl = urlParams.get("license") || urlParams.get("licensekey")
+
+console.log(licenseFromUrl)
+      if (licenseFromUrl) {
+        setLicenseKey(licenseFromUrl)
+        setError("")
+
+        // Clean up URL parameters
+        const newUrl = window.location.pathname
+        window.history.replaceState({}, document.title, newUrl)
+
+        // Auto-validate the license key
+        handleAutoValidate(licenseFromUrl)
+      }
+    }
+  }, [])
+
+  // Auto-validation function for URL-provided license keys
+  const handleAutoValidate = async (key: string) => {
+    setIsValidating(true)
+    try {
+      const isValid = await onValidate(key.trim())
+      if (!isValid) {
+        setError("The license key from login portal is invalid. Please try again.")
+      }
+    } catch (err) {
+      setError("Failed to validate license from login portal. Please check your connection.")
+    } finally {
+      setIsValidating(false)
+    }
+  }
 
   // Check if we're in preview mode (same logic as time tracking data)
   const isPreview =
@@ -115,6 +151,15 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
                 </Alert>
               )}
 
+              {licenseKey && !error && (
+                <Alert className="border-green-200 bg-green-50">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="text-green-800">
+                    License key loaded successfully. Click "Validate License" to continue.
+                  </AlertDescription>
+                </Alert>
+              )}
+
               <Button
                 type="submit"
                 className="w-full bg-teal-600 hover:bg-teal-700"
@@ -131,6 +176,32 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
                     Validate License
                   </>
                 )}
+              </Button>
+
+              {/* Add divider */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">Or</span>
+                </div>
+              </div>
+
+              {/* Add login button */}
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  const currentUrl = window.location.origin + window.location.pathname
+                  const loginUrl = `https://addons.francislabonte.com/licenses/getkey/codepulse?return_url=${encodeURIComponent(currentUrl)}`
+                  window.location.href = loginUrl
+                }}
+                disabled={isValidating}
+              >
+                <Globe className="w-4 h-4 mr-2" />
+                Validate by Login
               </Button>
             </form>
           </CardContent>

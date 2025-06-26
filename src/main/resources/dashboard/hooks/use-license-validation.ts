@@ -150,7 +150,7 @@ export const useLicenseValidation = () => {
     const isDemo = demoKeys.includes(validatedLicense)
 
     // Parse license type from the key
-    let licenseType = "Unknown"
+    let licenseType = "Developer"
     if (validatedLicense.includes("-DEV-")) {
       licenseType = "Developer"
     } else if (validatedLicense.includes("-PRO-")) {
