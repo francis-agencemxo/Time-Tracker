@@ -29,7 +29,6 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
       const urlParams = new URLSearchParams(window.location.search)
       const licenseFromUrl = urlParams.get("license") || urlParams.get("licensekey")
 
-console.log(licenseFromUrl)
       if (licenseFromUrl) {
         setLicenseKey(licenseFromUrl)
         setError("")
@@ -195,7 +194,7 @@ console.log(licenseFromUrl)
                 className="w-full"
                 onClick={() => {
                   const currentUrl = window.location.origin + window.location.pathname
-                  const loginUrl = `https://addons.francislabonte.com/licenses/getkey/codepulse?return_url=${encodeURIComponent(currentUrl)}`
+                  const loginUrl = `https://addons.francislabonte.com/licenses/getkey/codepulse?return=${encodeURIComponent(currentUrl)}`
                   window.location.href = loginUrl
                 }}
                 disabled={isValidating}

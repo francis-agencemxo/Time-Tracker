@@ -182,3 +182,7 @@ pre-commit run --all-files
 For bug reports or feature requests, please open an issue on GitHub:
 
 https://github.com/francis-agencemxo/Time-Tracker/issues
+
+## Privacy Policy
+
+The Chrome extension tracks only your active tab URLs and browsing durations, associating them with the selected CodePulse project. No page contents or personal data are collected or transmitted to external services. See [chrome-extension/PRIVACY.md](chrome-extension/PRIVACY.md) for the full policy.

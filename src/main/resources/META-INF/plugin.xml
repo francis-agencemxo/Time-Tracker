@@ -25,7 +25,13 @@ To enable browser activity tracking:
 1. Open **Chrome** and go to `chrome://extensions`
 2. Toggle **Developer Mode** (top-right)
 3. Click **"Load unpacked"**
-4. Select the `chrome-extension` folder from the plugin installation directory:
+4. Select the `chrome-extension` folder from the plugin installation directory.
+
+After installation, click on the CodePulse icon in the Chrome toolbar to open the project selector popup. Use the search input to filter and pick a project or enter a custom project name. The badge will update to reflect the active project. You can enable or disable the floating toolbar on web pages via the popup toggle, or drag, collapse, and pin the toolbar for quick project switching directly from any website.
+
+To adjust the Tracker Server port (`56000` by default) or restore default settings, click **Details** → **Extension options** on the `chrome://extensions` page. After changing the port, reload any open tabs to ensure the floating toolbar is injected with the new settings.
+
+The extension tracks active tab changes and reports browsing duration (in seconds) along with URL, start/end timestamps, and active project to the CodePulse plugin’s built-in API at `http://localhost:<port>`.
 
     ]]></description>
 

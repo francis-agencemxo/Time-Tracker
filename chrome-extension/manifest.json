@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "MXO Browsing Tracker",
-  "version": "1.61",
-  "description": "Tracks active tab time and allows selecting current project",
+  "name": "Code Pulse Browsing Tracker",
+  "version": "1.7.0.1",
+  "description": "A Chrome extension to track browsing activity and manage Code Pulse projects.",
   "permissions": [
     "tabs",
     "activeTab",
