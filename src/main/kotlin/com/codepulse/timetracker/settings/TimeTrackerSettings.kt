@@ -23,6 +23,7 @@ class TimeTrackerSettings : PersistentStateComponent<TimeTrackerSettings.State> 
         /** Port for the Next.js dashboard dev server (default 3000) */
         var dashboardPort: Int = 56000
         var storageType: String = "local"
+        var syncDelayMinutes: Int = 60
     }
 
     private var state = State()

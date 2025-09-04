@@ -414,7 +414,8 @@ object BrowsingTrackerServer {
                     val id = idSegment.toIntOrNull()
 
                     val customName = json.getString("customName")
-
+                    println("customName")
+                    println(customName)
                     if (id != null) {
                         DBManager.updateProjectName(id, customName)
                         exchange.sendResponseHeaders(204, -1)

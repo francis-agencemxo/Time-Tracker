@@ -362,13 +362,13 @@ object DBManager {
 
     fun updateProjectName(
         id: Int,
-        custom_name: String
+        customName: String
     ) {
         conn.prepareStatement("""
-      UPDATE project_names SET custom_name = ?)
+      UPDATE project_names SET custom_name = ?
       WHERE id = ?
     """.trimIndent()).use { ps ->
-            ps.setString(1, custom_name)
+            ps.setString(1, customName)
             ps.setInt(2, id)
             ps.executeUpdate()
         }

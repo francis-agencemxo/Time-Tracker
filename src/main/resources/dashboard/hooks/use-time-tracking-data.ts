@@ -874,6 +874,8 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
   const saveProjectCustomName = async (projectName: string, customName: string) => {
     if (!isLicenseValid) return
 
+    debugger;
+
     try {
       const existingCustomName = projectCustomNames.find((p) => p.projectName === projectName)
 
