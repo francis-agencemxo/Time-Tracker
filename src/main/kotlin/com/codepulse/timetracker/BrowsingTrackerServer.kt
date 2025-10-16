@@ -556,9 +556,174 @@ object BrowsingTrackerServer {
         }
     }
 
+    /**
+     * Handler for CRUD operations on Wrike project mappings.
+     */
+    private class WrikeMappingsHandler : HttpHandler {
+        override fun handle(exchange: HttpExchange) {
+            with(exchange.responseHeaders) {
+                add("Access-Control-Allow-Origin", "*")
+                add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                add("Access-Control-Allow-Headers", "Content-Type")
+            }
+            if (exchange.requestMethod.equals("OPTIONS", ignoreCase = true)) {
+                exchange.sendResponseHeaders(204, -1)
+                exchange.responseBody.close()
+                return
+            }
+
+            when (exchange.requestMethod.uppercase()) {
+                "GET" -> {
+                    println("GET /api/wrike-mappings")
+                    val mappings = DBManager.getAllWrikeMappings()
+                    val response = mappings.toString(2).toByteArray()
+                    exchange.responseHeaders.add("Content-Type", "application/json")
+                    exchange.sendResponseHeaders(200, response.size.toLong())
+                    exchange.responseBody.use { it.write(response) }
+                }
+                "POST" -> {
+                    println("POST /api/wrike-mappings")
+                    val body = exchange.requestBody.bufferedReader().readText()
+                    val json = JSONObject(body)
+
+                    DBManager.insertOrUpdateWrikeMapping(
+                        projectName = json.getString("projectName"),
+                        wrikeProjectId = json.getString("wrikeProjectId"),
+                        wrikeTitle = json.getString("wrikeProjectTitle"),
+                        wrikePermalink = json.getString("wrikePermalink")
+                    )
+
+                    exchange.sendResponseHeaders(201, -1)
+                    exchange.responseBody.close()
+                }
+                "PUT" -> {
+                    println("PUT /api/wrike-mappings")
+                    val body = exchange.requestBody.bufferedReader().readText()
+                    val json = JSONObject(body)
+
+                    // Extract ID from URL if needed, but we primarily use projectName
+                    DBManager.insertOrUpdateWrikeMapping(
+                        projectName = json.getString("projectName"),
+                        wrikeProjectId = json.getString("wrikeProjectId"),
+                        wrikeTitle = json.getString("wrikeProjectTitle"),
+                        wrikePermalink = json.getString("wrikePermalink")
+                    )
+
+                    exchange.sendResponseHeaders(204, -1)
+                    exchange.responseBody.close()
+                }
+                "DELETE" -> {
+                    println("DELETE /api/wrike-mappings")
+                    val fullPath = exchange.requestURI.path
+                    val idSegment = fullPath.substringAfterLast("/", missingDelimiterValue = "")
+                    val id = idSegment.toIntOrNull()
+
+                    if (id != null) {
+                        DBManager.deleteWrikeMapping(id)
+                        exchange.sendResponseHeaders(204, -1)
+                    } else {
+                        exchange.sendResponseHeaders(400, -1)
+                    }
+
+                    exchange.responseBody.close()
+                }
+                else -> {
+                    exchange.sendResponseHeaders(405, 0)
+                    exchange.responseBody.close()
+                }
+            }
+        }
+    }
+
+    /**
+     * Handler that proxies requests to the Wrike API to avoid CORS issues.
+     * Accepts the Wrike bearer token via X-Wrike-Token header and forwards to wrike.com
+     */
+    private class WrikeProxyHandler : HttpHandler {
+        override fun handle(exchange: HttpExchange) {
+            with(exchange.responseHeaders) {
+                add("Access-Control-Allow-Origin", "*")
+                add("Access-Control-Allow-Methods", "GET, OPTIONS")
+                add("Access-Control-Allow-Headers", "Content-Type, X-Wrike-Token")
+            }
+
+            // Handle CORS preflight
+            if (exchange.requestMethod.equals("OPTIONS", ignoreCase = true)) {
+                exchange.sendResponseHeaders(204, -1)
+                exchange.responseBody.close()
+                return
+            }
+
+            if (exchange.requestMethod != "GET") {
+                exchange.sendResponseHeaders(405, 0)
+                exchange.responseBody.close()
+                return
+            }
+
+            try {
+                // Extract the bearer token from custom header
+                val wrikeToken = exchange.requestHeaders.getFirst("X-Wrike-Token")
+                if (wrikeToken.isNullOrBlank()) {
+                    val error = JSONObject()
+                        .put("error", "Missing X-Wrike-Token header")
+                        .toString()
+                    val errorBytes = error.toByteArray()
+                    exchange.responseHeaders.add("Content-Type", "application/json")
+                    exchange.sendResponseHeaders(401, errorBytes.size.toLong())
+                    exchange.responseBody.use { it.write(errorBytes) }
+                    return
+                }
+
+                // Build the Wrike API URL
+                // Request path: /api/wrike/contacts?me=true
+                // Extract: /contacts?me=true
+                val requestPath = exchange.requestURI.path.removePrefix("/api/wrike")
+                val queryString = exchange.requestURI.query ?: ""
+                val wrikeUrl = "https://www.wrike.com/api/v4$requestPath" +
+                    if (queryString.isNotEmpty()) "?$queryString" else ""
+
+                println("Proxying Wrike API request: $wrikeUrl")
+
+                // Make request to Wrike API
+                val url = URL(wrikeUrl)
+                val connection = url.openConnection() as java.net.HttpURLConnection
+                connection.requestMethod = "GET"
+                connection.setRequestProperty("Authorization", "Bearer $wrikeToken")
+                connection.setRequestProperty("Content-Type", "application/json")
+                connection.connectTimeout = 10000
+                connection.readTimeout = 10000
+
+                val responseCode = connection.responseCode
+                val responseBody = if (responseCode in 200..299) {
+                    connection.inputStream.bufferedReader().readText()
+                } else {
+                    connection.errorStream?.bufferedReader()?.readText() ?: ""
+                }
+
+                // Forward Wrike's response to the client
+                val responseBytes = responseBody.toByteArray()
+                exchange.responseHeaders.add("Content-Type", "application/json")
+                exchange.sendResponseHeaders(responseCode, responseBytes.size.toLong())
+                exchange.responseBody.use { it.write(responseBytes) }
+
+            } catch (e: Exception) {
+                println("Error proxying Wrike API request: ${e.message}")
+                e.printStackTrace()
+
+                val error = JSONObject()
+                    .put("error", "Wrike API proxy error: ${e.message}")
+                    .toString()
+                val errorBytes = error.toByteArray()
+                exchange.responseHeaders.add("Content-Type", "application/json")
+                exchange.sendResponseHeaders(500, errorBytes.size.toLong())
+                exchange.responseBody.use { it.write(errorBytes) }
+            }
+        }
+    }
+
     fun start() {
         if (server != null) return
-        
+
         server = HttpServer.create(InetSocketAddress(port), 0)
         server?.createContext("/url-track", UrlTrackHandler())
         server?.createContext("/", StaticFileHandler())
@@ -570,6 +735,8 @@ object BrowsingTrackerServer {
         server?.createContext("/api/setting", SettingsHandler())
         server?.createContext("/api/ignored-projects", IgnoredProjectsConfigHandler())
         server?.createContext("/api/license/logout", LogoutHandler())
+        server?.createContext("/api/wrike-mappings", WrikeMappingsHandler())
+        server?.createContext("/api/wrike", WrikeProxyHandler())
         server?.executor = null
         server?.start()
         println("🌐 BrowsingTrackerServer started on port $port")

@@ -46,6 +46,10 @@ export default function DashboardPage() {
     statsData,
     projectUrls,
     ignoredProjects,
+    projectCustomNames,
+    wrikeProjects,
+    wrikeProjectsLoading,
+    wrikeProjectMappings,
     loading,
     error,
     idleTimeoutMinutes,
@@ -58,6 +62,10 @@ export default function DashboardPage() {
     deleteProjectUrl,
     addIgnoredProject,
     removeIgnoredProject,
+    saveProjectCustomName,
+    removeProjectCustomName,
+    fetchWrikeProjects,
+    saveWrikeProjectMapping,
   } = useTimeTrackingData(isLicenseValid)
 
   // Update selected project from URL parameter
@@ -196,18 +204,20 @@ export default function DashboardPage() {
 
         <DashboardTabs
           statsData={statsData}
-          projectUrls={projectUrls}
           ignoredProjects={ignoredProjects}
+          projectCustomNames={projectCustomNames}
+          wrikeProjects={wrikeProjects}
+          wrikeProjectsLoading={wrikeProjectsLoading}
+          wrikeProjectMappings={wrikeProjectMappings}
           currentWeek={currentWeek}
           idleTimeoutMinutes={idleTimeoutMinutes}
-          onCreateUrl={createProjectUrl}
-          onUpdateUrl={updateProjectUrl}
-          onDeleteUrl={deleteProjectUrl}
-          onRefreshUrls={fetchProjectUrls}
+          onIdleTimeoutChange={setIdleTimeoutMinutes}
           onAddIgnoredProject={addIgnoredProject}
           onRemoveIgnoredProject={removeIgnoredProject}
-          selectedProject={selectedProject || undefined}
-          onProjectSelect={handleProjectSelect}
+          onSaveProjectCustomName={saveProjectCustomName}
+          onRemoveProjectCustomName={removeProjectCustomName}
+          onFetchWrikeProjects={fetchWrikeProjects}
+          onSaveWrikeMapping={saveWrikeProjectMapping}
           activeTab={tab}
           onTabChange={handleTabChange}
         />

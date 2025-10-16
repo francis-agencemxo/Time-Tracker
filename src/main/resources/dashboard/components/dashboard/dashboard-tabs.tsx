@@ -1,79 +1,87 @@
 "use client"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { WeeklyView } from "./tabs/weekly-view"
-import { ProjectsView } from "./tabs/projects-view"
-import { ProjectBreakdownView } from "./tabs/project-breakdown-view"
-import { TrendsView } from "./tabs/trends-view"
-import { ProjectDetailView } from "./tabs/project-detail-view"
-import { ProjectManagementView } from "./tabs/project-management-view"
-import { DailyDetailsView } from "./tabs/daily-details-view"
-import type { StatsData, ProjectUrl, IgnoredProject, ProjectCustomName } from "@/hooks/use-time-tracking-data"
+import { TimesheetView } from "./tabs/timesheet-view"
+import { DailyDetailsSimple } from "./tabs/daily-details-simple"
+import { SettingsView } from "./tabs/settings-view"
+import { Calendar, Clock, Settings } from "lucide-react"
+import type { StatsData, IgnoredProject, ProjectCustomName } from "@/hooks/use-time-tracking-data"
+import type { WrikeProject } from "@/lib/wrike-api"
 
 interface DashboardTabsProps {
   statsData: StatsData
-  projectUrls: ProjectUrl[]
   ignoredProjects: IgnoredProject[]
   projectCustomNames: ProjectCustomName[]
+  wrikeProjects: WrikeProject[]
+  wrikeProjectsLoading: boolean
+  wrikeProjectMappings: Array<{
+    projectName: string
+    wrikeProjectId: string
+    wrikeProjectTitle: string
+    wrikePermalink: string
+  }>
   currentWeek: Date
   idleTimeoutMinutes: number
-  onCreateUrl: (formData: { project: string; url: string; description: string }) => Promise<void>
-  onUpdateUrl: (id: string, formData: { project: string; url: string; description: string }) => Promise<void>
-  onDeleteUrl: (id: string) => Promise<void>
-  onRefreshUrls: () => Promise<void>
+  onIdleTimeoutChange: (minutes: number) => void
   onAddIgnoredProject: (projectName: string) => Promise<void>
   onRemoveIgnoredProject: (id: string) => Promise<void>
   onSaveProjectCustomName: (projectName: string, customName: string) => Promise<void>
   onRemoveProjectCustomName: (id: string) => Promise<void>
-  selectedProject?: string
-  onProjectSelect?: (projectName: string | null) => void
+  onFetchWrikeProjects: (bearerToken: string) => Promise<void>
+  onSaveWrikeMapping: (projectName: string, wrikeProject: WrikeProject) => Promise<void>
   activeTab: string
   onTabChange: (tab: string) => void
 }
 
 export function DashboardTabs({
   statsData,
-  projectUrls,
   ignoredProjects,
   projectCustomNames,
+  wrikeProjects,
+  wrikeProjectsLoading,
+  wrikeProjectMappings,
   currentWeek,
   idleTimeoutMinutes,
-  onCreateUrl,
-  onUpdateUrl,
-  onDeleteUrl,
-  onRefreshUrls,
+  onIdleTimeoutChange,
   onAddIgnoredProject,
   onRemoveIgnoredProject,
   onSaveProjectCustomName,
   onRemoveProjectCustomName,
-  selectedProject,
-  onProjectSelect,
+  onFetchWrikeProjects,
+  onSaveWrikeMapping,
   activeTab,
   onTabChange,
 }: DashboardTabsProps) {
-  // Handle project selection and tab switching
-  const handleProjectSelect = (projectName: string | null) => {
-    if (onProjectSelect) {
-      onProjectSelect(projectName)
-    }
-    if (projectName) {
-      onTabChange("projects")
-    }
-  }
-
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-4">
       <TabsList>
-        <TabsTrigger value="daily">Daily Details</TabsTrigger>
-        <TabsTrigger value="weekly">Weekly View</TabsTrigger>
-        <TabsTrigger value="projects">Projects</TabsTrigger>
-        <TabsTrigger value="breakdown">Project Breakdown</TabsTrigger>
-        <TabsTrigger value="trends">Trends</TabsTrigger>
-        <TabsTrigger value="management">Project Management</TabsTrigger>
+        <TabsTrigger value="timesheet">
+          <Calendar className="w-4 h-4 mr-2" />
+          Weekly Timesheet
+        </TabsTrigger>
+        <TabsTrigger value="daily">
+          <Clock className="w-4 h-4 mr-2" />
+          Daily Details
+        </TabsTrigger>
+        <TabsTrigger value="settings">
+          <Settings className="w-4 h-4 mr-2" />
+          Settings
+        </TabsTrigger>
       </TabsList>
 
+      <TabsContent value="timesheet">
+        <TimesheetView
+          statsData={statsData}
+          currentWeek={currentWeek}
+          idleTimeoutMinutes={idleTimeoutMinutes}
+          ignoredProjects={ignoredProjects.map((p) => p.projectName)}
+          projectCustomNames={projectCustomNames}
+          wrikeProjectMappings={wrikeProjectMappings}
+        />
+      </TabsContent>
+
       <TabsContent value="daily">
-        <DailyDetailsView
+        <DailyDetailsSimple
           statsData={statsData}
           currentWeek={currentWeek}
           idleTimeoutMinutes={idleTimeoutMinutes}
@@ -81,59 +89,23 @@ export function DashboardTabs({
         />
       </TabsContent>
 
-      <TabsContent value="weekly">
-        <WeeklyView
+      <TabsContent value="settings">
+        <SettingsView
           statsData={statsData}
-          currentWeek={currentWeek}
-          idleTimeoutMinutes={idleTimeoutMinutes}
-          onProjectSelect={handleProjectSelect}
-        />
-      </TabsContent>
-
-      <TabsContent value="projects">
-        {selectedProject ? (
-          <ProjectDetailView
-            statsData={statsData}
-            currentWeek={currentWeek}
-            idleTimeoutMinutes={idleTimeoutMinutes}
-            selectedProject={selectedProject}
-            projectUrls={projectUrls}
-            onBack={() => handleProjectSelect(null)}
-          />
-        ) : (
-          <ProjectsView
-            statsData={statsData}
-            currentWeek={currentWeek}
-            idleTimeoutMinutes={idleTimeoutMinutes}
-            onProjectSelect={handleProjectSelect}
-          />
-        )}
-      </TabsContent>
-
-      <TabsContent value="breakdown">
-        <ProjectBreakdownView statsData={statsData} currentWeek={currentWeek} idleTimeoutMinutes={idleTimeoutMinutes} />
-      </TabsContent>
-
-      <TabsContent value="trends">
-        <TrendsView statsData={statsData} idleTimeoutMinutes={idleTimeoutMinutes} />
-      </TabsContent>
-
-      <TabsContent value="management">
-        <ProjectManagementView
-          statsData={statsData}
-          projectUrls={projectUrls}
           ignoredProjects={ignoredProjects}
           projectCustomNames={projectCustomNames}
+          wrikeProjects={wrikeProjects}
+          wrikeProjectsLoading={wrikeProjectsLoading}
+          wrikeProjectMappings={wrikeProjectMappings}
           currentWeek={currentWeek}
           idleTimeoutMinutes={idleTimeoutMinutes}
-          onCreateUrl={onCreateUrl}
-          onUpdateUrl={onUpdateUrl}
-          onDeleteUrl={onDeleteUrl}
-          onRefreshUrls={onRefreshUrls}
+          onIdleTimeoutChange={onIdleTimeoutChange}
           onAddIgnoredProject={onAddIgnoredProject}
           onRemoveIgnoredProject={onRemoveIgnoredProject}
           onSaveProjectCustomName={onSaveProjectCustomName}
           onRemoveProjectCustomName={onRemoveProjectCustomName}
+          onFetchWrikeProjects={onFetchWrikeProjects}
+          onSaveWrikeMapping={onSaveWrikeMapping}
         />
       </TabsContent>
     </Tabs>

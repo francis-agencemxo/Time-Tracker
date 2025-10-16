@@ -9,7 +9,6 @@ import { AppLoadingScreen } from "@/components/license/app-loading-screen"
 
 import { Header } from "@/components/dashboard/header"
 import { WeekNavigation } from "@/components/dashboard/week-navigation"
-import { QuickStats } from "@/components/dashboard/quick-stats"
 import { DashboardTabs } from "@/components/dashboard/dashboard-tabs"
 import { useTimeTrackingData } from "@/hooks/use-time-tracking-data"
 import { useLicenseValidation } from "@/hooks/use-license-validation"
@@ -20,8 +19,7 @@ export default function HomePage() {
   const { isLicenseValid, isInitializing, validateLicense, logout } = useLicenseValidation()
 
   // Get URL parameters
-  const tab = searchParams.get("tab") || "weekly"
-  const project = searchParams.get("project")
+  const tab = searchParams.get("tab") || "timesheet"
   const week = searchParams.get("week")
 
   // Initialize current week from URL or default to current week
@@ -35,9 +33,6 @@ export default function HomePage() {
     return new Date()
   })
 
-  // State for project selection
-  const [selectedProject, setSelectedProject] = useState<string | null>(project)
-
   // Use ref to track if we're programmatically updating the URL
   const isUpdatingUrlRef = useRef(false)
 
@@ -47,6 +42,8 @@ export default function HomePage() {
     projectUrls,
     ignoredProjects,
     projectCustomNames,
+    wrikeProjects,
+    wrikeProjectsLoading,
     loading,
     error,
     idleTimeoutMinutes,
@@ -56,6 +53,7 @@ export default function HomePage() {
     settingsLoading,
     fetchStats,
     fetchProjectUrls,
+    fetchWrikeProjects,
     createProjectUrl,
     updateProjectUrl,
     deleteProjectUrl,
@@ -64,11 +62,6 @@ export default function HomePage() {
     saveProjectCustomName,
     removeProjectCustomName,
   } = useTimeTrackingData(isLicenseValid)
-
-  // Update selected project from URL parameter
-  useEffect(() => {
-    setSelectedProject(project)
-  }, [project])
 
   // Update current week from URL parameter (only when URL changes externally)
   useEffect(() => {
@@ -84,21 +77,13 @@ export default function HomePage() {
   }, [week, currentWeek])
 
   // Function to update URL without page reload
-  const updateUrl = (params: { tab?: string; project?: string | null; week?: string }) => {
+  const updateUrl = (params: { tab?: string; week?: string }) => {
     isUpdatingUrlRef.current = true
 
     const newSearchParams = new URLSearchParams(searchParams.toString())
 
     if (params.tab) {
       newSearchParams.set("tab", params.tab)
-    }
-
-    if (params.project !== undefined) {
-      if (params.project) {
-        newSearchParams.set("project", params.project)
-      } else {
-        newSearchParams.delete("project")
-      }
     }
 
     if (params.week) {
@@ -112,12 +97,6 @@ export default function HomePage() {
     setTimeout(() => {
       isUpdatingUrlRef.current = false
     }, 100)
-  }
-
-  // Handle project selection with URL update
-  const handleProjectSelect = (projectName: string | null) => {
-    setSelectedProject(projectName)
-    updateUrl({ project: projectName })
   }
 
   // Handle week navigation with URL update - completely separate from the hook
@@ -194,30 +173,20 @@ export default function HomePage() {
 
         <WeekNavigation currentWeek={currentWeek} onNavigateWeek={handleWeekNavigation} />
 
-        <QuickStats
-          statsData={statsData}
-          currentWeek={currentWeek}
-          idleTimeoutMinutes={idleTimeoutMinutes}
-          onViewProject={handleProjectSelect}
-        />
-
         <DashboardTabs
           statsData={statsData}
-          projectUrls={projectUrls}
           ignoredProjects={ignoredProjects}
           projectCustomNames={projectCustomNames}
+          wrikeProjects={wrikeProjects}
+          wrikeProjectsLoading={wrikeProjectsLoading}
           currentWeek={currentWeek}
           idleTimeoutMinutes={idleTimeoutMinutes}
-          onCreateUrl={createProjectUrl}
-          onUpdateUrl={updateProjectUrl}
-          onDeleteUrl={deleteProjectUrl}
-          onRefreshUrls={fetchProjectUrls}
+          onIdleTimeoutChange={setIdleTimeoutMinutes}
           onAddIgnoredProject={addIgnoredProject}
           onRemoveIgnoredProject={removeIgnoredProject}
           onSaveProjectCustomName={saveProjectCustomName}
           onRemoveProjectCustomName={removeProjectCustomName}
-          selectedProject={selectedProject || undefined}
-          onProjectSelect={handleProjectSelect}
+          onFetchWrikeProjects={fetchWrikeProjects}
           activeTab={tab}
           onTabChange={handleTabChange}
         />

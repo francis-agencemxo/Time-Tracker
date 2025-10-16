@@ -93,6 +93,22 @@ object DBManager {
       """.trimIndent())
         }
 
+        conn.createStatement().use { st ->
+            st.executeUpdate("""
+        CREATE TABLE IF NOT EXISTS wrike_mappings (
+          id                INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_name      TEXT    NOT NULL UNIQUE,
+          wrike_project_id  TEXT    NOT NULL,
+          wrike_title       TEXT    NOT NULL,
+          wrike_permalink   TEXT    NOT NULL,
+          created_at        DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at        DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_wrike_mappings_project ON wrike_mappings(project_name);
+      """.trimIndent())
+        }
+
         println("→→→→→→ Opened SQLite DB at ${dbFile.absolutePath}")
     }
 
@@ -432,6 +448,92 @@ object DBManager {
       WHERE id = ?
     """.trimIndent()).use { ps ->
             ps.setInt(1, id)
+            ps.executeUpdate()
+        }
+    }
+
+    // ========== Wrike Project Mappings ==========
+
+    fun getAllWrikeMappings(): JSONArray {
+        val arr = JSONArray()
+        conn.prepareStatement("""
+            SELECT * FROM wrike_mappings
+            ORDER BY project_name
+        """.trimIndent()).use { ps ->
+            val rs = ps.executeQuery()
+            while (rs.next()) {
+                val obj = JSONObject()
+                obj.put("id", rs.getInt("id"))
+                obj.put("projectName", rs.getString("project_name"))
+                obj.put("wrikeProjectId", rs.getString("wrike_project_id"))
+                obj.put("wrikeProjectTitle", rs.getString("wrike_title"))
+                obj.put("wrikePermalink", rs.getString("wrike_permalink"))
+                obj.put("createdAt", rs.getString("created_at"))
+                arr.put(obj)
+            }
+        }
+        return arr
+    }
+
+    fun getWrikeMappingByProject(projectName: String): JSONObject? {
+        conn.prepareStatement("""
+            SELECT * FROM wrike_mappings
+            WHERE project_name = ?
+        """.trimIndent()).use { ps ->
+            ps.setString(1, projectName)
+            val rs = ps.executeQuery()
+            if (rs.next()) {
+                return JSONObject()
+                    .put("id", rs.getInt("id"))
+                    .put("projectName", rs.getString("project_name"))
+                    .put("wrikeProjectId", rs.getString("wrike_project_id"))
+                    .put("wrikeProjectTitle", rs.getString("wrike_title"))
+                    .put("wrikePermalink", rs.getString("wrike_permalink"))
+                    .put("createdAt", rs.getString("created_at"))
+            }
+        }
+        return null
+    }
+
+    fun insertOrUpdateWrikeMapping(
+        projectName: String,
+        wrikeProjectId: String,
+        wrikeTitle: String,
+        wrikePermalink: String
+    ) {
+        conn.prepareStatement("""
+            INSERT INTO wrike_mappings (project_name, wrike_project_id, wrike_title, wrike_permalink)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(project_name) DO UPDATE SET
+                wrike_project_id = excluded.wrike_project_id,
+                wrike_title = excluded.wrike_title,
+                wrike_permalink = excluded.wrike_permalink,
+                updated_at = CURRENT_TIMESTAMP
+        """.trimIndent()).use { ps ->
+            ps.setString(1, projectName)
+            ps.setString(2, wrikeProjectId)
+            ps.setString(3, wrikeTitle)
+            ps.setString(4, wrikePermalink)
+            ps.executeUpdate()
+        }
+    }
+
+    fun deleteWrikeMapping(id: Int) {
+        conn.prepareStatement("""
+            DELETE FROM wrike_mappings
+            WHERE id = ?
+        """.trimIndent()).use { ps ->
+            ps.setInt(1, id)
+            ps.executeUpdate()
+        }
+    }
+
+    fun deleteWrikeMappingByProject(projectName: String) {
+        conn.prepareStatement("""
+            DELETE FROM wrike_mappings
+            WHERE project_name = ?
+        """.trimIndent()).use { ps ->
+            ps.setString(1, projectName)
             ps.executeUpdate()
         }
     }

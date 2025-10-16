@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { toast } from "@/components/ui/use-toast"
 import { dateToESTString } from "@/lib/date-utils"
+import { getWrikeClient, type WrikeProject } from "@/lib/wrike-api"
 
 // Types
 export interface Session {
@@ -52,6 +53,15 @@ export interface ProjectCustomName {
   projectName: string
   customName: string
   updatedAt: string
+}
+
+export interface WrikeProjectMapping {
+  id: string
+  projectName: string
+  wrikeProjectId: string
+  wrikeProjectTitle: string
+  wrikePermalink: string
+  createdAt: string
 }
 
 // Fake data for preview - now using proper EST date strings
@@ -243,6 +253,9 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
   const [projectUrls, setProjectUrls] = useState<ProjectUrl[]>([])
   const [ignoredProjects, setIgnoredProjects] = useState<IgnoredProject[]>([])
   const [projectCustomNames, setProjectCustomNames] = useState<ProjectCustomName[]>([])
+  const [wrikeProjects, setWrikeProjects] = useState<WrikeProject[]>([])
+  const [wrikeProjectMappings, setWrikeProjectMappings] = useState<WrikeProjectMapping[]>([])
+  const [wrikeProjectsLoading, setWrikeProjectsLoading] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [idleTimeoutMinutes, setIdleTimeoutMinutes] = useState<number>(10)
@@ -974,6 +987,181 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     }
   }
 
+  const fetchWrikeProjects = async (bearerToken: string) => {
+    if (!isLicenseValid) {
+      setWrikeProjects([])
+      return
+    }
+
+    if (!bearerToken) {
+      setWrikeProjects([])
+      return
+    }
+
+    try {
+      setWrikeProjectsLoading(true)
+      setError(null)
+
+      const wrikeClient = getWrikeClient(bearerToken)
+      const projects = await wrikeClient.getProjects()
+      setWrikeProjects(projects)
+    } catch (err) {
+      console.error("Error fetching Wrike projects:", err)
+      setWrikeProjects([])
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to fetch Wrike projects",
+        variant: "destructive",
+      })
+    } finally {
+      setWrikeProjectsLoading(false)
+    }
+  }
+
+  const fetchWrikeProjectMappings = async () => {
+    if (!isLicenseValid) {
+      setWrikeProjectMappings([])
+      return
+    }
+
+    try {
+      if (isPreview) {
+        const stored = localStorage.getItem("wrike-project-mappings")
+        if (stored) {
+          setWrikeProjectMappings(JSON.parse(stored))
+        }
+        return
+      }
+
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+      try {
+        const response = await fetch(`${baseUrl}/api/wrike-mappings`, {
+          signal: controller.signal,
+        })
+        clearTimeout(timeoutId)
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        const data = await response.json()
+        setWrikeProjectMappings(data)
+      } catch (fetchError) {
+        clearTimeout(timeoutId)
+        console.warn("Wrike mappings API not available, using localStorage:", fetchError)
+        const stored = localStorage.getItem("wrike-project-mappings")
+        if (stored) {
+          setWrikeProjectMappings(JSON.parse(stored))
+        }
+      }
+    } catch (err) {
+      console.warn("Error fetching Wrike project mappings:", err)
+    }
+  }
+
+  const saveWrikeProjectMapping = async (projectName: string, wrikeProject: WrikeProject) => {
+    if (!isLicenseValid) return
+
+    try {
+      const existingMapping = wrikeProjectMappings.find((m) => m.projectName === projectName)
+
+      const newMapping: WrikeProjectMapping = {
+        id: existingMapping?.id || Date.now().toString(),
+        projectName,
+        wrikeProjectId: wrikeProject.id,
+        wrikeProjectTitle: wrikeProject.title,
+        wrikePermalink: wrikeProject.permalink,
+        createdAt: existingMapping?.createdAt || new Date().toISOString(),
+      }
+
+      if (isPreview) {
+        let updated: WrikeProjectMapping[]
+        if (existingMapping) {
+          updated = wrikeProjectMappings.map((m) => (m.projectName === projectName ? newMapping : m))
+        } else {
+          updated = [...wrikeProjectMappings, newMapping]
+        }
+        setWrikeProjectMappings(updated)
+        localStorage.setItem("wrike-project-mappings", JSON.stringify(updated))
+        toast({
+          title: "Success",
+          description: `"${projectName}" has been linked to Wrike project "${wrikeProject.title}"`,
+        })
+        return
+      }
+
+      const method = existingMapping ? "PUT" : "POST"
+      const url = existingMapping
+        ? `${baseUrl}/api/wrike-mappings/${existingMapping.id}`
+        : `${baseUrl}/api/wrike-mappings`
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newMapping),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      await fetchWrikeProjectMappings()
+      toast({
+        title: "Success",
+        description: `"${projectName}" has been linked to Wrike project "${wrikeProject.title}"`,
+      })
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to save Wrike project mapping",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const removeWrikeProjectMapping = async (projectName: string) => {
+    if (!isLicenseValid) return
+
+    try {
+      const mapping = wrikeProjectMappings.find((m) => m.projectName === projectName)
+      if (!mapping) return
+
+      if (isPreview) {
+        const updated = wrikeProjectMappings.filter((m) => m.projectName !== projectName)
+        setWrikeProjectMappings(updated)
+        localStorage.setItem("wrike-project-mappings", JSON.stringify(updated))
+        toast({
+          title: "Success",
+          description: `Wrike link for "${projectName}" has been removed`,
+        })
+        return
+      }
+
+      const response = await fetch(`${baseUrl}/api/wrike-mappings/${mapping.id}`, {
+        method: "DELETE",
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      await fetchWrikeProjectMappings()
+      toast({
+        title: "Success",
+        description: `Wrike link for "${projectName}" has been removed`,
+      })
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to remove Wrike project mapping",
+        variant: "destructive",
+      })
+    }
+  }
+
   // Update the useEffect that fetches data
   useEffect(() => {
     if (isLicenseValid) {
@@ -982,6 +1170,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
       fetchSettings()
       fetchIgnoredProjects()
       fetchProjectCustomNames()
+      fetchWrikeProjectMappings()
     }
   }, [isLicenseValid])
 
@@ -991,6 +1180,9 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     projectUrls,
     ignoredProjects,
     projectCustomNames,
+    wrikeProjects,
+    wrikeProjectMappings,
+    wrikeProjectsLoading,
     loading,
     error,
     idleTimeoutMinutes,
@@ -1001,6 +1193,10 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     fetchSettings,
     fetchIgnoredProjects,
     fetchProjectCustomNames,
+    fetchWrikeProjects,
+    fetchWrikeProjectMappings,
+    saveWrikeProjectMapping,
+    removeWrikeProjectMapping,
     createProjectUrl,
     updateProjectUrl,
     deleteProjectUrl,
