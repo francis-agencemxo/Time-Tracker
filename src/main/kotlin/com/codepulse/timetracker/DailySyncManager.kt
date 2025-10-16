@@ -56,10 +56,13 @@ object DailySyncManager {
 
     private fun send(summary: JSONObject) {
         try {
-            val connection = URL(SYNC_URL).openConnection() as HttpURLConnection
+            val uri = java.net.URI.create(SYNC_URL)
+            val connection = uri.toURL().openConnection() as HttpURLConnection
+
             connection.requestMethod = "POST"
             connection.setRequestProperty("Content-Type", "application/json")
             connection.doOutput = true
+
             connection.outputStream.use { it.write(summary.toString().toByteArray()) }
 
             val responseCode = connection.responseCode
@@ -69,4 +72,5 @@ object DailySyncManager {
             println("❌ Sync failed: ${e.message}")
         }
     }
+
 }
