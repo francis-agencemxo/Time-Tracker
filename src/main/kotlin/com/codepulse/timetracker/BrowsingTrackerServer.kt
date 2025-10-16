@@ -680,13 +680,13 @@ object BrowsingTrackerServer {
                 val requestPath = exchange.requestURI.path.removePrefix("/api/wrike")
                 val queryString = exchange.requestURI.query ?: ""
                 val wrikeUrl = "https://www.wrike.com/api/v4$requestPath" +
-                    if (queryString.isNotEmpty()) "?$queryString" else ""
+                        if (queryString.isNotEmpty()) "?$queryString" else ""
 
                 println("Proxying Wrike API request: $wrikeUrl")
 
-                // Make request to Wrike API
-                val url = URL(wrikeUrl)
-                val connection = url.openConnection() as java.net.HttpURLConnection
+// ✅ Modern replacement (no deprecation)
+                val uri = java.net.URI.create(wrikeUrl)
+                val connection = uri.toURL().openConnection() as java.net.HttpURLConnection
                 connection.requestMethod = "GET"
                 connection.setRequestProperty("Authorization", "Bearer $wrikeToken")
                 connection.setRequestProperty("Content-Type", "application/json")
