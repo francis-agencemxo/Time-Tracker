@@ -177,8 +177,10 @@ export default function HomePage() {
           statsData={statsData}
           ignoredProjects={ignoredProjects}
           projectCustomNames={projectCustomNames}
+          projectUrls={projectUrls}
           wrikeProjects={wrikeProjects}
           wrikeProjectsLoading={wrikeProjectsLoading}
+          wrikeProjectMappings={[]}
           currentWeek={currentWeek}
           idleTimeoutMinutes={idleTimeoutMinutes}
           onIdleTimeoutChange={setIdleTimeoutMinutes}
@@ -186,7 +188,11 @@ export default function HomePage() {
           onRemoveIgnoredProject={removeIgnoredProject}
           onSaveProjectCustomName={saveProjectCustomName}
           onRemoveProjectCustomName={removeProjectCustomName}
+          onCreateUrl={createProjectUrl}
+          onUpdateUrl={updateProjectUrl}
+          onDeleteUrl={deleteProjectUrl}
           onFetchWrikeProjects={fetchWrikeProjects}
+          onSaveWrikeMapping={() => Promise.resolve()}
           activeTab={tab}
           onTabChange={handleTabChange}
         />

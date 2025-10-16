@@ -25,8 +25,9 @@ import {
   Link2,
   CheckCircle2,
   XCircle,
+  ExternalLink,
 } from "lucide-react"
-import type { StatsData, IgnoredProject, ProjectCustomName } from "@/hooks/use-time-tracking-data"
+import type { StatsData, IgnoredProject, ProjectCustomName, ProjectUrl } from "@/hooks/use-time-tracking-data"
 import { useTimeCalculations } from "@/hooks/use-time-calculations"
 import { toast } from "@/components/ui/use-toast"
 
@@ -34,6 +35,7 @@ interface SettingsViewProps {
   statsData: StatsData
   ignoredProjects: IgnoredProject[]
   projectCustomNames: ProjectCustomName[]
+  projectUrls: ProjectUrl[]
   currentWeek: Date
   idleTimeoutMinutes: number
   onIdleTimeoutChange: (minutes: number) => void
@@ -41,12 +43,16 @@ interface SettingsViewProps {
   onRemoveIgnoredProject: (id: string) => Promise<void>
   onSaveProjectCustomName: (projectName: string, customName: string) => Promise<void>
   onRemoveProjectCustomName: (id: string) => Promise<void>
+  onCreateUrl: (formData: { project: string; url: string; description: string }) => Promise<void>
+  onUpdateUrl: (id: string, formData: { project: string; url: string; description: string }) => Promise<void>
+  onDeleteUrl: (id: string) => Promise<void>
 }
 
 export function SettingsView({
   statsData,
   ignoredProjects,
   projectCustomNames,
+  projectUrls,
   currentWeek,
   idleTimeoutMinutes,
   onIdleTimeoutChange,
@@ -54,6 +60,9 @@ export function SettingsView({
   onRemoveIgnoredProject,
   onSaveProjectCustomName,
   onRemoveProjectCustomName,
+  onCreateUrl,
+  onUpdateUrl,
+  onDeleteUrl,
 }: SettingsViewProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [isIgnoreDialogOpen, setIsIgnoreDialogOpen] = useState(false)
@@ -61,6 +70,15 @@ export function SettingsView({
   const [loading, setLoading] = useState(false)
   const [editingCustomName, setEditingCustomName] = useState<string | null>(null)
   const [customNameInput, setCustomNameInput] = useState("")
+
+  // URL management state
+  const [isUrlDialogOpen, setIsUrlDialogOpen] = useState(false)
+  const [editingUrl, setEditingUrl] = useState<ProjectUrl | null>(null)
+  const [urlFormData, setUrlFormData] = useState({
+    project: "",
+    url: "",
+    description: "",
+  })
 
   const { getProjectTotals: getFilteredProjectTotals, formatDuration } = useTimeCalculations(
     statsData,
@@ -179,6 +197,65 @@ export function SettingsView({
     setCustomNameInput("")
   }
 
+  // URL management handlers
+  const handleEditUrl = (url: ProjectUrl) => {
+    setEditingUrl(url)
+    setUrlFormData({
+      project: url.project,
+      url: url.url,
+      description: url.description || "",
+    })
+    setIsUrlDialogOpen(true)
+  }
+
+  const resetUrlForm = () => {
+    setUrlFormData({
+      project: "",
+      url: "",
+      description: "",
+    })
+  }
+
+  const handleUrlDialogOpen = (open: boolean) => {
+    setIsUrlDialogOpen(open)
+    if (!open) {
+      setEditingUrl(null)
+      resetUrlForm()
+    }
+  }
+
+  const handleUrlSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+
+    try {
+      if (editingUrl) {
+        await onUpdateUrl(editingUrl.id, urlFormData)
+      } else {
+        await onCreateUrl(urlFormData)
+      }
+      setIsUrlDialogOpen(false)
+      resetUrlForm()
+      setEditingUrl(null)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDeleteUrl = async (id: string) => {
+    setLoading(true)
+    try {
+      await onDeleteUrl(id)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Helper to get URLs for a specific project
+  const getProjectUrls = (projectName: string): ProjectUrl[] => {
+    return projectUrls ? projectUrls.filter((url) => url.project === projectName) : []
+  }
+
   const idleTimeoutOptions = [5, 10, 15, 20, 30]
 
   return (
@@ -220,12 +297,8 @@ export function SettingsView({
             General
           </TabsTrigger>
           <TabsTrigger value="projects">
-            <Settings className="w-4 h-4 mr-2" />
-            Project Visibility
-          </TabsTrigger>
-          <TabsTrigger value="names">
-            <Tag className="w-4 h-4 mr-2" />
-            Custom Names
+            <FolderOpen className="w-4 h-4 mr-2" />
+            Projects
           </TabsTrigger>
         </TabsList>
 
@@ -385,58 +458,131 @@ export function SettingsView({
                           </Button>
                         </div>
 
-                        {/* Wrike Project Mapping */}
-                        {false && wrikeBearerToken && (
-                          <div className="ml-6 pl-4 border-l-2 border-purple-200">
+                        {/* Custom Name Management */}
+                        <div className="ml-6 pl-4 border-l-2 border-blue-200 space-y-3">
+                          <div>
                             <Label className="text-xs text-gray-600 mb-1 block">
-                              <Link2 className="w-3 h-3 inline mr-1" />
-                              Link to Wrike Project
+                              <Tag className="w-3 h-3 inline mr-1" />
+                              Custom Display Name
                             </Label>
-                            <Select
-                              disabled={wrikeProjectsLoading}
-                              onValueChange={async (value) => {
-                                const selectedWrikeProject = wrikeProjects.find((wp) => wp.id === value)
-                                if (selectedWrikeProject) {
-                                  await onSaveWrikeMapping(project.name, selectedWrikeProject)
-                                }
-                              }}
-                              value={wrikeProjectMappings.find((m) => m.projectName === project.name)?.wrikeProjectId || ""}
-                            >
-                              <SelectTrigger className="w-full">
-                                <SelectValue
-                                  placeholder={
-                                    wrikeProjectsLoading ? "Loading Wrike projects..." : "Select a Wrike project"
-                                  }
+                            {editingCustomName === project.name ? (
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  value={customNameInput}
+                                  onChange={(e) => setCustomNameInput(e.target.value)}
+                                  placeholder="Enter custom name"
+                                  className="flex-1"
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      handleSaveCustomName(project.name)
+                                    } else if (e.key === "Escape") {
+                                      handleCancelCustomName()
+                                    }
+                                  }}
                                 />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <div className="p-2">
-                                  <Input
-                                    placeholder="Search Wrike projects..."
-                                    value={wrikeProjectSearch}
-                                    onChange={(e) => setWrikeProjectSearch(e.target.value)}
-                                    className="mb-2"
-                                    onClick={(e) => e.stopPropagation()}
-                                  />
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleSaveCustomName(project.name)}
+                                  disabled={!customNameInput.trim() || loading}
+                                >
+                                  <Save className="w-4 h-4" />
+                                </Button>
+                                <Button size="sm" variant="outline" onClick={handleCancelCustomName}>
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-gray-700">
+                                  {getProjectCustomName(project.name)
+                                    ? getProjectCustomName(project.name)?.customName
+                                    : "Not set"}
+                                </span>
+                                <div className="flex gap-1">
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => handleEditCustomName(project.name)}
+                                    className="h-7 px-2"
+                                  >
+                                    <Pencil className="w-3 h-3" />
+                                  </Button>
+                                  {getProjectCustomName(project.name) && (
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => handleRemoveCustomName(project.name)}
+                                      disabled={loading}
+                                      className="h-7 px-2 text-red-600"
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                    </Button>
+                                  )}
                                 </div>
-                                {wrikeProjects
-                                  .filter(
-                                    (wp) =>
-                                      wrikeProjectSearch === "" ||
-                                      wp.title.toLowerCase().includes(wrikeProjectSearch.toLowerCase()),
-                                  )
-                                  .map((wrikeProject) => (
-                                    <SelectItem key={wrikeProject.id} value={wrikeProject.id}>
-                                      {wrikeProject.title}
-                                    </SelectItem>
-                                  ))}
-                                {wrikeProjects.length === 0 && !wrikeProjectsLoading && (
-                                  <div className="text-sm text-gray-500 p-2 text-center">No Wrike projects found</div>
-                                )}
-                              </SelectContent>
-                            </Select>
+                              </div>
+                            )}
                           </div>
-                        )}
+
+                          {/* Project URLs */}
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <Label className="text-xs text-gray-600">
+                                <Link2 className="w-3 h-3 inline mr-1" />
+                                Project URLs
+                              </Label>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => {
+                                  setUrlFormData({ project: project.name, url: "", description: "" })
+                                  setIsUrlDialogOpen(true)
+                                }}
+                                className="h-6 px-2 text-xs"
+                              >
+                                <Plus className="w-3 h-3 mr-1" />
+                                Add
+                              </Button>
+                            </div>
+                            {getProjectUrls(project.name).length === 0 ? (
+                              <p className="text-xs text-gray-500">No URLs added</p>
+                            ) : (
+                              <div className="space-y-1">
+                                {getProjectUrls(project.name).map((url) => (
+                                  <div key={url.id} className="flex items-center justify-between bg-white px-2 py-1 rounded border text-xs">
+                                    <a
+                                      href={url.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-teal-600 hover:text-teal-800 flex items-center gap-1 truncate flex-1"
+                                    >
+                                      {url.url}
+                                      <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                                    </a>
+                                    <div className="flex gap-1">
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleEditUrl(url)}
+                                        className="h-5 w-5 p-0"
+                                      >
+                                        <Pencil className="h-3 w-3" />
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleDeleteUrl(url.id)}
+                                        className="h-5 w-5 p-0 text-red-500 hover:text-red-600"
+                                        disabled={loading}
+                                      >
+                                        <Trash2 className="h-3 w-3" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -494,128 +640,62 @@ export function SettingsView({
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
 
-        {/* Custom Names Tab */}
-        <TabsContent value="names" className="space-y-6">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="relative mb-6">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search projects..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Tag className="w-5 h-5 text-blue-600" />
-                Project Custom Names
-              </CardTitle>
-              <CardDescription>
-                Set custom display names for your projects. The original project names will still be used for tracking.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {allProjectNames.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  No projects found. Start tracking time to see projects here.
+          {/* URL Management Dialog */}
+          <Dialog open={isUrlDialogOpen} onOpenChange={handleUrlDialogOpen}>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>{editingUrl ? "Edit Project URL" : "Add Project URL"}</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleUrlSubmit}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <label htmlFor="url-project" className="text-right font-medium">
+                      Project
+                    </label>
+                    <div className="col-span-3">
+                      <Select
+                        value={urlFormData.project}
+                        onValueChange={(value) => setUrlFormData({ ...urlFormData, project: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a project" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {allProjectNames.map((name) => (
+                            <SelectItem key={name} value={name}>
+                              {getProjectDisplayName(name)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <label htmlFor="url-input" className="text-right font-medium">
+                      URL
+                    </label>
+                    <Input
+                      id="url-input"
+                      value={urlFormData.url}
+                      onChange={(e) => setUrlFormData({ ...urlFormData, url: e.target.value })}
+                      className="col-span-3"
+                      placeholder="https://example.com"
+                      required
+                    />
+                  </div>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  {allProjectNames
-                    .filter(
-                      (projectName) =>
-                        searchQuery === "" ||
-                        projectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        getProjectDisplayName(projectName).toLowerCase().includes(searchQuery.toLowerCase()),
-                    )
-                    .map((projectName) => {
-                      const customName = getProjectCustomName(projectName)
-                      const isEditing = editingCustomName === projectName
-
-                      return (
-                        <div
-                          key={projectName}
-                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
-                        >
-                          <div className="flex-1">
-                            <div className="font-medium text-gray-900">{projectName}</div>
-                            {isEditing ? (
-                              <div className="mt-2 flex items-center gap-2">
-                                <Input
-                                  value={customNameInput}
-                                  onChange={(e) => setCustomNameInput(e.target.value)}
-                                  placeholder="Enter custom name"
-                                  className="flex-1"
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                      handleSaveCustomName(projectName)
-                                    } else if (e.key === "Escape") {
-                                      handleCancelCustomName()
-                                    }
-                                  }}
-                                />
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleSaveCustomName(projectName)}
-                                  disabled={!customNameInput.trim() || loading}
-                                >
-                                  <Save className="w-4 h-4" />
-                                </Button>
-                                <Button size="sm" variant="outline" onClick={handleCancelCustomName}>
-                                  <X className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            ) : (
-                              <div className="text-sm text-gray-600 mt-1">
-                                {customName ? (
-                                  <>
-                                    Display name: <span className="font-medium text-blue-600">{customName.customName}</span>
-                                  </>
-                                ) : (
-                                  "No custom name set"
-                                )}
-                              </div>
-                            )}
-                          </div>
-                          {!isEditing && (
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleEditCustomName(projectName)}
-                                className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                              >
-                                <Pencil className="w-4 h-4 mr-1" />
-                                {customName ? "Edit" : "Set Name"}
-                              </Button>
-                              {customName && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleRemoveCustomName(projectName)}
-                                  disabled={loading}
-                                  className="text-red-600 border-red-200 hover:bg-red-50"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => handleUrlDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={loading}>
+                    {editingUrl ? "Update" : "Add"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </TabsContent>
       </Tabs>
     </div>

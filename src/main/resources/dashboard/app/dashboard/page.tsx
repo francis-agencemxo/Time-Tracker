@@ -206,6 +206,7 @@ export default function DashboardPage() {
           statsData={statsData}
           ignoredProjects={ignoredProjects}
           projectCustomNames={projectCustomNames}
+          projectUrls={projectUrls}
           wrikeProjects={wrikeProjects}
           wrikeProjectsLoading={wrikeProjectsLoading}
           wrikeProjectMappings={wrikeProjectMappings}
@@ -216,6 +217,9 @@ export default function DashboardPage() {
           onRemoveIgnoredProject={removeIgnoredProject}
           onSaveProjectCustomName={saveProjectCustomName}
           onRemoveProjectCustomName={removeProjectCustomName}
+          onCreateUrl={createProjectUrl}
+          onUpdateUrl={updateProjectUrl}
+          onDeleteUrl={deleteProjectUrl}
           onFetchWrikeProjects={fetchWrikeProjects}
           onSaveWrikeMapping={saveWrikeProjectMapping}
           activeTab={tab}
