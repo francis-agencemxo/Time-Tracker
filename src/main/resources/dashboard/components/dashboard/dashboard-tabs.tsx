@@ -5,7 +5,7 @@ import { TimesheetView } from "./tabs/timesheet-view"
 import { DailyDetailsSimple } from "./tabs/daily-details-simple"
 import { SettingsView } from "./tabs/settings-view"
 import { Calendar, Clock, Settings } from "lucide-react"
-import type { StatsData, IgnoredProject, ProjectCustomName, ProjectUrl, ProjectClient } from "@/hooks/use-time-tracking-data"
+import type { StatsData, IgnoredProject, ProjectCustomName, ProjectUrl, ProjectClient, Commit } from "@/hooks/use-time-tracking-data"
 import type { WrikeProject } from "@/lib/wrike-api"
 
 interface DashboardTabsProps {
@@ -14,6 +14,7 @@ interface DashboardTabsProps {
   projectCustomNames: ProjectCustomName[]
   projectClients: ProjectClient[]
   projectUrls: ProjectUrl[]
+  commits: Commit[]
   wrikeProjects: WrikeProject[]
   wrikeProjectsLoading: boolean
   wrikeProjectMappings: Array<{
@@ -46,6 +47,7 @@ export function DashboardTabs({
   projectCustomNames,
   projectClients,
   projectUrls,
+  commits,
   wrikeProjects,
   wrikeProjectsLoading,
   wrikeProjectMappings,
@@ -91,6 +93,7 @@ export function DashboardTabs({
           ignoredProjects={ignoredProjects.map((p) => p.projectName)}
           projectCustomNames={projectCustomNames}
           projectClients={projectClients}
+          commits={commits}
           wrikeProjectMappings={wrikeProjectMappings}
         />
       </TabsContent>

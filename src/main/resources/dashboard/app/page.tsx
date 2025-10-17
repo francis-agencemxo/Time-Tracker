@@ -43,6 +43,7 @@ export default function HomePage() {
     ignoredProjects,
     projectCustomNames,
     projectClients,
+    commits,
     wrikeProjects,
     wrikeProjectsLoading,
     loading,
@@ -182,6 +183,7 @@ export default function HomePage() {
           projectCustomNames={projectCustomNames}
           projectClients={projectClients}
           projectUrls={projectUrls}
+          commits={commits}
           wrikeProjects={wrikeProjects}
           wrikeProjectsLoading={wrikeProjectsLoading}
           wrikeProjectMappings={[]}

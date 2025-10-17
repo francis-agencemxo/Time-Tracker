@@ -523,6 +523,59 @@ object BrowsingTrackerServer {
     }
 
     /**
+     * Handler for CRUD operations on commits.
+     */
+    private class CommitsHandler : HttpHandler {
+        override fun handle(exchange: HttpExchange) {
+            with(exchange.responseHeaders) {
+                add("Access-Control-Allow-Origin", "*")
+                add("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+                add("Access-Control-Allow-Headers", "Content-Type")
+            }
+            if (exchange.requestMethod.equals("OPTIONS", ignoreCase = true)) {
+                exchange.sendResponseHeaders(204, -1)
+                exchange.responseBody.close()
+                return
+            }
+            when (exchange.requestMethod.uppercase()) {
+                "GET" -> {
+                    println("GET /api/commits")
+                    val commits = DBManager.getAllCommits()
+
+                    val response = commits.toString(2).toByteArray()
+                    exchange.responseHeaders.add("Content-Type", "application/json")
+                    exchange.sendResponseHeaders(200, response.size.toLong())
+                    exchange.responseBody.use { it.write(response) }
+                }
+                "POST" -> {
+                    println("POST /api/commits")
+                    val body = exchange.requestBody.bufferedReader().readText()
+                    val json = JSONObject(body)
+
+                    DBManager.insertCommit(
+                        project = json.getString("project"),
+                        commitHash = json.getString("commitHash"),
+                        commitMessage = json.getString("commitMessage"),
+                        branch = json.optString("branch", null),
+                        authorName = json.optString("authorName", null),
+                        authorEmail = json.optString("authorEmail", null),
+                        commitTime = json.getString("commitTime"),
+                        filesChanged = json.optInt("filesChanged", 0),
+                        linesAdded = json.optInt("linesAdded", 0),
+                        linesDeleted = json.optInt("linesDeleted", 0)
+                    )
+                    exchange.sendResponseHeaders(201, -1)
+                    exchange.responseBody.close()
+                }
+                else -> {
+                    exchange.sendResponseHeaders(405, 0)
+                    exchange.responseBody.close()
+                }
+            }
+        }
+    }
+
+    /**
      * Handler for CRUD operations on IGNORED_PROJECT matching patterns.
      */
     private class ProjectsHandler : HttpHandler {
@@ -807,6 +860,7 @@ object BrowsingTrackerServer {
         server?.createContext("/api/projects", ProjectsHandler())
         server?.createContext("/api/project-names", ProjectNamesHandler())
         server?.createContext("/api/project-clients", ProjectClientsHandler())
+        server?.createContext("/api/commits", CommitsHandler())
         server?.createContext("/api/urls", UrlConfigHandler())
         server?.createContext("/api/license", LicenseHandler())
         server?.createContext("/api/setting", SettingsHandler())

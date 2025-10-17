@@ -123,6 +123,29 @@ object DBManager {
       """.trimIndent())
         }
 
+        conn.createStatement().use { st ->
+            st.executeUpdate("""
+        CREATE TABLE IF NOT EXISTS commits (
+          id              INTEGER PRIMARY KEY AUTOINCREMENT,
+          project         TEXT    NOT NULL,
+          commit_hash     TEXT    NOT NULL,
+          commit_message  TEXT    NOT NULL,
+          branch          TEXT,
+          author_name     TEXT,
+          author_email    TEXT,
+          commit_time     TEXT    NOT NULL,
+          files_changed   INTEGER DEFAULT 0,
+          lines_added     INTEGER DEFAULT 0,
+          lines_deleted   INTEGER DEFAULT 0,
+          created_at      DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_commits_project ON commits(project);
+        CREATE INDEX IF NOT EXISTS idx_commits_hash ON commits(commit_hash);
+        CREATE INDEX IF NOT EXISTS idx_commits_time ON commits(commit_time);
+      """.trimIndent())
+        }
+
         println("→→→→→→ Opened SQLite DB at ${dbFile.absolutePath}")
     }
 
@@ -613,5 +636,127 @@ object DBManager {
             ps.setInt(1, id)
             ps.executeUpdate()
         }
+    }
+
+    // ========== Commits ==========
+
+    fun insertCommit(
+        project: String,
+        commitHash: String,
+        commitMessage: String,
+        branch: String?,
+        authorName: String?,
+        authorEmail: String?,
+        commitTime: String,
+        filesChanged: Int = 0,
+        linesAdded: Int = 0,
+        linesDeleted: Int = 0
+    ) {
+        conn.prepareStatement("""
+            INSERT INTO commits (
+                project, commit_hash, commit_message, branch,
+                author_name, author_email, commit_time,
+                files_changed, lines_added, lines_deleted
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """.trimIndent()).use { ps ->
+            ps.setString(1, project)
+            ps.setString(2, commitHash)
+            ps.setString(3, commitMessage)
+            ps.setString(4, branch)
+            ps.setString(5, authorName)
+            ps.setString(6, authorEmail)
+            ps.setString(7, commitTime)
+            ps.setInt(8, filesChanged)
+            ps.setInt(9, linesAdded)
+            ps.setInt(10, linesDeleted)
+            ps.executeUpdate()
+        }
+    }
+
+    fun getAllCommits(): JSONArray {
+        val arr = JSONArray()
+        conn.prepareStatement("""
+            SELECT * FROM commits
+            ORDER BY commit_time DESC
+        """.trimIndent()).use { ps ->
+            val rs = ps.executeQuery()
+            while (rs.next()) {
+                val obj = JSONObject()
+                obj.put("id", rs.getInt("id"))
+                obj.put("project", rs.getString("project"))
+                obj.put("commitHash", rs.getString("commit_hash"))
+                obj.put("commitMessage", rs.getString("commit_message"))
+                obj.put("branch", rs.getString("branch"))
+                obj.put("authorName", rs.getString("author_name"))
+                obj.put("authorEmail", rs.getString("author_email"))
+                obj.put("commitTime", rs.getString("commit_time"))
+                obj.put("filesChanged", rs.getInt("files_changed"))
+                obj.put("linesAdded", rs.getInt("lines_added"))
+                obj.put("linesDeleted", rs.getInt("lines_deleted"))
+                obj.put("createdAt", rs.getString("created_at"))
+                arr.put(obj)
+            }
+        }
+        return arr
+    }
+
+    fun getCommitsByProject(project: String): JSONArray {
+        val arr = JSONArray()
+        conn.prepareStatement("""
+            SELECT * FROM commits
+            WHERE project = ?
+            ORDER BY commit_time DESC
+        """.trimIndent()).use { ps ->
+            ps.setString(1, project)
+            val rs = ps.executeQuery()
+            while (rs.next()) {
+                val obj = JSONObject()
+                obj.put("id", rs.getInt("id"))
+                obj.put("project", rs.getString("project"))
+                obj.put("commitHash", rs.getString("commit_hash"))
+                obj.put("commitMessage", rs.getString("commit_message"))
+                obj.put("branch", rs.getString("branch"))
+                obj.put("authorName", rs.getString("author_name"))
+                obj.put("authorEmail", rs.getString("author_email"))
+                obj.put("commitTime", rs.getString("commit_time"))
+                obj.put("filesChanged", rs.getInt("files_changed"))
+                obj.put("linesAdded", rs.getInt("lines_added"))
+                obj.put("linesDeleted", rs.getInt("lines_deleted"))
+                obj.put("createdAt", rs.getString("created_at"))
+                arr.put(obj)
+            }
+        }
+        return arr
+    }
+
+    fun getCommitsByDateRange(fromDate: String, toDate: String): JSONArray {
+        val arr = JSONArray()
+        conn.prepareStatement("""
+            SELECT * FROM commits
+            WHERE commit_time BETWEEN ? AND ?
+            ORDER BY commit_time DESC
+        """.trimIndent()).use { ps ->
+            ps.setString(1, fromDate)
+            ps.setString(2, toDate)
+            val rs = ps.executeQuery()
+            while (rs.next()) {
+                val obj = JSONObject()
+                obj.put("id", rs.getInt("id"))
+                obj.put("project", rs.getString("project"))
+                obj.put("commitHash", rs.getString("commit_hash"))
+                obj.put("commitMessage", rs.getString("commit_message"))
+                obj.put("branch", rs.getString("branch"))
+                obj.put("authorName", rs.getString("author_name"))
+                obj.put("authorEmail", rs.getString("author_email"))
+                obj.put("commitTime", rs.getString("commit_time"))
+                obj.put("filesChanged", rs.getInt("files_changed"))
+                obj.put("linesAdded", rs.getInt("lines_added"))
+                obj.put("linesDeleted", rs.getInt("lines_deleted"))
+                obj.put("createdAt", rs.getString("created_at"))
+                arr.put(obj)
+            }
+        }
+        return arr
     }
 }

@@ -6,9 +6,9 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend } from "recharts"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import type { StatsData, ProjectCustomName, ProjectClient } from "@/hooks/use-time-tracking-data"
+import type { StatsData, ProjectCustomName, ProjectClient, Commit } from "@/hooks/use-time-tracking-data"
 import { useTimeCalculations } from "@/hooks/use-time-calculations"
-import { Clock, Code, Globe, FileText, ExternalLink } from "lucide-react"
+import { Clock, Code, Globe, FileText, ExternalLink, GitCommit } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface TimesheetViewProps {
@@ -18,6 +18,7 @@ interface TimesheetViewProps {
   ignoredProjects?: string[]
   projectCustomNames?: ProjectCustomName[]
   projectClients?: ProjectClient[]
+  commits?: Commit[]
   wrikeProjectMappings?: Array<{
     projectName: string
     wrikeProjectId: string
@@ -49,6 +50,7 @@ export function TimesheetView({
   ignoredProjects = [],
   projectCustomNames = [],
   projectClients = [],
+  commits = [],
   wrikeProjectMappings = [],
 }: TimesheetViewProps) {
   const [selectedCell, setSelectedCell] = useState<DayProjectDetail | null>(null)
@@ -298,6 +300,7 @@ export function TimesheetView({
                 <TabsTrigger value="timeline">Timeline</TabsTrigger>
                 <TabsTrigger value="files">Files</TabsTrigger>
                 <TabsTrigger value="websites">Websites</TabsTrigger>
+                <TabsTrigger value="commits">Commits</TabsTrigger>
               </TabsList>
 
               {/* Timeline View with 24-hour bar */}
@@ -490,6 +493,71 @@ export function TimesheetView({
                     ))
                   ) : (
                     <div className="text-center py-8 text-gray-500">No websites recorded</div>
+                  )
+                })()}
+              </TabsContent>
+
+              {/* Commits Tab */}
+              <TabsContent value="commits" className="space-y-2">
+                {(() => {
+                  // Filter commits for the selected day and project
+                  const dayCommits = commits.filter((commit) => {
+                    const commitDate = new Date(commit.commitTime).toISOString().split("T")[0]
+                    return commitDate === selectedCell.date && commit.project === selectedCell.project
+                  }).sort((a, b) => new Date(b.commitTime).getTime() - new Date(a.commitTime).getTime())
+
+                  return dayCommits.length > 0 ? (
+                    <>
+                      <div className="text-sm text-gray-600 mb-2">
+                        {dayCommits.length} commit{dayCommits.length !== 1 ? "s" : ""}
+                      </div>
+                      {dayCommits.map((commit, index) => (
+                        <div key={index} className="p-3 border rounded-lg bg-gray-50 space-y-2">
+                          <div className="flex items-start gap-3">
+                            <GitCommit className="w-4 h-4 text-purple-600 flex-shrink-0 mt-1" />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <code className="text-xs font-mono bg-gray-200 px-2 py-0.5 rounded">
+                                  {commit.commitHash.substring(0, 7)}
+                                </code>
+                                {commit.branch && (
+                                  <Badge variant="outline" className="text-xs">
+                                    {commit.branch}
+                                  </Badge>
+                                )}
+                                <span className="text-xs text-gray-500">
+                                  {new Date(commit.commitTime).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </span>
+                              </div>
+                              <div className="text-sm text-gray-900 mb-2">{commit.commitMessage}</div>
+                              <div className="flex items-center gap-4 text-xs text-gray-600">
+                                {commit.authorName && (
+                                  <span>
+                                    <strong>Author:</strong> {commit.authorName}
+                                  </span>
+                                )}
+                                {commit.filesChanged > 0 && (
+                                  <span>
+                                    <strong>Files:</strong> {commit.filesChanged}
+                                  </span>
+                                )}
+                                {(commit.linesAdded > 0 || commit.linesDeleted > 0) && (
+                                  <span>
+                                    <span className="text-green-600">+{commit.linesAdded}</span> /{" "}
+                                    <span className="text-red-600">-{commit.linesDeleted}</span>
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">No commits recorded for this day</div>
                   )
                 })()}
               </TabsContent>

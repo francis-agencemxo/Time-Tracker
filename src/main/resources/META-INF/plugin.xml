@@ -53,6 +53,7 @@ The extension tracks active tab changes and reports browsing duration (in second
 
     <depends>com.jetbrains.php</depends>
     <depends>com.intellij.modules.phpstorm</depends>
+    <depends>Git4Idea</depends>
 
     <idea-version since-build="193.0" until-build="251.*"/>
 
@@ -66,5 +67,6 @@ The extension tracks active tab changes and reports browsing duration (in second
         <applicationService serviceImplementation="com.codepulse.timetracker.settings.TimeTrackerSettings"/>
         <applicationService serviceImplementation="com.codepulse.timetracker.license.LicenseStateService"/>
         <statusBarWidgetFactory id="CodePulse.DashboardWidget" implementation="com.codepulse.timetracker.DashboardStatusBarFactory"/>
+        <checkinHandlerFactory implementation="com.codepulse.timetracker.GitCommitListenerFactory"/>
     </extensions>
 </idea-plugin>

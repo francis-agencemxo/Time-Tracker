@@ -18,6 +18,8 @@ import java.util.concurrent.ConcurrentHashMap
 import org.json.JSONObject
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.fileEditor.FileDocumentManagerListener
 import com.intellij.openapi.startup.ProjectActivity
 import com.intellij.openapi.ui.Messages
 import org.json.JSONArray
@@ -34,6 +36,7 @@ class TrackingStartupActivity : ProjectActivity {
     private val currentFileMap = ConcurrentHashMap<Project, String?>()
     private val timerMap = ConcurrentHashMap<Project, Timer>()
     private val secondsMap = ConcurrentHashMap<Project, Int>()
+    private val lastSaveTimeMap = ConcurrentHashMap<String, Long>()
 
     fun isBrowsingServerRunning(): Boolean {
         return try {
@@ -90,6 +93,36 @@ class TrackingStartupActivity : ProjectActivity {
                         currentFileMap[project] = relativePath
                     } else {
                         currentFileMap.remove(project)
+                    }
+                }
+            }
+        )
+
+        // Listen for file saves
+        ApplicationManager.getApplication().messageBus.connect().subscribe(
+            FileDocumentManagerListener.TOPIC,
+            object : FileDocumentManagerListener {
+                override fun beforeDocumentSaving(document: com.intellij.openapi.editor.Document) {
+                    val file = FileDocumentManager.getInstance().getFile(document) ?: return
+                    val filePath = file.path
+
+                    // Check if this file belongs to the current project
+                    val projectBase = project.basePath ?: return
+                    if (!filePath.startsWith(projectBase)) return
+
+                    val relativePath = filePath.removePrefix(projectBase).removePrefix("/")
+
+                    // Avoid recording saves too frequently (throttle to once per 5 seconds per file)
+                    val now = System.currentTimeMillis()
+                    val lastSave = lastSaveTimeMap[filePath] ?: 0
+                    if (now - lastSave < 5000) return
+
+                    lastSaveTimeMap[filePath] = now
+
+                    // Record a short session for the file save
+                    if (!UserActivityTracker.isIdle(project, 2 * 60 * 1000)) {
+                        saveTime(project.name, 10, relativePath)
+                        println("💾 Recorded file save: $relativePath")
                     }
                 }
             }

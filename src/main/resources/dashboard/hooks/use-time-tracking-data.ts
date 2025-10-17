@@ -71,6 +71,21 @@ export interface WrikeProjectMapping {
   createdAt: string
 }
 
+export interface Commit {
+  id: string
+  project: string
+  commitHash: string
+  commitMessage: string
+  branch?: string
+  authorName?: string
+  authorEmail?: string
+  commitTime: string
+  filesChanged: number
+  linesAdded: number
+  linesDeleted: number
+  createdAt: string
+}
+
 // Fake data for preview - now using proper EST date strings
 const generateFakeData = (): StatsData => {
   const data: StatsData = {}
@@ -261,6 +276,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
   const [ignoredProjects, setIgnoredProjects] = useState<IgnoredProject[]>([])
   const [projectCustomNames, setProjectCustomNames] = useState<ProjectCustomName[]>([])
   const [projectClients, setProjectClients] = useState<ProjectClient[]>([])
+  const [commits, setCommits] = useState<Commit[]>([])
   const [wrikeProjects, setWrikeProjects] = useState<WrikeProject[]>([])
   const [wrikeProjectMappings, setWrikeProjectMappings] = useState<WrikeProjectMapping[]>([])
   const [wrikeProjectsLoading, setWrikeProjectsLoading] = useState(false)
@@ -1138,6 +1154,48 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     }
   }
 
+  const fetchCommits = async () => {
+    if (!isLicenseValid) {
+      setCommits([])
+      return
+    }
+
+    try {
+      if (isPreview) {
+        const stored = localStorage.getItem("commits")
+        if (stored) {
+          setCommits(JSON.parse(stored))
+        }
+        return
+      }
+
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+      try {
+        const response = await fetch(`${baseUrl}/api/commits`, {
+          signal: controller.signal,
+        })
+        clearTimeout(timeoutId)
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        const data = await response.json()
+        setCommits(data)
+      } catch (fetchError) {
+        clearTimeout(timeoutId)
+        console.warn("Commits API not available, using localStorage:", fetchError)
+        const stored = localStorage.getItem("commits")
+        if (stored) {
+          setCommits(JSON.parse(stored))
+        }
+      }
+    } catch (err) {
+      console.warn("Error fetching commits:", err)
+    }
+  }
+
   const fetchWrikeProjects = async (bearerToken: string) => {
     if (!isLicenseValid) {
       setWrikeProjects([])
@@ -1322,6 +1380,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
       fetchIgnoredProjects()
       fetchProjectCustomNames()
       fetchProjectClients()
+      fetchCommits()
       fetchWrikeProjectMappings()
     }
   }, [isLicenseValid])
@@ -1333,6 +1392,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     ignoredProjects,
     projectCustomNames,
     projectClients,
+    commits,
     wrikeProjects,
     wrikeProjectMappings,
     wrikeProjectsLoading,
@@ -1347,6 +1407,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     fetchIgnoredProjects,
     fetchProjectCustomNames,
     fetchProjectClients,
+    fetchCommits,
     fetchWrikeProjects,
     fetchWrikeProjectMappings,
     saveWrikeProjectMapping,
