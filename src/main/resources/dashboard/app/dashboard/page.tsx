@@ -47,6 +47,7 @@ export default function DashboardPage() {
     projectUrls,
     ignoredProjects,
     projectCustomNames,
+    projectClients,
     wrikeProjects,
     wrikeProjectsLoading,
     wrikeProjectMappings,
@@ -64,6 +65,8 @@ export default function DashboardPage() {
     removeIgnoredProject,
     saveProjectCustomName,
     removeProjectCustomName,
+    saveProjectClient,
+    removeProjectClient,
     fetchWrikeProjects,
     saveWrikeProjectMapping,
   } = useTimeTrackingData(isLicenseValid)
@@ -206,6 +209,7 @@ export default function DashboardPage() {
           statsData={statsData}
           ignoredProjects={ignoredProjects}
           projectCustomNames={projectCustomNames}
+          projectClients={projectClients}
           projectUrls={projectUrls}
           wrikeProjects={wrikeProjects}
           wrikeProjectsLoading={wrikeProjectsLoading}
@@ -217,6 +221,8 @@ export default function DashboardPage() {
           onRemoveIgnoredProject={removeIgnoredProject}
           onSaveProjectCustomName={saveProjectCustomName}
           onRemoveProjectCustomName={removeProjectCustomName}
+          onSaveProjectClient={saveProjectClient}
+          onRemoveProjectClient={removeProjectClient}
           onCreateUrl={createProjectUrl}
           onUpdateUrl={updateProjectUrl}
           onDeleteUrl={deleteProjectUrl}

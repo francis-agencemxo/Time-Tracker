@@ -109,6 +109,20 @@ object DBManager {
       """.trimIndent())
         }
 
+        conn.createStatement().use { st ->
+            st.executeUpdate("""
+        CREATE TABLE IF NOT EXISTS project_clients (
+          id           INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_name TEXT    NOT NULL UNIQUE,
+          client_name  TEXT    NOT NULL,
+          updated_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_project_clients_project ON project_clients(project_name);
+        CREATE INDEX IF NOT EXISTS idx_project_clients_client ON project_clients(client_name);
+      """.trimIndent())
+        }
+
         println("→→→→→→ Opened SQLite DB at ${dbFile.absolutePath}")
     }
 
@@ -534,6 +548,69 @@ object DBManager {
             WHERE project_name = ?
         """.trimIndent()).use { ps ->
             ps.setString(1, projectName)
+            ps.executeUpdate()
+        }
+    }
+
+    // ========== Project Clients ==========
+
+    fun getAllProjectClients(): JSONArray {
+        val arr = JSONArray()
+        conn.prepareStatement("""
+            SELECT * FROM project_clients
+            ORDER BY client_name, project_name
+        """.trimIndent()).use { ps ->
+            val rs = ps.executeQuery()
+            while (rs.next()) {
+                val obj = JSONObject()
+                obj.put("id", rs.getInt("id"))
+                obj.put("projectName", rs.getString("project_name"))
+                obj.put("clientName", rs.getString("client_name"))
+                obj.put("updatedAt", rs.getString("updated_at"))
+                arr.put(obj)
+            }
+        }
+        return arr
+    }
+
+    fun insertProjectClient(
+        project_name: String,
+        client_name: String
+    ) {
+        conn.prepareStatement("""
+            INSERT INTO project_clients (project_name, client_name)
+            VALUES (?, ?)
+            ON CONFLICT(project_name) DO UPDATE SET
+                client_name = excluded.client_name,
+                updated_at = CURRENT_TIMESTAMP
+        """.trimIndent()).use { ps ->
+            ps.setString(1, project_name)
+            ps.setString(2, client_name)
+            ps.executeUpdate()
+        }
+    }
+
+    fun updateProjectClient(
+        id: Int,
+        clientName: String
+    ) {
+        conn.prepareStatement("""
+            UPDATE project_clients
+            SET client_name = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        """.trimIndent()).use { ps ->
+            ps.setString(1, clientName)
+            ps.setInt(2, id)
+            ps.executeUpdate()
+        }
+    }
+
+    fun deleteProjectClient(id: Int) {
+        conn.prepareStatement("""
+            DELETE FROM project_clients
+            WHERE id = ?
+        """.trimIndent()).use { ps ->
+            ps.setInt(1, id)
             ps.executeUpdate()
         }
     }

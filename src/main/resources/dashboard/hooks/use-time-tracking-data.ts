@@ -55,6 +55,13 @@ export interface ProjectCustomName {
   updatedAt: string
 }
 
+export interface ProjectClient {
+  id: string
+  projectName: string
+  clientName: string
+  updatedAt: string
+}
+
 export interface WrikeProjectMapping {
   id: string
   projectName: string
@@ -253,6 +260,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
   const [projectUrls, setProjectUrls] = useState<ProjectUrl[]>([])
   const [ignoredProjects, setIgnoredProjects] = useState<IgnoredProject[]>([])
   const [projectCustomNames, setProjectCustomNames] = useState<ProjectCustomName[]>([])
+  const [projectClients, setProjectClients] = useState<ProjectClient[]>([])
   const [wrikeProjects, setWrikeProjects] = useState<WrikeProject[]>([])
   const [wrikeProjectMappings, setWrikeProjectMappings] = useState<WrikeProjectMapping[]>([])
   const [wrikeProjectsLoading, setWrikeProjectsLoading] = useState(false)
@@ -987,6 +995,149 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     }
   }
 
+  const fetchProjectClients = async () => {
+    if (!isLicenseValid) {
+      setProjectClients([])
+      return
+    }
+
+    try {
+      if (isPreview) {
+        const stored = localStorage.getItem("project-clients")
+        if (stored) {
+          setProjectClients(JSON.parse(stored))
+        }
+        return
+      }
+
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+      try {
+        const response = await fetch(`${baseUrl}/api/project-clients`, {
+          signal: controller.signal,
+        })
+        clearTimeout(timeoutId)
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        const data = await response.json()
+        setProjectClients(data)
+      } catch (fetchError) {
+        clearTimeout(timeoutId)
+        console.warn("Project clients API not available, using localStorage:", fetchError)
+        const stored = localStorage.getItem("project-clients")
+        if (stored) {
+          setProjectClients(JSON.parse(stored))
+        }
+      }
+    } catch (err) {
+      console.warn("Error fetching project clients:", err)
+    }
+  }
+
+  const saveProjectClient = async (projectName: string, clientName: string) => {
+    if (!isLicenseValid) return
+
+    try {
+      const existingClient = projectClients.find((p) => p.projectName === projectName)
+
+      if (isPreview) {
+        let updated: ProjectClient[]
+        if (existingClient) {
+          updated = projectClients.map((p) =>
+            p.projectName === projectName ? { ...p, clientName, updatedAt: new Date().toISOString() } : p,
+          )
+        } else {
+          const newClient: ProjectClient = {
+            id: Date.now().toString(),
+            projectName,
+            clientName,
+            updatedAt: new Date().toISOString(),
+          }
+          updated = [...projectClients, newClient]
+        }
+        setProjectClients(updated)
+        localStorage.setItem("project-clients", JSON.stringify(updated))
+        toast({
+          title: "Success",
+          description: `Client for "${projectName}" has been saved`,
+        })
+        return
+      }
+
+      const method = existingClient ? "PUT" : "POST"
+      const url = existingClient
+        ? `${baseUrl}/api/project-clients/${existingClient.id}`
+        : `${baseUrl}/api/project-clients`
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ projectName, clientName }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      await fetchProjectClients()
+      toast({
+        title: "Success",
+        description: `Client for "${projectName}" has been saved`,
+      })
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to save client",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const removeProjectClient = async (id: string) => {
+    if (!isLicenseValid) return
+
+    try {
+      const client = projectClients.find((p) => p.id === id)
+      const projectName = client?.projectName || "Project"
+
+      if (isPreview) {
+        const updated = projectClients.filter((p) => p.id !== id)
+        setProjectClients(updated)
+        localStorage.setItem("project-clients", JSON.stringify(updated))
+        toast({
+          title: "Success",
+          description: `Client for "${projectName}" has been removed`,
+        })
+        return
+      }
+
+      const response = await fetch(`${baseUrl}/api/project-clients/${id}`, {
+        method: "DELETE",
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      await fetchProjectClients()
+      toast({
+        title: "Success",
+        description: `Client for "${projectName}" has been removed`,
+      })
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to remove client",
+        variant: "destructive",
+      })
+    }
+  }
+
   const fetchWrikeProjects = async (bearerToken: string) => {
     if (!isLicenseValid) {
       setWrikeProjects([])
@@ -1170,6 +1321,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
       fetchSettings()
       fetchIgnoredProjects()
       fetchProjectCustomNames()
+      fetchProjectClients()
       fetchWrikeProjectMappings()
     }
   }, [isLicenseValid])
@@ -1180,6 +1332,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     projectUrls,
     ignoredProjects,
     projectCustomNames,
+    projectClients,
     wrikeProjects,
     wrikeProjectMappings,
     wrikeProjectsLoading,
@@ -1193,6 +1346,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     fetchSettings,
     fetchIgnoredProjects,
     fetchProjectCustomNames,
+    fetchProjectClients,
     fetchWrikeProjects,
     fetchWrikeProjectMappings,
     saveWrikeProjectMapping,
@@ -1206,5 +1360,7 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
     setStorageType: saveStorageType,
     saveProjectCustomName,
     removeProjectCustomName,
+    saveProjectClient,
+    removeProjectClient,
   }
 }

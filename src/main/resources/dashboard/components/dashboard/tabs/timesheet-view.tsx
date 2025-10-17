@@ -6,7 +6,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend } from "recharts"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import type { StatsData, ProjectCustomName } from "@/hooks/use-time-tracking-data"
+import type { StatsData, ProjectCustomName, ProjectClient } from "@/hooks/use-time-tracking-data"
 import { useTimeCalculations } from "@/hooks/use-time-calculations"
 import { Clock, Code, Globe, FileText, ExternalLink } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -17,6 +17,7 @@ interface TimesheetViewProps {
   idleTimeoutMinutes: number
   ignoredProjects?: string[]
   projectCustomNames?: ProjectCustomName[]
+  projectClients?: ProjectClient[]
   wrikeProjectMappings?: Array<{
     projectName: string
     wrikeProjectId: string
@@ -47,6 +48,7 @@ export function TimesheetView({
   idleTimeoutMinutes,
   ignoredProjects = [],
   projectCustomNames = [],
+  projectClients = [],
   wrikeProjectMappings = [],
 }: TimesheetViewProps) {
   const [selectedCell, setSelectedCell] = useState<DayProjectDetail | null>(null)
@@ -63,6 +65,12 @@ export function TimesheetView({
   const getProjectDisplayName = (projectName: string): string => {
     const customName = projectCustomNames.find((p) => p.projectName === projectName)
     return customName ? customName.customName : projectName
+  }
+
+  // Helper function to get client name for a project
+  const getProjectClient = (projectName: string): string | null => {
+    const client = projectClients.find((p) => p.projectName === projectName)
+    return client ? client.clientName : null
   }
 
   // Helper function to get Wrike mapping for a project
@@ -201,12 +209,18 @@ export function TimesheetView({
               <tbody>
                 {allProjects.map((project) => {
                   const wrikeMapping = getWrikeMapping(project)
+                  const clientName = getProjectClient(project)
                   return (
                     <tr key={project} className="border-b hover:bg-gray-50">
                       <td className="py-3 px-4 font-medium text-gray-900">
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: colorMap[project] }}></div>
-                          <span>{getProjectDisplayName(project)}</span>
+                          <div className="flex flex-col">
+                            <span>{getProjectDisplayName(project)}</span>
+                            {clientName && (
+                              <span className="text-xs text-gray-500 font-normal">{clientName}</span>
+                            )}
+                          </div>
                           {wrikeMapping && (
                             <a
                               href={wrikeMapping.wrikePermalink}

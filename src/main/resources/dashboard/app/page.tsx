@@ -42,6 +42,7 @@ export default function HomePage() {
     projectUrls,
     ignoredProjects,
     projectCustomNames,
+    projectClients,
     wrikeProjects,
     wrikeProjectsLoading,
     loading,
@@ -61,6 +62,8 @@ export default function HomePage() {
     removeIgnoredProject,
     saveProjectCustomName,
     removeProjectCustomName,
+    saveProjectClient,
+    removeProjectClient,
   } = useTimeTrackingData(isLicenseValid)
 
   // Update current week from URL parameter (only when URL changes externally)
@@ -177,6 +180,7 @@ export default function HomePage() {
           statsData={statsData}
           ignoredProjects={ignoredProjects}
           projectCustomNames={projectCustomNames}
+          projectClients={projectClients}
           projectUrls={projectUrls}
           wrikeProjects={wrikeProjects}
           wrikeProjectsLoading={wrikeProjectsLoading}
@@ -188,6 +192,8 @@ export default function HomePage() {
           onRemoveIgnoredProject={removeIgnoredProject}
           onSaveProjectCustomName={saveProjectCustomName}
           onRemoveProjectCustomName={removeProjectCustomName}
+          onSaveProjectClient={saveProjectClient}
+          onRemoveProjectClient={removeProjectClient}
           onCreateUrl={createProjectUrl}
           onUpdateUrl={updateProjectUrl}
           onDeleteUrl={deleteProjectUrl}

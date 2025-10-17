@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import * as React from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   EyeOff,
   Eye,
@@ -26,8 +29,10 @@ import {
   CheckCircle2,
   XCircle,
   ExternalLink,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react"
-import type { StatsData, IgnoredProject, ProjectCustomName, ProjectUrl } from "@/hooks/use-time-tracking-data"
+import type { StatsData, IgnoredProject, ProjectCustomName, ProjectUrl, ProjectClient } from "@/hooks/use-time-tracking-data"
 import { useTimeCalculations } from "@/hooks/use-time-calculations"
 import { toast } from "@/components/ui/use-toast"
 
@@ -35,6 +40,7 @@ interface SettingsViewProps {
   statsData: StatsData
   ignoredProjects: IgnoredProject[]
   projectCustomNames: ProjectCustomName[]
+  projectClients: ProjectClient[]
   projectUrls: ProjectUrl[]
   currentWeek: Date
   idleTimeoutMinutes: number
@@ -43,6 +49,8 @@ interface SettingsViewProps {
   onRemoveIgnoredProject: (id: string) => Promise<void>
   onSaveProjectCustomName: (projectName: string, customName: string) => Promise<void>
   onRemoveProjectCustomName: (id: string) => Promise<void>
+  onSaveProjectClient: (projectName: string, clientName: string) => Promise<void>
+  onRemoveProjectClient: (id: string) => Promise<void>
   onCreateUrl: (formData: { project: string; url: string; description: string }) => Promise<void>
   onUpdateUrl: (id: string, formData: { project: string; url: string; description: string }) => Promise<void>
   onDeleteUrl: (id: string) => Promise<void>
@@ -52,6 +60,7 @@ export function SettingsView({
   statsData,
   ignoredProjects,
   projectCustomNames,
+  projectClients,
   projectUrls,
   currentWeek,
   idleTimeoutMinutes,
@@ -60,6 +69,8 @@ export function SettingsView({
   onRemoveIgnoredProject,
   onSaveProjectCustomName,
   onRemoveProjectCustomName,
+  onSaveProjectClient,
+  onRemoveProjectClient,
   onCreateUrl,
   onUpdateUrl,
   onDeleteUrl,
@@ -71,6 +82,10 @@ export function SettingsView({
   const [editingCustomName, setEditingCustomName] = useState<string | null>(null)
   const [customNameInput, setCustomNameInput] = useState("")
 
+  // Client management state
+  const [editingClient, setEditingClient] = useState<string | null>(null)
+  const [clientInput, setClientInput] = useState("")
+
   // URL management state
   const [isUrlDialogOpen, setIsUrlDialogOpen] = useState(false)
   const [editingUrl, setEditingUrl] = useState<ProjectUrl | null>(null)
@@ -79,6 +94,37 @@ export function SettingsView({
     url: "",
     description: "",
   })
+
+  // Inline URL add state
+  const [addingUrlForProject, setAddingUrlForProject] = useState<string | null>(null)
+  const [inlineUrlInput, setInlineUrlInput] = useState("")
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
+
+  // Filter state
+  const [showIgnored, setShowIgnored] = useState(true)
+  const [groupByClient, setGroupByClient] = useState(false)
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
+
+  // View mode state
+  const [viewMode, setViewMode] = useState<"comfortable" | "compact">("comfortable")
+
+  // Active tab state - remember last visited tab
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("settings-active-tab") || "projects"
+    }
+    return "projects"
+  })
+
+  // Save active tab to localStorage when it changes
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("settings-active-tab", activeTab)
+    }
+  }, [activeTab])
 
   const { getProjectTotals: getFilteredProjectTotals, formatDuration } = useTimeCalculations(
     statsData,
@@ -110,25 +156,148 @@ export function SettingsView({
     return projectCustomNames.find((p) => p.projectName === projectName)
   }
 
+  // Helper function to get client for a project
+  const getProjectClient = (projectName: string): ProjectClient | undefined => {
+    return projectClients.find((p) => p.projectName === projectName)
+  }
+
   const allProjectNames = getAllProjectNames()
   const activeProjects = getFilteredProjectTotals()
   const ignoredProjectNames = ignoredProjects.map((p) => p.projectName)
 
-  // Filter projects based on search
-  const filteredActiveProjects = activeProjects.filter(
-    (project) =>
-      !ignoredProjectNames.includes(project.name) &&
-      (searchQuery === "" ||
-        project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        getProjectDisplayName(project.name).toLowerCase().includes(searchQuery.toLowerCase())),
-  )
+  // Helper to get URLs for a specific project (defined early to avoid hoisting issues)
+  const getProjectUrls = (projectName: string): ProjectUrl[] => {
+    return projectUrls ? projectUrls.filter((url) => url.project === projectName) : []
+  }
 
-  const filteredIgnoredProjects = ignoredProjects.filter(
-    (project) =>
-      searchQuery === "" ||
-      project.projectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      getProjectDisplayName(project.projectName).toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+  // Create unified project list for table
+  interface ProjectRow {
+    name: string
+    displayName: string
+    duration: number
+    isIgnored: boolean
+    ignoredAt?: string
+    urls: ProjectUrl[]
+  }
+
+  const getAllProjects = (): ProjectRow[] => {
+    const projectMap = new Map<string, ProjectRow>()
+
+    // Add active projects with duration
+    activeProjects.forEach((project) => {
+      projectMap.set(project.name, {
+        name: project.name,
+        displayName: getProjectDisplayName(project.name),
+        duration: project.duration,
+        isIgnored: false,
+        urls: getProjectUrls(project.name),
+      })
+    })
+
+    // Add/update ignored projects
+    ignoredProjects.forEach((project) => {
+      const existing = projectMap.get(project.projectName)
+      if (existing) {
+        existing.isIgnored = true
+        existing.ignoredAt = project.ignoredAt
+      } else {
+        projectMap.set(project.projectName, {
+          name: project.projectName,
+          displayName: getProjectDisplayName(project.projectName),
+          duration: 0,
+          isIgnored: true,
+          ignoredAt: project.ignoredAt,
+          urls: getProjectUrls(project.projectName),
+        })
+      }
+    })
+
+    return Array.from(projectMap.values())
+  }
+
+  // Filter and paginate projects
+  const allProjects = getAllProjects()
+  const filteredProjects = allProjects
+    .filter((project) => {
+      // Filter by ignored status
+      if (!showIgnored && project.isIgnored) return false
+
+      // Filter by search query
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase()
+        return (
+          project.name.toLowerCase().includes(query) ||
+          project.displayName.toLowerCase().includes(query) ||
+          project.urls.some((url) => url.url.toLowerCase().includes(query))
+        )
+      }
+
+      return true
+    })
+    .sort((a, b) => {
+      // Sort by name
+      return a.displayName.localeCompare(b.displayName)
+    })
+
+  // Group projects by client if enabled
+  interface ClientGroup {
+    clientName: string
+    projects: ProjectRow[]
+  }
+
+  const groupedProjects: ClientGroup[] = React.useMemo(() => {
+    if (!groupByClient) return []
+
+    const groups = new Map<string, ProjectRow[]>()
+
+    filteredProjects.forEach((project) => {
+      const client = getProjectClient(project.name)
+      const clientName = client?.clientName || "Unassigned"
+
+      if (!groups.has(clientName)) {
+        groups.set(clientName, [])
+      }
+      groups.get(clientName)!.push(project)
+    })
+
+    // Convert to array and sort by client name
+    return Array.from(groups.entries())
+      .map(([clientName, projects]) => ({ clientName, projects }))
+      .sort((a, b) => {
+        // "Unassigned" always last
+        if (a.clientName === "Unassigned") return 1
+        if (b.clientName === "Unassigned") return -1
+        return a.clientName.localeCompare(b.clientName)
+      })
+  }, [filteredProjects, groupByClient, projectClients])
+
+  const toggleGroupCollapse = (clientName: string) => {
+    setCollapsedGroups((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(clientName)) {
+        newSet.delete(clientName)
+      } else {
+        newSet.add(clientName)
+      }
+      return newSet
+    })
+  }
+
+  const totalPages = Math.ceil(filteredProjects.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedProjects = filteredProjects.slice(startIndex, endIndex)
+
+  // Reset to page 1 when filters change
+  const prevSearchQuery = React.useRef(searchQuery)
+  const prevShowIgnored = React.useRef(showIgnored)
+  React.useEffect(() => {
+    if (prevSearchQuery.current !== searchQuery || prevShowIgnored.current !== showIgnored) {
+      setCurrentPage(1)
+      prevSearchQuery.current = searchQuery
+      prevShowIgnored.current = showIgnored
+    }
+  }, [searchQuery, showIgnored])
 
   const handleAddIgnoredProject = async () => {
     if (!newProjectName.trim()) return
@@ -158,6 +327,18 @@ export function SettingsView({
       await onAddIgnoredProject(projectName)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleToggleIgnore = async (project: ProjectRow) => {
+    if (project.isIgnored) {
+      // Find the ignored project entry and remove it
+      const ignoredProject = ignoredProjects.find((p) => p.projectName === project.name)
+      if (ignoredProject) {
+        await handleRemoveIgnoredProject(ignoredProject.id)
+      }
+    } else {
+      await handleIgnoreProject(project.name)
     }
   }
 
@@ -195,6 +376,43 @@ export function SettingsView({
   const handleCancelCustomName = () => {
     setEditingCustomName(null)
     setCustomNameInput("")
+  }
+
+  // Client management handlers
+  const handleEditClient = (projectName: string) => {
+    const existingClient = getProjectClient(projectName)
+    setEditingClient(projectName)
+    setClientInput(existingClient?.clientName || "")
+  }
+
+  const handleSaveClient = async (projectName: string) => {
+    if (!clientInput.trim()) return
+
+    setLoading(true)
+    try {
+      await onSaveProjectClient(projectName, clientInput.trim())
+      setEditingClient(null)
+      setClientInput("")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleRemoveClient = async (projectName: string) => {
+    const client = getProjectClient(projectName)
+    if (!client) return
+
+    setLoading(true)
+    try {
+      await onRemoveProjectClient(client.id)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCancelClient = () => {
+    setEditingClient(null)
+    setClientInput("")
   }
 
   // URL management handlers
@@ -251,9 +469,31 @@ export function SettingsView({
     }
   }
 
-  // Helper to get URLs for a specific project
-  const getProjectUrls = (projectName: string): ProjectUrl[] => {
-    return projectUrls ? projectUrls.filter((url) => url.project === projectName) : []
+  // Inline URL add handlers
+  const handleInlineUrlAdd = async (projectName: string) => {
+    if (!inlineUrlInput.trim()) {
+      setAddingUrlForProject(null)
+      setInlineUrlInput("")
+      return
+    }
+
+    setLoading(true)
+    try {
+      await onCreateUrl({
+        project: projectName,
+        url: inlineUrlInput.trim(),
+        description: "",
+      })
+      setAddingUrlForProject(null)
+      setInlineUrlInput("")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCancelInlineUrl = () => {
+    setAddingUrlForProject(null)
+    setInlineUrlInput("")
   }
 
   const idleTimeoutOptions = [5, 10, 15, 20, 30]
@@ -274,7 +514,7 @@ export function SettingsView({
             <div className="flex items-center gap-4">
               <Badge variant="outline" className="px-3 py-1">
                 <FolderOpen className="w-4 h-4 mr-1" />
-                {filteredActiveProjects.length} Active
+                {activeProjects.length} Active
               </Badge>
               <Badge variant="secondary" className="px-3 py-1">
                 <EyeOff className="w-4 h-4 mr-1" />
@@ -290,15 +530,15 @@ export function SettingsView({
       </Card>
 
       {/* Tabs for different settings sections */}
-      <Tabs defaultValue="general" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList>
-          <TabsTrigger value="general">
-            <ClockIcon className="w-4 h-4 mr-2" />
-            General
-          </TabsTrigger>
           <TabsTrigger value="projects">
             <FolderOpen className="w-4 h-4 mr-2" />
             Projects
+          </TabsTrigger>
+          <TabsTrigger value="general">
+            <ClockIcon className="w-4 h-4 mr-2" />
+            General
           </TabsTrigger>
         </TabsList>
 
@@ -336,142 +576,400 @@ export function SettingsView({
           </Card>
         </TabsContent>
 
-        {/* Project Visibility Tab */}
+        {/* Projects CRUD Table */}
         <TabsContent value="projects" className="space-y-6">
           <Card>
-            <CardContent className="pt-6">
-              <div className="relative mb-6">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search projects..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="flex justify-end">
-            <Dialog open={isIgnoreDialogOpen} onOpenChange={setIsIgnoreDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-teal-600 hover:bg-teal-700">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Ignore Project
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Ignore Project</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="project-name" className="text-sm font-medium">
-                      Project Name
-                    </label>
-                    <Input
-                      id="project-name"
-                      value={newProjectName}
-                      onChange={(e) => setNewProjectName(e.target.value)}
-                      placeholder="Enter project name to ignore"
-                      className="mt-1"
-                    />
-                  </div>
-                  {allProjectNames.length > 0 && (
-                    <div>
-                      <p className="text-sm text-gray-600 mb-2">Or select from existing projects:</p>
-                      <div className="max-h-32 overflow-y-auto space-y-1">
-                        {allProjectNames
-                          .filter((name) => !ignoredProjectNames.includes(name))
-                          .map((projectName) => (
-                            <Button
-                              key={projectName}
-                              variant="ghost"
-                              size="sm"
-                              className="w-full justify-start text-left"
-                              onClick={() => setNewProjectName(projectName)}
-                            >
-                              {getProjectDisplayName(projectName)}
-                              {getProjectDisplayName(projectName) !== projectName && (
-                                <span className="text-gray-500 ml-2">({projectName})</span>
-                              )}
-                            </Button>
-                          ))}
-                      </div>
-                    </div>
-                  )}
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Projects</CardTitle>
+                  <CardDescription>
+                    Manage project visibility, custom names, and URLs
+                  </CardDescription>
                 </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsIgnoreDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleAddIgnoredProject} disabled={!newProjectName.trim() || loading}>
-                    Ignore Project
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline">
+                    {filteredProjects.length} of {allProjects.length} projects
+                  </Badge>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {/* Filters and Search */}
+              <div className="flex items-center gap-4 mb-4">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    placeholder="Search projects or URLs..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="show-ignored"
+                    checked={showIgnored}
+                    onCheckedChange={(checked) => setShowIgnored(checked as boolean)}
+                  />
+                  <Label htmlFor="show-ignored" className="text-sm cursor-pointer">
+                    Show ignored
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="group-by-client"
+                    checked={groupByClient}
+                    onCheckedChange={(checked) => setGroupByClient(checked as boolean)}
+                  />
+                  <Label htmlFor="group-by-client" className="text-sm cursor-pointer">
+                    Group by client
+                  </Label>
+                </div>
+                <Select value={viewMode} onValueChange={(value: "comfortable" | "compact") => setViewMode(value)}>
+                  <SelectTrigger className="w-36">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="comfortable">Comfortable</SelectItem>
+                    <SelectItem value="compact">Compact</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={itemsPerPage.toString()} onValueChange={(value) => setItemsPerPage(Number(value))}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10 / page</SelectItem>
+                    <SelectItem value="25">25 / page</SelectItem>
+                    <SelectItem value="50">50 / page</SelectItem>
+                    <SelectItem value="100">100 / page</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Active Projects */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Eye className="w-5 h-5 text-green-600" />
-                  Active Projects ({filteredActiveProjects.length})
-                </CardTitle>
-                <CardDescription>Projects included in calculations and statistics</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {filteredActiveProjects.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    {searchQuery ? "No active projects match your search." : "No active projects found."}
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {filteredActiveProjects.map((project) => (
-                      <div key={project.name} className="p-4 border rounded-lg hover:bg-gray-50 space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3 flex-1">
-                            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                            <div className="flex-1">
-                              <div className="font-medium">{getProjectDisplayName(project.name)}</div>
-                              {getProjectDisplayName(project.name) !== project.name && (
-                                <div className="text-xs text-gray-500">Original: {project.name}</div>
-                              )}
-                              <div className="text-sm text-gray-500 flex items-center gap-1">
-                                <ClockIcon className="w-3 h-3" />
-                                {formatDuration(project.duration)} this week
+              {/* Projects Table */}
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow className={viewMode === "compact" ? "text-xs" : ""}>
+                      <TableHead>Project Name</TableHead>
+                      <TableHead>Custom Name</TableHead>
+                      <TableHead>Client</TableHead>
+                      <TableHead className="w-28">Duration</TableHead>
+                      <TableHead>URLs</TableHead>
+                      <TableHead className="w-32">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedProjects.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-gray-500 py-8">
+                          {searchQuery ? "No projects match your search." : "No projects found."}
+                        </TableCell>
+                      </TableRow>
+                    ) : groupByClient ? (
+                      // Render grouped projects
+                      groupedProjects.flatMap((group) => {
+                        const isCollapsed = collapsedGroups.has(group.clientName)
+                        const groupProjects = group.projects.slice(startIndex, endIndex)
+
+                        return [
+                          // Group header row
+                          <TableRow
+                            key={`group-${group.clientName}`}
+                            className="bg-gray-100 hover:bg-gray-200 cursor-pointer"
+                            onClick={() => toggleGroupCollapse(group.clientName)}
+                          >
+                            <TableCell colSpan={6} className="font-semibold">
+                              <div className="flex items-center gap-2">
+                                {isCollapsed ? (
+                                  <ChevronRight className="w-4 h-4" />
+                                ) : (
+                                  <ChevronDown className="w-4 h-4" />
+                                )}
+                                <span>
+                                  {group.clientName} ({group.projects.length} project{group.projects.length !== 1 ? "s" : ""})
+                                </span>
+                              </div>
+                            </TableCell>
+                          </TableRow>,
+                          // Group projects (only if not collapsed)
+                          ...(isCollapsed
+                            ? []
+                            : groupProjects.map((project) => (
+                                <TableRow
+                                  key={project.name}
+                                  className={`${project.isIgnored ? "bg-orange-50" : ""} ${viewMode === "compact" ? "text-xs" : ""}`}
+                                >
+                                  {/* Project Name */}
+                                  <TableCell>
+                                    <div className="flex items-center gap-2 pl-6">
+                                      <div
+                                        className={`w-2 h-2 rounded-full ${project.isIgnored ? "bg-orange-500" : "bg-green-500"}`}
+                                      ></div>
+                                      <div>
+                                        <div className="font-medium">{project.name}</div>
+                                        {project.isIgnored && project.ignoredAt && (
+                                          <div className="text-xs text-gray-500">
+                                            Ignored {new Date(project.ignoredAt).toLocaleDateString()}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </TableCell>
+
+                                  {/* Custom Name */}
+                                  <TableCell>
+                                    {editingCustomName === project.name ? (
+                                      <div className="flex items-center gap-1">
+                                        <Input
+                                          value={customNameInput}
+                                          onChange={(e) => setCustomNameInput(e.target.value)}
+                                          placeholder="Enter custom name"
+                                          className="h-8"
+                                          autoFocus
+                                          onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                              handleSaveCustomName(project.name)
+                                            } else if (e.key === "Escape") {
+                                              handleCancelCustomName()
+                                            }
+                                          }}
+                                        />
+                                        <Button
+                                          size="sm"
+                                          onClick={() => handleSaveCustomName(project.name)}
+                                          disabled={!customNameInput.trim() || loading}
+                                          className="h-8 px-2"
+                                        >
+                                          <Save className="w-4 h-4" />
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={handleCancelCustomName}
+                                          className="h-8 px-2"
+                                        >
+                                          <X className="w-4 h-4" />
+                                        </Button>
+                                      </div>
+                                    ) : (
+                                      <span
+                                        className="text-sm cursor-pointer hover:bg-gray-100 px-2 py-1 rounded -mx-2"
+                                        onClick={() => handleEditCustomName(project.name)}
+                                        title="Click to edit custom name"
+                                      >
+                                        {getProjectCustomName(project.name)
+                                          ? getProjectCustomName(project.name)?.customName
+                                          : <span className="text-gray-400 italic">Not set</span>}
+                                      </span>
+                                    )}
+                                  </TableCell>
+
+                                  {/* Client */}
+                                  <TableCell>
+                                    {editingClient === project.name ? (
+                                      <div className="flex items-center gap-1">
+                                        <Input
+                                          value={clientInput}
+                                          onChange={(e) => setClientInput(e.target.value)}
+                                          placeholder="Enter client name"
+                                          className="h-8"
+                                          autoFocus
+                                          onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                              handleSaveClient(project.name)
+                                            } else if (e.key === "Escape") {
+                                              handleCancelClient()
+                                            }
+                                          }}
+                                        />
+                                        <Button
+                                          size="sm"
+                                          onClick={() => handleSaveClient(project.name)}
+                                          disabled={!clientInput.trim() || loading}
+                                          className="h-8 px-2"
+                                        >
+                                          <Save className="w-4 h-4" />
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={handleCancelClient}
+                                          className="h-8 px-2"
+                                        >
+                                          <X className="w-4 h-4" />
+                                        </Button>
+                                      </div>
+                                    ) : (
+                                      <span
+                                        className="text-sm cursor-pointer hover:bg-gray-100 px-2 py-1 rounded -mx-2"
+                                        onClick={() => handleEditClient(project.name)}
+                                        title="Click to assign/edit client"
+                                      >
+                                        {getProjectClient(project.name)
+                                          ? getProjectClient(project.name)?.clientName
+                                          : <span className="text-gray-400 italic">Not set</span>}
+                                      </span>
+                                    )}
+                                  </TableCell>
+
+                                  {/* Duration */}
+                                  <TableCell>
+                                    {project.duration > 0 ? (
+                                      <div className="flex items-center gap-1 text-sm">
+                                        <ClockIcon className="w-3 h-3" />
+                                        {formatDuration(project.duration)}
+                                      </div>
+                                    ) : (
+                                      <span className="text-gray-400 text-sm">-</span>
+                                    )}
+                                  </TableCell>
+
+                                  {/* URLs */}
+                                  <TableCell>
+                                    <div className="space-y-1">
+                                      {project.urls.map((url) => (
+                                        <div key={url.id} className="flex items-center gap-1 text-xs">
+                                          <a
+                                            href={url.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-teal-600 hover:text-teal-800 truncate max-w-[200px] inline-block"
+                                            title={url.url}
+                                          >
+                                            {url.url}
+                                          </a>
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleEditUrl(url)}
+                                            className="h-5 w-5 p-0"
+                                          >
+                                            <Pencil className="h-3 w-3" />
+                                          </Button>
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleDeleteUrl(url.id)}
+                                            className="h-5 w-5 p-0 text-red-500 hover:text-red-600"
+                                            disabled={loading}
+                                          >
+                                            <Trash2 className="h-3 w-3" />
+                                          </Button>
+                                        </div>
+                                      ))}
+                                      {addingUrlForProject === project.name ? (
+                                        <div className="flex items-center gap-1 mt-1">
+                                          <Input
+                                            value={inlineUrlInput}
+                                            onChange={(e) => setInlineUrlInput(e.target.value)}
+                                            placeholder="https://example.com"
+                                            className="h-7 text-xs"
+                                            autoFocus
+                                            onKeyDown={(e) => {
+                                              if (e.key === "Enter") {
+                                                handleInlineUrlAdd(project.name)
+                                              } else if (e.key === "Escape") {
+                                                handleCancelInlineUrl()
+                                              }
+                                            }}
+                                          />
+                                          <Button
+                                            size="sm"
+                                            onClick={() => handleInlineUrlAdd(project.name)}
+                                            disabled={!inlineUrlInput.trim() || loading}
+                                            className="h-7 px-2"
+                                          >
+                                            <Save className="w-3 h-3" />
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={handleCancelInlineUrl}
+                                            className="h-7 px-2"
+                                          >
+                                            <X className="w-3 h-3" />
+                                          </Button>
+                                        </div>
+                                      ) : project.urls.length === 0 ? (
+                                        <span className="text-xs text-gray-400">No URLs</span>
+                                      ) : null}
+                                    </div>
+                                  </TableCell>
+
+                                  {/* Actions */}
+                                  <TableCell>
+                                    <div className="flex items-center gap-1">
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={() => handleToggleIgnore(project)}
+                                        disabled={loading}
+                                        className="h-7 px-2"
+                                        title={project.isIgnored ? "Show project" : "Ignore project"}
+                                      >
+                                        {project.isIgnored ? (
+                                          <EyeOff className="w-4 h-4 text-orange-600" />
+                                        ) : (
+                                          <Eye className="w-4 h-4 text-green-600" />
+                                        )}
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={() => {
+                                          setAddingUrlForProject(project.name)
+                                          setInlineUrlInput("")
+                                        }}
+                                        className="h-7 px-2 text-xs"
+                                        title="Add URL"
+                                        disabled={addingUrlForProject === project.name}
+                                      >
+                                        <Plus className="w-3 h-3 mr-1" />
+                                        Add URL
+                                      </Button>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              ))),
+                        ]
+                      })
+                    ) : (
+                      // Render flat list
+                      paginatedProjects.map((project) => (
+                        <TableRow
+                          key={project.name}
+                          className={`${project.isIgnored ? "bg-orange-50" : ""} ${viewMode === "compact" ? "text-xs" : ""}`}
+                        >
+                          {/* Project Name */}
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <div
+                                className={`w-2 h-2 rounded-full ${project.isIgnored ? "bg-orange-500" : "bg-green-500"}`}
+                              ></div>
+                              <div>
+                                <div className="font-medium">{project.name}</div>
+                                {project.isIgnored && project.ignoredAt && (
+                                  <div className="text-xs text-gray-500">
+                                    Ignored {new Date(project.ignoredAt).toLocaleDateString()}
+                                  </div>
+                                )}
                               </div>
                             </div>
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleIgnoreProject(project.name)}
-                            disabled={loading}
-                            className="text-orange-600 border-orange-200 hover:bg-orange-50"
-                          >
-                            <EyeOff className="w-4 h-4 mr-1" />
-                            Ignore
-                          </Button>
-                        </div>
+                          </TableCell>
 
-                        {/* Custom Name Management */}
-                        <div className="ml-6 pl-4 border-l-2 border-blue-200 space-y-3">
-                          <div>
-                            <Label className="text-xs text-gray-600 mb-1 block">
-                              <Tag className="w-3 h-3 inline mr-1" />
-                              Custom Display Name
-                            </Label>
+                          {/* Custom Name */}
+                          <TableCell>
                             {editingCustomName === project.name ? (
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1">
                                 <Input
                                   value={customNameInput}
                                   onChange={(e) => setCustomNameInput(e.target.value)}
                                   placeholder="Enter custom name"
-                                  className="flex-1"
+                                  className="h-8"
+                                  autoFocus
                                   onKeyDown={(e) => {
                                     if (e.key === "Enter") {
                                       handleSaveCustomName(project.name)
@@ -484,162 +982,257 @@ export function SettingsView({
                                   size="sm"
                                   onClick={() => handleSaveCustomName(project.name)}
                                   disabled={!customNameInput.trim() || loading}
+                                  className="h-8 px-2"
                                 >
                                   <Save className="w-4 h-4" />
                                 </Button>
-                                <Button size="sm" variant="outline" onClick={handleCancelCustomName}>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={handleCancelCustomName}
+                                  className="h-8 px-2"
+                                >
                                   <X className="w-4 h-4" />
                                 </Button>
                               </div>
                             ) : (
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm text-gray-700">
-                                  {getProjectCustomName(project.name)
-                                    ? getProjectCustomName(project.name)?.customName
-                                    : "Not set"}
-                                </span>
-                                <div className="flex gap-1">
+                              <span
+                                className="text-sm cursor-pointer hover:bg-gray-100 px-2 py-1 rounded -mx-2"
+                                onClick={() => handleEditCustomName(project.name)}
+                                title="Click to edit custom name"
+                              >
+                                {getProjectCustomName(project.name)
+                                  ? getProjectCustomName(project.name)?.customName
+                                  : <span className="text-gray-400 italic">Not set</span>}
+                              </span>
+                            )}
+                          </TableCell>
+
+                          {/* Client */}
+                          <TableCell>
+                            {editingClient === project.name ? (
+                              <div className="flex items-center gap-1">
+                                <Input
+                                  value={clientInput}
+                                  onChange={(e) => setClientInput(e.target.value)}
+                                  placeholder="Enter client name"
+                                  className="h-8"
+                                  autoFocus
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      handleSaveClient(project.name)
+                                    } else if (e.key === "Escape") {
+                                      handleCancelClient()
+                                    }
+                                  }}
+                                />
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleSaveClient(project.name)}
+                                  disabled={!clientInput.trim() || loading}
+                                  className="h-8 px-2"
+                                >
+                                  <Save className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={handleCancelClient}
+                                  className="h-8 px-2"
+                                >
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <span
+                                className="text-sm cursor-pointer hover:bg-gray-100 px-2 py-1 rounded -mx-2"
+                                onClick={() => handleEditClient(project.name)}
+                                title="Click to assign/edit client"
+                              >
+                                {getProjectClient(project.name)
+                                  ? getProjectClient(project.name)?.clientName
+                                  : <span className="text-gray-400 italic">Not set</span>}
+                              </span>
+                            )}
+                          </TableCell>
+
+                          {/* Duration */}
+                          <TableCell>
+                            {project.duration > 0 ? (
+                              <div className="flex items-center gap-1 text-sm">
+                                <ClockIcon className="w-3 h-3" />
+                                {formatDuration(project.duration)}
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 text-sm">-</span>
+                            )}
+                          </TableCell>
+
+                          {/* URLs */}
+                          <TableCell>
+                            <div className="space-y-1">
+                              {project.urls.map((url) => (
+                                <div key={url.id} className="flex items-center gap-1 text-xs">
+                                  <a
+                                    href={url.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-teal-600 hover:text-teal-800 truncate max-w-[200px] inline-block"
+                                    title={url.url}
+                                  >
+                                    {url.url}
+                                  </a>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleEditUrl(url)}
+                                    className="h-5 w-5 p-0"
+                                  >
+                                    <Pencil className="h-3 w-3" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleDeleteUrl(url.id)}
+                                    className="h-5 w-5 p-0 text-red-500 hover:text-red-600"
+                                    disabled={loading}
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              ))}
+                              {addingUrlForProject === project.name ? (
+                                <div className="flex items-center gap-1 mt-1">
+                                  <Input
+                                    value={inlineUrlInput}
+                                    onChange={(e) => setInlineUrlInput(e.target.value)}
+                                    placeholder="https://example.com"
+                                    className="h-7 text-xs"
+                                    autoFocus
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter") {
+                                        handleInlineUrlAdd(project.name)
+                                      } else if (e.key === "Escape") {
+                                        handleCancelInlineUrl()
+                                      }
+                                    }}
+                                  />
                                   <Button
                                     size="sm"
-                                    variant="ghost"
-                                    onClick={() => handleEditCustomName(project.name)}
+                                    onClick={() => handleInlineUrlAdd(project.name)}
+                                    disabled={!inlineUrlInput.trim() || loading}
                                     className="h-7 px-2"
                                   >
-                                    <Pencil className="w-3 h-3" />
+                                    <Save className="w-3 h-3" />
                                   </Button>
-                                  {getProjectCustomName(project.name) && (
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      onClick={() => handleRemoveCustomName(project.name)}
-                                      disabled={loading}
-                                      className="h-7 px-2 text-red-600"
-                                    >
-                                      <Trash2 className="w-3 h-3" />
-                                    </Button>
-                                  )}
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={handleCancelInlineUrl}
+                                    className="h-7 px-2"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </Button>
                                 </div>
-                              </div>
-                            )}
-                          </div>
+                              ) : project.urls.length === 0 ? (
+                                <span className="text-xs text-gray-400">No URLs</span>
+                              ) : null}
+                            </div>
+                          </TableCell>
 
-                          {/* Project URLs */}
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <Label className="text-xs text-gray-600">
-                                <Link2 className="w-3 h-3 inline mr-1" />
-                                Project URLs
-                              </Label>
+                          {/* Actions */}
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleToggleIgnore(project)}
+                                disabled={loading}
+                                className="h-7 px-2"
+                                title={project.isIgnored ? "Show project" : "Ignore project"}
+                              >
+                                {project.isIgnored ? (
+                                  <EyeOff className="w-4 h-4 text-orange-600" />
+                                ) : (
+                                  <Eye className="w-4 h-4 text-green-600" />
+                                )}
+                              </Button>
                               <Button
                                 size="sm"
                                 variant="ghost"
                                 onClick={() => {
-                                  setUrlFormData({ project: project.name, url: "", description: "" })
-                                  setIsUrlDialogOpen(true)
+                                  setAddingUrlForProject(project.name)
+                                  setInlineUrlInput("")
                                 }}
-                                className="h-6 px-2 text-xs"
+                                className="h-7 px-2 text-xs"
+                                title="Add URL"
+                                disabled={addingUrlForProject === project.name}
                               >
                                 <Plus className="w-3 h-3 mr-1" />
-                                Add
+                                Add URL
                               </Button>
                             </div>
-                            {getProjectUrls(project.name).length === 0 ? (
-                              <p className="text-xs text-gray-500">No URLs added</p>
-                            ) : (
-                              <div className="space-y-1">
-                                {getProjectUrls(project.name).map((url) => (
-                                  <div key={url.id} className="flex items-center justify-between bg-white px-2 py-1 rounded border text-xs">
-                                    <a
-                                      href={url.url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-teal-600 hover:text-teal-800 flex items-center gap-1 truncate flex-1"
-                                    >
-                                      {url.url}
-                                      <ExternalLink className="h-3 w-3 flex-shrink-0" />
-                                    </a>
-                                    <div className="flex gap-1">
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => handleEditUrl(url)}
-                                        className="h-5 w-5 p-0"
-                                      >
-                                        <Pencil className="h-3 w-3" />
-                                      </Button>
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => handleDeleteUrl(url.id)}
-                                        className="h-5 w-5 p-0 text-red-500 hover:text-red-600"
-                                        disabled={loading}
-                                      >
-                                        <Trash2 className="h-3 w-3" />
-                                      </Button>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
 
-            {/* Ignored Projects */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <EyeOff className="w-5 h-5 text-orange-600" />
-                  Ignored Projects ({filteredIgnoredProjects.length})
-                </CardTitle>
-                <CardDescription>Projects excluded from calculations and statistics</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {filteredIgnoredProjects.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    {searchQuery ? "No ignored projects match your search." : "No projects are currently ignored."}
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4">
+                  <div className="text-sm text-gray-600">
+                    Showing {startIndex + 1}-{Math.min(endIndex, filteredProjects.length)} of {filteredProjects.length} projects
                   </div>
-                ) : (
-                  <div className="space-y-2">
-                    {filteredIgnoredProjects.map((project) => (
-                      <div
-                        key={project.id}
-                        className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                          <div>
-                            <div className="font-medium">{getProjectDisplayName(project.projectName)}</div>
-                            {getProjectDisplayName(project.projectName) !== project.projectName && (
-                              <div className="text-xs text-gray-500">Original: {project.projectName}</div>
-                            )}
-                            <div className="text-sm text-gray-500">
-                              Ignored {new Date(project.ignoredAt).toLocaleDateString()}
-                            </div>
-                          </div>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleRemoveIgnoredProject(project.id)}
-                          disabled={loading}
-                          className="text-green-600 border-green-200 hover:bg-green-50"
-                        >
-                          <Eye className="w-4 h-4 mr-1" />
-                          Include
-                        </Button>
-                      </div>
-                    ))}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      Previous
+                    </Button>
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum
+                        if (totalPages <= 5) {
+                          pageNum = i + 1
+                        } else if (currentPage <= 3) {
+                          pageNum = i + 1
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i
+                        } else {
+                          pageNum = currentPage - 2 + i
+                        }
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={currentPage === pageNum ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setCurrentPage(pageNum)}
+                            className="w-8 h-8 p-0"
+                          >
+                            {pageNum}
+                          </Button>
+                        )
+                      })}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                    </Button>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           {/* URL Management Dialog */}
           <Dialog open={isUrlDialogOpen} onOpenChange={handleUrlDialogOpen}>

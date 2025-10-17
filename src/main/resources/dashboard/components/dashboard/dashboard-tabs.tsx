@@ -5,13 +5,14 @@ import { TimesheetView } from "./tabs/timesheet-view"
 import { DailyDetailsSimple } from "./tabs/daily-details-simple"
 import { SettingsView } from "./tabs/settings-view"
 import { Calendar, Clock, Settings } from "lucide-react"
-import type { StatsData, IgnoredProject, ProjectCustomName, ProjectUrl } from "@/hooks/use-time-tracking-data"
+import type { StatsData, IgnoredProject, ProjectCustomName, ProjectUrl, ProjectClient } from "@/hooks/use-time-tracking-data"
 import type { WrikeProject } from "@/lib/wrike-api"
 
 interface DashboardTabsProps {
   statsData: StatsData
   ignoredProjects: IgnoredProject[]
   projectCustomNames: ProjectCustomName[]
+  projectClients: ProjectClient[]
   projectUrls: ProjectUrl[]
   wrikeProjects: WrikeProject[]
   wrikeProjectsLoading: boolean
@@ -28,6 +29,8 @@ interface DashboardTabsProps {
   onRemoveIgnoredProject: (id: string) => Promise<void>
   onSaveProjectCustomName: (projectName: string, customName: string) => Promise<void>
   onRemoveProjectCustomName: (id: string) => Promise<void>
+  onSaveProjectClient: (projectName: string, clientName: string) => Promise<void>
+  onRemoveProjectClient: (id: string) => Promise<void>
   onCreateUrl: (formData: { project: string; url: string; description: string }) => Promise<void>
   onUpdateUrl: (id: string, formData: { project: string; url: string; description: string }) => Promise<void>
   onDeleteUrl: (id: string) => Promise<void>
@@ -41,6 +44,7 @@ export function DashboardTabs({
   statsData,
   ignoredProjects,
   projectCustomNames,
+  projectClients,
   projectUrls,
   wrikeProjects,
   wrikeProjectsLoading,
@@ -52,6 +56,8 @@ export function DashboardTabs({
   onRemoveIgnoredProject,
   onSaveProjectCustomName,
   onRemoveProjectCustomName,
+  onSaveProjectClient,
+  onRemoveProjectClient,
   onCreateUrl,
   onUpdateUrl,
   onDeleteUrl,
@@ -84,6 +90,7 @@ export function DashboardTabs({
           idleTimeoutMinutes={idleTimeoutMinutes}
           ignoredProjects={ignoredProjects.map((p) => p.projectName)}
           projectCustomNames={projectCustomNames}
+          projectClients={projectClients}
           wrikeProjectMappings={wrikeProjectMappings}
         />
       </TabsContent>
@@ -102,6 +109,7 @@ export function DashboardTabs({
           statsData={statsData}
           ignoredProjects={ignoredProjects}
           projectCustomNames={projectCustomNames}
+          projectClients={projectClients}
           projectUrls={projectUrls}
           currentWeek={currentWeek}
           idleTimeoutMinutes={idleTimeoutMinutes}
@@ -110,6 +118,8 @@ export function DashboardTabs({
           onRemoveIgnoredProject={onRemoveIgnoredProject}
           onSaveProjectCustomName={onSaveProjectCustomName}
           onRemoveProjectCustomName={onRemoveProjectCustomName}
+          onSaveProjectClient={onSaveProjectClient}
+          onRemoveProjectClient={onRemoveProjectClient}
           onCreateUrl={onCreateUrl}
           onUpdateUrl={onUpdateUrl}
           onDeleteUrl={onDeleteUrl}

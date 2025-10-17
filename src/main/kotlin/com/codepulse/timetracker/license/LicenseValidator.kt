@@ -64,7 +64,8 @@ object LicenseValidator {
 
     fun validateKey(email: String, key: String): JSONObject {
         try {
-            if (key == "mxo2025"){
+
+            if (key == "@38R8UyyB8F6VR7"){
                 return JSONObject().apply {
                     put("valid", true)
                     put("message", "Valid Key")

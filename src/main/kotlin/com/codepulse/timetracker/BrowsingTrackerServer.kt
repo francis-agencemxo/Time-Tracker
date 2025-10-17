@@ -447,6 +447,82 @@ object BrowsingTrackerServer {
     }
 
     /**
+     * Handler for CRUD operations on project clients.
+     */
+    private class ProjectClientsHandler : HttpHandler {
+        override fun handle(exchange: HttpExchange) {
+            with(exchange.responseHeaders) {
+                add("Access-Control-Allow-Origin", "*")
+                add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                add("Access-Control-Allow-Headers", "Content-Type")
+            }
+            if (exchange.requestMethod.equals("OPTIONS", ignoreCase = true)) {
+                exchange.sendResponseHeaders(204, -1)
+                exchange.responseBody.close()
+                return
+            }
+            when (exchange.requestMethod.uppercase()) {
+                "GET" -> {
+                    println("GET /api/project-clients")
+                    val projectClients = DBManager.getAllProjectClients()
+
+                    val response = projectClients.toString(2).toByteArray()
+                    exchange.responseHeaders.add("Content-Type", "application/json")
+                    exchange.sendResponseHeaders(200, response.size.toLong())
+                    exchange.responseBody.use { it.write(response) }
+                }
+                "POST" -> {
+                    println("POST /api/project-clients")
+                    val body = exchange.requestBody.bufferedReader().readText()
+                    val json = JSONObject(body)
+                    DBManager.insertProjectClient(
+                        project_name = json.getString("projectName"),
+                        client_name = json.getString("clientName")
+                    )
+                    exchange.sendResponseHeaders(201, -1)
+                }
+                "PUT" -> {
+                    println("PUT /api/project-clients")
+                    val body = exchange.requestBody.bufferedReader().readText()
+                    val json = JSONObject(body)
+
+                    val fullPath = exchange.requestURI.path
+                    val idSegment = fullPath.substringAfterLast("/", missingDelimiterValue = "")
+                    val id = idSegment.toIntOrNull()
+
+                    val clientName = json.getString("clientName")
+                    println("clientName: $clientName")
+                    if (id != null) {
+                        DBManager.updateProjectClient(id, clientName)
+                        exchange.sendResponseHeaders(204, -1)
+                    } else {
+                        exchange.sendResponseHeaders(400, -1)
+                    }
+                }
+                "DELETE" -> {
+                    println("DELETE /api/project-clients")
+                    val fullPath = exchange.requestURI.path
+                    val idSegment = fullPath.substringAfterLast("/", missingDelimiterValue = "")
+                    val id = idSegment.toIntOrNull()
+
+                    if (id != null) {
+                        DBManager.deleteProjectClient(id)
+                        exchange.sendResponseHeaders(204, -1)
+                    } else {
+                        exchange.sendResponseHeaders(400, -1)
+                    }
+
+                    exchange.responseBody.close()
+                }
+                else -> {
+                    exchange.sendResponseHeaders(405, 0)
+                    exchange.responseBody.close()
+                }
+            }
+        }
+    }
+
+    /**
      * Handler for CRUD operations on IGNORED_PROJECT matching patterns.
      */
     private class ProjectsHandler : HttpHandler {
@@ -730,6 +806,7 @@ object BrowsingTrackerServer {
         server?.createContext("/api/stats", StatsHandler())
         server?.createContext("/api/projects", ProjectsHandler())
         server?.createContext("/api/project-names", ProjectNamesHandler())
+        server?.createContext("/api/project-clients", ProjectClientsHandler())
         server?.createContext("/api/urls", UrlConfigHandler())
         server?.createContext("/api/license", LicenseHandler())
         server?.createContext("/api/setting", SettingsHandler())
