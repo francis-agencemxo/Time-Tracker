@@ -10,13 +10,18 @@ import { AppLoadingScreen } from "@/components/license/app-loading-screen"
 import { Header } from "@/components/dashboard/header"
 import { WeekNavigation } from "@/components/dashboard/week-navigation"
 import { DashboardTabs } from "@/components/dashboard/dashboard-tabs"
+import { OnboardingTour } from "@/components/onboarding/onboarding-tour"
 import { useTimeTrackingData } from "@/hooks/use-time-tracking-data"
 import { useLicenseValidation } from "@/hooks/use-license-validation"
+import { useOnboarding } from "@/hooks/use-onboarding"
+import "@/styles/driver-theme.css"
 
 export default function HomePage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { isLicenseValid, isInitializing, validateLicense, logout } = useLicenseValidation()
+  const { hasCompletedOnboarding, isLoading: onboardingLoading, markOnboardingComplete, resetOnboarding } = useOnboarding(isLicenseValid)
+  const [showOnboarding, setShowOnboarding] = useState(false)
 
   // Get URL parameters
   const tab = searchParams.get("tab") || "timesheet"
@@ -127,6 +132,31 @@ export default function HomePage() {
     updateUrl({ tab: newTab })
   }
 
+  // Show onboarding tour when not completed and data is loaded
+  useEffect(() => {
+    if (!onboardingLoading && !hasCompletedOnboarding && !loading && isLicenseValid) {
+      setShowOnboarding(true)
+    }
+  }, [onboardingLoading, hasCompletedOnboarding, loading, isLicenseValid])
+
+  // Handle onboarding completion
+  const handleOnboardingComplete = () => {
+    markOnboardingComplete()
+    setShowOnboarding(false)
+  }
+
+  // Handle onboarding skip
+  const handleOnboardingSkip = () => {
+    markOnboardingComplete()
+    setShowOnboarding(false)
+  }
+
+  // Handle restart tour
+  const handleRestartTour = () => {
+    resetOnboarding()
+    setShowOnboarding(true)
+  }
+
   // Show loading screen while initializing license check
   if (isInitializing) {
     return <AppLoadingScreen />
@@ -172,6 +202,7 @@ export default function HomePage() {
           onStorageTypeChange={setStorageType}
           onRefresh={fetchStats}
           onLogout={logout}
+          onRestartTour={handleRestartTour}
           settingsLoading={settingsLoading}
         />
 
@@ -204,6 +235,13 @@ export default function HomePage() {
           activeTab={tab}
           onTabChange={handleTabChange}
         />
+
+        {showOnboarding && (
+          <OnboardingTour
+            onComplete={handleOnboardingComplete}
+            onSkip={handleOnboardingSkip}
+          />
+        )}
       </div>
     </div>
   )

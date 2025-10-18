@@ -4,6 +4,9 @@
     <version>1.10.5</version>
     <vendor email="info@francislabonte.com">MXO</vendor>
 
+    <!-- Note: Plugin requires restart due to postStartupActivity and background server -->
+    <!-- Future: Consider migrating to projectService for dynamic reload support -->
+
     <description><![CDATA[
         <h2>CodePulse</h2>
     <p><strong>Track developer productivity across coding and browsing activity.</strong></p>

@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.codepulse.timetracker"
-version = "2.9.41"
+version = "2.9.46"
 
 repositories {
     mavenCentral()

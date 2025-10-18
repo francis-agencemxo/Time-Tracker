@@ -3,16 +3,17 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar, RefreshCw, Settings, LogOut, Shield, Loader2, Clock } from "lucide-react"
+import { Calendar, RefreshCw, Settings, LogOut, Shield, Loader2, Clock, HelpCircle } from "lucide-react"
 import { useLicenseValidation } from "@/hooks/use-license-validation"
 
 interface HeaderProps {
   idleTimeoutMinutes: number
   onIdleTimeoutChange: (minutes: number) => void
-  storageType: "cloud" | "local"
-  onStorageTypeChange: (type: "cloud" | "local") => void
+  storageType?: "cloud" | "local"
+  onStorageTypeChange?: (type: "cloud" | "local") => void
   onRefresh: () => void
   onLogout?: () => void
+  onRestartTour?: () => void
   settingsLoading?: boolean
 }
 
@@ -23,13 +24,14 @@ export function Header({
   onStorageTypeChange,
   onRefresh,
   onLogout,
+  onRestartTour,
   settingsLoading = false,
 }: HeaderProps) {
   const { getLicenseInfo } = useLicenseValidation()
   const licenseInfo = getLicenseInfo()
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between" data-tour="header">
       <div className="flex items-center gap-4">
         {/* Custom Logo Design */}
         <div className="relative">
@@ -94,29 +96,6 @@ export function Header({
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label htmlFor="storage-type" className="text-sm font-medium">
-                    Data Storage
-                  </label>
-                  <select
-                    id="storage-type"
-                    value={storageType}
-                    onChange={(e) => onStorageTypeChange(e.target.value as "cloud" | "local")}
-                    className="bg-white border rounded px-2 py-1 text-sm"
-                    disabled={settingsLoading}
-                  >
-                    <option value="cloud">Cloud Storage</option>
-                    <option value="local">Local Storage</option>
-                  </select>
-                </div>
-                <p className="text-xs text-gray-500">
-                  {storageType === "cloud"
-                    ? "Data is stored on cloud"
-                    : "Data is stored locally on your computer"}
-                </p>
-              </div>
-
               {false && settingsLoading && (
                   <p className="text-xs text-blue-600 flex items-center gap-1">
                     <Loader2 className="w-3 h-3 animate-spin" />
@@ -159,6 +138,19 @@ export function Header({
             </div>
           </PopoverContent>
         </Popover>
+
+        {onRestartTour && (
+          <Button
+            onClick={onRestartTour}
+            variant="outline"
+            size="sm"
+            className="border-teal-200 text-teal-700 hover:bg-teal-50"
+            title="Restart the guided tour"
+          >
+            <HelpCircle className="w-4 h-4 mr-2" />
+            Help
+          </Button>
+        )}
 
         <Button
           onClick={onRefresh}

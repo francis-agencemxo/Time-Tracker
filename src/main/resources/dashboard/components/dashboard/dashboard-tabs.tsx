@@ -71,15 +71,15 @@ export function DashboardTabs({
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-4">
       <TabsList>
-        <TabsTrigger value="timesheet">
+        <TabsTrigger value="timesheet" data-tour="timesheet-tab">
           <Calendar className="w-4 h-4 mr-2" />
           Weekly Timesheet
         </TabsTrigger>
-        <TabsTrigger value="daily">
+        <TabsTrigger value="daily" data-tour="daily-details-tab">
           <Clock className="w-4 h-4 mr-2" />
           Daily Details
         </TabsTrigger>
-        <TabsTrigger value="settings">
+        <TabsTrigger value="settings" data-tour="settings-tab">
           <Settings className="w-4 h-4 mr-2" />
           Settings
         </TabsTrigger>
