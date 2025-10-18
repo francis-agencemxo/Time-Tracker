@@ -9,7 +9,7 @@ import com.intellij.openapi.vcs.checkin.CheckinHandlerFactory
 import git4idea.repo.GitRepositoryManager
 import git4idea.GitUtil
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import org.json.JSONObject
@@ -166,8 +166,8 @@ class GitCommitHandler(private val panel: CheckinProjectPanel) : CheckinHandler(
         }
 
         try {
-            val url = URL("http://localhost:${BrowsingTrackerServer.port}/api/commits")
-            val connection = url.openConnection() as HttpURLConnection
+            val uri = URI.create("http://localhost:${BrowsingTrackerServer.port}/api/commits")
+            val connection = uri.toURL().openConnection() as HttpURLConnection
             connection.requestMethod = "POST"
             connection.setRequestProperty("Content-Type", "application/json")
             connection.doOutput = true
