@@ -50,11 +50,27 @@ export const useLicenseValidation = () => {
   }, [])
 
   /**
+   * Checks if the backend server is available
+   */
+  const checkBackendAvailability = async (): Promise<boolean> => {
+    try {
+      const response = await fetch(`${baseUrl}/api/stats`, {
+        method: "GET",
+        signal: AbortSignal.timeout(3000), // 3 second timeout
+      })
+      return response.ok
+    } catch (error) {
+      console.error("Backend health check failed:", error)
+      return false
+    }
+  }
+
+  /**
    * Validates a license key with the external API
    */
   const validateLicenseWithAPI = async (licenseKey: string): Promise<boolean> => {
     try {
-        
+
       const response = await fetch(`${baseUrl}/api/license`, {
         method: "POST",
         headers: {
@@ -79,7 +95,7 @@ export const useLicenseValidation = () => {
       console.error("License validation error:", error)
 
       // Fallback: check against demo keys if API is unavailable
-      const demoKeys = ["MXO-DEV-2024-TRACK-001", "MXO-PRO-2024-TRACK-002", "MXO-ENT-2024-TRACK-003", "am+o2015"]
+      const demoKeys = ["MXO-DEV-2025"]
       return demoKeys.includes(licenseKey.trim().toUpperCase())
     }
   }
@@ -95,7 +111,7 @@ export const useLicenseValidation = () => {
       return false
     }
     if (isValid) {
-      const trimmedKey = licenseKey.trim().toUpperCase()
+      const trimmedKey = licenseKey.trim()
       localStorage.setItem(LICENSE_STORAGE_KEY, trimmedKey)
       setIsLicenseValid(true)
       setValidatedLicense(trimmedKey)
@@ -146,20 +162,11 @@ export const useLicenseValidation = () => {
     if (!validatedLicense) return null
 
     // Check if it's a demo key
-    const demoKeys = ["MXO-DEV-2024-TRACK-001", "MXO-PRO-2024-TRACK-002", "MXO-ENT-2024-TRACK-003", "AM+O2015"]
-    const isDemo = demoKeys.includes(validatedLicense)
+    const demoKeys = ["MXO-DEV-2025", "@38R8UyyB8F6VR7", "MXO"]
+    const isDemo = demoKeys.map(k => k.toUpperCase()).includes(validatedLicense.toUpperCase())
 
     // Parse license type from the key
-    let licenseType = "Developer"
-    if (validatedLicense.includes("-DEV-")) {
-      licenseType = "Developer"
-    } else if (validatedLicense.includes("-PRO-")) {
-      licenseType = "Professional"
-    } else if (validatedLicense.includes("-ENT-")) {
-      licenseType = "Enterprise"
-    } else if (validatedLicense === "AM+O2015") {
-      licenseType = "Special"
-    }
+    let licenseType = isDemo ? "Demo" : "Licensed"
 
     return {
       key: validatedLicense,
@@ -175,5 +182,6 @@ export const useLicenseValidation = () => {
     validateLicense,
     logout,
     getLicenseInfo,
+    checkBackendAvailability,
   }
 }

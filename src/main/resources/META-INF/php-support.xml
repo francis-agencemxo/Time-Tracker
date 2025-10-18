@@ -1,0 +1,4 @@
+<idea-plugin>
+    <!-- Optional PHP-specific features can be added here if needed -->
+    <!-- This file is loaded only when com.jetbrains.php plugin is available -->
+</idea-plugin>

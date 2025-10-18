@@ -169,10 +169,11 @@ object BrowsingTrackerServer {
                         val licenseKeyFromClient = requestJson.getString("license_key")
 
                         val apiResult: JSONObject;
-                        if (licenseKeyFromClient == "mxo") {
+                        val demoKeys = listOf("mxo", "MXO-DEV-2025")
+                        if (demoKeys.contains(licenseKeyFromClient)) {
                             apiResult = JSONObject()
                                 .put("valid", true)
-                                .put("message", "License key is valid (mxo)")
+                                .put("message", "License key is valid (demo)")
                         }
                         else{
                             apiResult = LicenseValidator.validateKey(

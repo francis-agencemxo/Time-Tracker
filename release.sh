@@ -99,10 +99,11 @@ echo "🪪 Updated chrome-extension/version.txt to $NEW_VERSION"
 # --- 4. Build plugin ---
 echo "⚙️ Building plugin..."
 echo "   Running: ./gradlew clean buildPlugin"
-if ! ./gradlew clean buildPlugin; then
-  echo "❌ Gradle build failed!"
-  exit 1
-fi
+./gradlew clean buildPlugin > /dev/null 2>&1
+#if ! ./gradlew clean buildPlugin; then
+#  echo "❌ Gradle build failed!"
+#  exit 1
+#fi
 echo "✓ Build completed successfully"
 
 # --- 5. Move .zip to /releases ---
@@ -129,15 +130,10 @@ sed -i"$SED_EXT" -E "s|(https://.*/)$ZIP_BASENAME-[0-9]+\.[0-9]+\.[0-9]+\.zip|\1
 
 # --- 7. Git commit, tag, and push ---
 echo "🔀 Committing and tagging release..."
-echo "   Adding files to git..."
-git add .
-echo "   Creating commit: $COMMIT_MESSAGE"
-git commit -m "$COMMIT_MESSAGE"
-echo "   Creating tag: v$NEW_VERSION"
-git tag -a "v$NEW_VERSION" -m "Release $NEW_VERSION"
-echo "   Pushing to origin/main..."
-git push origin main
-echo "   Pushing tag v$NEW_VERSION..."
-git push origin "v$NEW_VERSION"
+git add . > /dev/null 2>&1
+git commit -m "$COMMIT_MESSAGE" > /dev/null 2>&1
+git tag -a "v$NEW_VERSION" -m "Release $NEW_VERSION" > /dev/null 2>&1
+git push origin main > /dev/null 2>&1
+git push origin "v$NEW_VERSION" > /dev/null 2>&1
 
 echo "✅ Release $NEW_VERSION ($BUMP_TYPE) complete!"

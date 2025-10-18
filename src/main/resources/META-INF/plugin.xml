@@ -11,7 +11,7 @@
         <h2>CodePulse</h2>
     <p><strong>Track developer productivity across coding and browsing activity.</strong></p>
     <p>
-      This plugin monitors file‑editing in PhpStorm and active tabs in Chrome,
+      This plugin monitors file‑editing in IntelliJ IDEA and PhpStorm and active tabs in Chrome,
       records time by project and domain, and provides daily/weekly breakdowns
       with export or Google Sheets sync.
     </p>
@@ -54,8 +54,8 @@ The extension tracks active tab changes and reports browsing duration (in second
 
     <category>Productivity</category>
 
-    <depends>com.jetbrains.php</depends>
-    <depends>com.intellij.modules.phpstorm</depends>
+    <depends>com.intellij.modules.platform</depends>
+    <depends optional="true" config-file="php-support.xml">com.jetbrains.php</depends>
     <depends>Git4Idea</depends>
 
     <idea-version since-build="193.0" until-build="251.*"/>

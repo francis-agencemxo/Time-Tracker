@@ -163,7 +163,7 @@ export function Header({
         </Button>
         <Badge variant="outline" className="px-3 py-1">
           <Calendar className="w-4 h-4 mr-1" />
-          Live Data
+          {licenseInfo?.isDemo ? "Demo Data" : "Live Data"}
         </Badge>
       </div>
     </div>

@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.codepulse.timetracker"
-version = "2.9.46"
+version = "2.9.47"
 
 repositories {
     mavenCentral()
@@ -30,8 +30,8 @@ tasks.register<JavaExec>("runTrackerServer") {
 
 intellij {
     version.set("2024.1")
-    type.set("PS")
-    plugins.set(listOf("com.jetbrains.php", "Git4Idea"))
+    type.set("IC") // IntelliJ IDEA Community Edition
+    plugins.set(listOf("Git4Idea"))
 }
 
 dependencies {

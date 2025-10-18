@@ -19,7 +19,8 @@ import "@/styles/driver-theme.css"
 export default function HomePage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { isLicenseValid, isInitializing, validateLicense, logout } = useLicenseValidation()
+  const { isLicenseValid, isInitializing, validateLicense, logout, getLicenseInfo } = useLicenseValidation()
+  const licenseInfo = getLicenseInfo()
   const { hasCompletedOnboarding, isLoading: onboardingLoading, markOnboardingComplete, resetOnboarding } = useOnboarding(isLicenseValid)
   const [showOnboarding, setShowOnboarding] = useState(false)
 
@@ -41,7 +42,7 @@ export default function HomePage() {
   // Use ref to track if we're programmatically updating the URL
   const isUpdatingUrlRef = useRef(false)
 
-  // Pass license validation status to the data hook - but don't pass week navigation
+  // Pass license validation status to the data hook
   const {
     statsData,
     projectUrls,
@@ -70,7 +71,7 @@ export default function HomePage() {
     removeProjectCustomName,
     saveProjectClient,
     removeProjectClient,
-  } = useTimeTrackingData(isLicenseValid)
+  } = useTimeTrackingData(isLicenseValid, licenseInfo?.isDemo || false)
 
   // Update current week from URL parameter (only when URL changes externally)
   useEffect(() => {
@@ -108,7 +109,7 @@ export default function HomePage() {
     }, 100)
   }
 
-  // Handle week navigation with URL update - completely separate from the hook
+  // Handle week navigation with URL update
   const handleWeekNavigation = (direction: "prev" | "next" | "current") => {
     let newWeek: Date
 

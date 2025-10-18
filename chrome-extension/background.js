@@ -2,6 +2,9 @@ let currentTabUrl = null;
 let currentStart = null;
 let trackerServerPort = 56000;
 
+// Import history sync functions
+importScripts('history-sync.js');
+
 // Load initial settings
 chrome.storage.sync.get({ trackerServerPort }, (items) => {
   trackerServerPort = items.trackerServerPort;
@@ -32,6 +35,39 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.get("activeProject", ({ activeProject }) => {
     updateBadge(activeProject);
   });
+});
+
+// Listen for messages from popup/options to trigger history sync
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'syncHistory') {
+    const { startTime, endTime, projectName } = request;
+
+    syncHistoryRange(startTime, endTime, trackerServerPort, projectName)
+      .then(result => sendResponse({ success: true, result }))
+      .catch(error => sendResponse({ success: false, error: error.message }));
+
+    return true; // Keep channel open for async response
+  }
+
+  if (request.action === 'syncHistorySinceLastSync') {
+    const { projectName } = request;
+
+    syncHistorySinceLastSync(trackerServerPort, projectName)
+      .then(result => sendResponse({ success: true, result }))
+      .catch(error => sendResponse({ success: false, error: error.message }));
+
+    return true;
+  }
+
+  if (request.action === 'syncHistoryForDate') {
+    const { date, projectName } = request;
+
+    syncHistoryForDate(new Date(date), trackerServerPort, projectName)
+      .then(result => sendResponse({ success: true, result }))
+      .catch(error => sendResponse({ success: false, error: error.message }));
+
+    return true;
+  }
 });
 
 function updateBadge(projectName) {

@@ -9,19 +9,60 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
-import { Shield, Key, CheckCircle, AlertCircle, Copy, Loader2, Globe, Clock } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Shield, Key, CheckCircle, AlertCircle, Copy, Loader2, Globe, Clock, Lock, HardDrive, Info } from "lucide-react"
+import { useLicenseValidation } from "@/hooks/use-license-validation"
 
 interface LicenseValidationProps {
   onValidate: (licenseKey: string) => Promise<boolean>
 }
 
 // Fake license keys for testing
-const DEMO_LICENSE_KEYS = ["MXO-DEV-2024-TRACK-001", "MXO-PRO-2024-TRACK-002", "MXO-ENT-2024-TRACK-003"]
+const DEMO_LICENSE_KEYS = ["MXO-DEV-2025"]
 
 export function LicenseValidation({ onValidate }: LicenseValidationProps) {
+  const { checkBackendAvailability } = useLicenseValidation()
   const [licenseKey, setLicenseKey] = useState("")
   const [error, setError] = useState("")
   const [isValidating, setIsValidating] = useState(false)
+  const [showPrivacyDialog, setShowPrivacyDialog] = useState(false)
+  const [privacyAcknowledged, setPrivacyAcknowledged] = useState(false)
+
+  // Determine database path based on OS
+  const getDatabasePath = () => {
+    if (typeof window === "undefined") return ""
+
+    const userAgent = window.navigator.userAgent.toLowerCase()
+    const isWindows = userAgent.includes("win")
+    const isMac = userAgent.includes("mac")
+
+    if (isWindows) {
+      return "%USERPROFILE%\\.cache\\phpstorm-time-tracker\\data.db"
+    } else if (isMac) {
+      return "~/.cache/phpstorm-time-tracker/data.db"
+    } else {
+      // Linux and others
+      return "~/.cache/phpstorm-time-tracker/data.db"
+    }
+  }
+
+  // Check if privacy has been acknowledged
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const acknowledged = localStorage.getItem("privacy-acknowledged")
+      setPrivacyAcknowledged(acknowledged === "true")
+      if (acknowledged !== "true") {
+        setShowPrivacyDialog(true)
+      }
+    }
+  }, [])
 
   // Handle URL parameters for license key return
   useEffect(() => {
@@ -49,7 +90,13 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
     try {
       const isValid = await onValidate(key.trim())
       if (!isValid) {
-        setError("The license key from login portal is invalid. Please try again.")
+        // Check if backend is available
+        const backendAvailable = await checkBackendAvailability()
+        if (!backendAvailable) {
+          setError("Please open a PhpStorm project with the Time Tracker plugin to access the dashboard.")
+        } else {
+          setError("The license key from login portal is invalid. Please try again.")
+        }
       }
     } catch (err) {
       setError("Failed to validate license from login portal. Please check your connection.")
@@ -76,7 +123,13 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
       const isValid = await onValidate(licenseKey.trim())
 
       if (!isValid) {
-        setError("Invalid license key. Please check your key and try again.")
+        // Check if backend is available
+        const backendAvailable = await checkBackendAvailability()
+        if (!backendAvailable) {
+          setError("Please open a PhpStorm project with the Time Tracker plugin to access the dashboard.")
+        } else {
+          setError("Invalid license key. Please check your key and try again.")
+        }
       }
     } catch (err) {
       setError("Failed to validate license. Please check your connection and try again.")
@@ -94,8 +147,85 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
     navigator.clipboard.writeText(text)
   }
 
+  const handlePrivacyAcknowledge = () => {
+    localStorage.setItem("privacy-acknowledged", "true")
+    setPrivacyAcknowledged(true)
+    setShowPrivacyDialog(false)
+  }
+
   return (
     <div className="min-h-screen bg-stone-50 flex items-center justify-center p-6">
+      {/* Privacy Acknowledgement Dialog */}
+      <Dialog open={showPrivacyDialog} onOpenChange={setShowPrivacyDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Lock className="h-6 w-6 text-teal-600" />
+              Privacy & Data Storage
+            </DialogTitle>
+            <DialogDescription>
+              Understanding how your data is stored and protected
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <Alert className="border-teal-200 bg-teal-50">
+              <HardDrive className="h-4 w-4 text-teal-600" />
+              <AlertDescription className="text-teal-800">
+                <strong>All data stays on your computer.</strong> Your time tracking data is stored locally and never uploaded to any server.
+              </AlertDescription>
+            </Alert>
+
+            <div className="space-y-3 text-sm">
+              <div className="flex gap-3">
+                <CheckCircle className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium">Local Storage Only</p>
+                  <p className="text-gray-600">All time tracking data is stored in your browser's local storage on your computer. No data is sent to external servers.</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <CheckCircle className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium">No Cloud Synchronization</p>
+                  <p className="text-gray-600">Your data remains private and is not synchronized or backed up to any cloud service.</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <CheckCircle className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium">License Validation Only</p>
+                  <p className="text-gray-600">The only external connection is for license validation. Your usage data and project information are never shared.</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium">Your Responsibility</p>
+                  <p className="text-gray-600 mb-2">Since data is stored locally, you are responsible for backing up your data if needed.</p>
+                  <p className="text-gray-600 text-xs font-mono bg-gray-100 p-2 rounded border break-all">
+                    Database location: {getDatabasePath()}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              onClick={handlePrivacyAcknowledge}
+              className="w-full bg-teal-600 hover:bg-teal-700"
+            >
+              <CheckCircle className="w-4 h-4 mr-2" />
+              I Understand - Continue
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className="w-full max-w-md space-y-6">
         {/* Custom Logo and Title */}
         <div className="text-center space-y-4">
@@ -225,9 +355,9 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
         {isPreview && (
           <Card className="border-teal-200">
             <CardHeader>
-              <CardTitle className="text-sm text-teal-800">Demo License Keys</CardTitle>
+              <CardTitle className="text-sm text-teal-800">Demo License Key</CardTitle>
               <CardDescription className="text-xs">
-                For testing purposes, you can use any of these demo keys:
+                For testing purposes, you can use this demo key:
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -235,7 +365,7 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
                 <div key={key} className="flex items-center justify-between p-2 bg-teal-50 rounded border">
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-xs">
-                      {key.includes("DEV") ? "DEV" : key.includes("PRO") ? "PRO" : "ENT"}
+                      {key.includes("DEV") ? "DEV" : key.includes("PRO") ? "PRO" : "DEMO"}
                     </Badge>
                     <code className="text-xs font-mono text-teal-700">{key}</code>
                   </div>
@@ -267,12 +397,18 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
         )}
 
         {/* Footer Info */}
-        <div className="text-center">
+        <div className="text-center space-y-2">
           <p className="text-xs text-gray-500">
             {isPreview
               ? "Preview mode: Demo keys work offline for testing."
               : "License validation requires an internet connection."}
           </p>
+          <button
+            onClick={() => setShowPrivacyDialog(true)}
+            className="text-xs text-teal-600 hover:text-teal-700 underline"
+          >
+            View Privacy & Data Storage Information
+          </button>
         </div>
       </div>
     </div>

@@ -269,7 +269,7 @@ const filterIgnoredProjects = (statsData: StatsData, ignoredProjectNames: string
   return filteredData
 }
 
-export const useTimeTrackingData = (isLicenseValid = false) => {
+export const useTimeTrackingData = (isLicenseValid = false, isDemoLicense = false) => {
   const [rawStatsData, setRawStatsData] = useState<StatsData>({}) // Store raw data
   const [statsData, setStatsData] = useState<StatsData>({}) // Store filtered data
   const [projectUrls, setProjectUrls] = useState<ProjectUrl[]>([])
@@ -291,11 +291,12 @@ export const useTimeTrackingData = (isLicenseValid = false) => {
       ? ""
       : `http://localhost:${process.env.NEXT_PUBLIC_TRACKER_SERVER_PORT || "56000"}`
 
-  // Better preview detection - use fake data only for v0.dev
+  // Better preview detection - use fake data for v0.dev or demo licenses
   const isPreview =
     typeof window === "undefined" ||
     window.location.hostname.includes("v0.dev") ||
-    window.location.hostname.includes("vusercontent.net")
+    window.location.hostname.includes("vusercontent.net") ||
+    isDemoLicense
 
   // Filter stats data whenever raw data or ignored projects change
   useEffect(() => {
