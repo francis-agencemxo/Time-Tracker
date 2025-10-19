@@ -851,6 +851,132 @@ object BrowsingTrackerServer {
         }
     }
 
+    /**
+     * Handler for CRUD operations on meeting patterns.
+     */
+    private class MeetingPatternsHandler : HttpHandler {
+        override fun handle(exchange: HttpExchange) {
+            with(exchange.responseHeaders) {
+                add("Access-Control-Allow-Origin", "*")
+                add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                add("Access-Control-Allow-Headers", "Content-Type")
+            }
+            if (exchange.requestMethod.equals("OPTIONS", ignoreCase = true)) {
+                exchange.sendResponseHeaders(204, -1)
+                exchange.responseBody.close()
+                return
+            }
+
+            when (exchange.requestMethod.uppercase()) {
+                "GET" -> {
+                    println("GET /api/meeting-patterns")
+                    val patterns = DBManager.getAllMeetingPatterns()
+                    val response = patterns.toString(2).toByteArray()
+                    exchange.responseHeaders.add("Content-Type", "application/json")
+                    exchange.sendResponseHeaders(200, response.size.toLong())
+                    exchange.responseBody.use { it.write(response) }
+                }
+                "POST" -> {
+                    println("POST /api/meeting-patterns")
+                    val body = exchange.requestBody.bufferedReader().readText()
+                    val json = JSONObject(body)
+
+                    DBManager.insertOrUpdateMeetingPattern(
+                        projectName = json.getString("projectName"),
+                        urlPattern = json.getString("urlPattern"),
+                        meetingTitle = json.optString("meetingTitle", null),
+                        description = json.optString("description", null),
+                        autoAssign = json.optBoolean("autoAssign", true)
+                    )
+
+                    exchange.sendResponseHeaders(201, -1)
+                    exchange.responseBody.close()
+                }
+                "PUT" -> {
+                    println("PUT /api/meeting-patterns")
+                    val body = exchange.requestBody.bufferedReader().readText()
+                    val json = JSONObject(body)
+
+                    val fullPath = exchange.requestURI.path
+                    val idSegment = fullPath.substringAfterLast("/", missingDelimiterValue = "")
+                    val id = idSegment.toIntOrNull()
+
+                    if (id != null && json.has("autoAssign")) {
+                        DBManager.updateMeetingPatternAutoAssign(id, json.getBoolean("autoAssign"))
+                        exchange.sendResponseHeaders(204, -1)
+                    } else {
+                        exchange.sendResponseHeaders(400, -1)
+                    }
+                    exchange.responseBody.close()
+                }
+                "DELETE" -> {
+                    println("DELETE /api/meeting-patterns")
+                    val fullPath = exchange.requestURI.path
+                    val idSegment = fullPath.substringAfterLast("/", missingDelimiterValue = "")
+                    val id = idSegment.toIntOrNull()
+
+                    if (id != null) {
+                        DBManager.deleteMeetingPattern(id)
+                        exchange.sendResponseHeaders(204, -1)
+                    } else {
+                        exchange.sendResponseHeaders(400, -1)
+                    }
+                    exchange.responseBody.close()
+                }
+                else -> {
+                    exchange.sendResponseHeaders(405, 0)
+                    exchange.responseBody.close()
+                }
+            }
+        }
+    }
+
+    /**
+     * Handler to match a URL against meeting patterns and return matching project
+     */
+    private class MeetingPatternMatchHandler : HttpHandler {
+        override fun handle(exchange: HttpExchange) {
+            with(exchange.responseHeaders) {
+                add("Access-Control-Allow-Origin", "*")
+                add("Access-Control-Allow-Methods", "POST, OPTIONS")
+                add("Access-Control-Allow-Headers", "Content-Type")
+            }
+            if (exchange.requestMethod.equals("OPTIONS", ignoreCase = true)) {
+                exchange.sendResponseHeaders(204, -1)
+                exchange.responseBody.close()
+                return
+            }
+
+            when (exchange.requestMethod.uppercase()) {
+                "POST" -> {
+                    println("POST /api/meeting-patterns/match")
+                    val body = exchange.requestBody.bufferedReader().readText()
+                    val json = JSONObject(body)
+                    val url = json.getString("url")
+
+                    val projectName = DBManager.findMeetingPattern(url)
+
+                    val responseJson = JSONObject()
+                    if (projectName != null) {
+                        responseJson.put("matched", true)
+                        responseJson.put("projectName", projectName)
+                    } else {
+                        responseJson.put("matched", false)
+                    }
+
+                    val responseBytes = responseJson.toString(2).toByteArray()
+                    exchange.responseHeaders.add("Content-Type", "application/json")
+                    exchange.sendResponseHeaders(200, responseBytes.size.toLong())
+                    exchange.responseBody.use { it.write(responseBytes) }
+                }
+                else -> {
+                    exchange.sendResponseHeaders(405, 0)
+                    exchange.responseBody.close()
+                }
+            }
+        }
+    }
+
     fun start() {
         if (server != null) return
 
@@ -869,6 +995,8 @@ object BrowsingTrackerServer {
         server?.createContext("/api/license/logout", LogoutHandler())
         server?.createContext("/api/wrike-mappings", WrikeMappingsHandler())
         server?.createContext("/api/wrike", WrikeProxyHandler())
+        server?.createContext("/api/meeting-patterns", MeetingPatternsHandler())
+        server?.createContext("/api/meeting-patterns/match", MeetingPatternMatchHandler())
         server?.executor = null
         server?.start()
         println("🌐 BrowsingTrackerServer started on port $port")

@@ -146,6 +146,27 @@ object DBManager {
       """.trimIndent())
         }
 
+        conn.createStatement().use { st ->
+            st.executeUpdate("""
+        CREATE TABLE IF NOT EXISTS meeting_patterns (
+          id              INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_name    TEXT    NOT NULL,
+          url_pattern     TEXT    NOT NULL,
+          meeting_title   TEXT,
+          description     TEXT,
+          auto_assign     INTEGER DEFAULT 1,
+          last_used       DATETIME DEFAULT CURRENT_TIMESTAMP,
+          created_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+          UNIQUE(url_pattern)
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_meeting_patterns_project ON meeting_patterns(project_name);
+        CREATE INDEX IF NOT EXISTS idx_meeting_patterns_url ON meeting_patterns(url_pattern);
+      """.trimIndent())
+        }
+
         println("→→→→→→ Opened SQLite DB at ${dbFile.absolutePath}")
     }
 
@@ -758,5 +779,125 @@ object DBManager {
             }
         }
         return arr
+    }
+
+    // ========== Meeting Patterns CRUD ==========
+
+    /**
+     * Insert or update a meeting pattern
+     */
+    fun insertOrUpdateMeetingPattern(
+        projectName: String,
+        urlPattern: String,
+        meetingTitle: String? = null,
+        description: String? = null,
+        autoAssign: Boolean = true
+    ) {
+        conn.prepareStatement("""
+            INSERT INTO meeting_patterns (project_name, url_pattern, meeting_title, description, auto_assign, updated_at)
+            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(url_pattern) DO UPDATE SET
+                project_name = excluded.project_name,
+                meeting_title = excluded.meeting_title,
+                description = excluded.description,
+                auto_assign = excluded.auto_assign,
+                updated_at = CURRENT_TIMESTAMP
+        """.trimIndent()).use { ps ->
+            ps.setString(1, projectName)
+            ps.setString(2, urlPattern)
+            ps.setString(3, meetingTitle)
+            ps.setString(4, description)
+            ps.setInt(5, if (autoAssign) 1 else 0)
+            ps.executeUpdate()
+        }
+    }
+
+    /**
+     * Find a matching project for a given meeting URL
+     */
+    fun findMeetingPattern(url: String): String? {
+        conn.prepareStatement("""
+            SELECT project_name FROM meeting_patterns
+            WHERE auto_assign = 1 AND ? LIKE '%' || url_pattern || '%'
+            ORDER BY length(url_pattern) DESC
+            LIMIT 1
+        """.trimIndent()).use { ps ->
+            ps.setString(1, url)
+            val rs = ps.executeQuery()
+            if (rs.next()) {
+                // Update last_used timestamp
+                updateMeetingPatternLastUsed(url)
+                return rs.getString("project_name")
+            }
+        }
+        return null
+    }
+
+    /**
+     * Update the last_used timestamp for a meeting pattern
+     */
+    private fun updateMeetingPatternLastUsed(url: String) {
+        conn.prepareStatement("""
+            UPDATE meeting_patterns
+            SET last_used = CURRENT_TIMESTAMP
+            WHERE ? LIKE '%' || url_pattern || '%'
+        """.trimIndent()).use { ps ->
+            ps.setString(1, url)
+            ps.executeUpdate()
+        }
+    }
+
+    /**
+     * Get all meeting patterns
+     */
+    fun getAllMeetingPatterns(): JSONArray {
+        val arr = JSONArray()
+        conn.prepareStatement("""
+            SELECT id, project_name, url_pattern, meeting_title, description, auto_assign,
+                   last_used, created_at, updated_at
+            FROM meeting_patterns
+            ORDER BY last_used DESC, created_at DESC
+        """.trimIndent()).use { ps ->
+            val rs = ps.executeQuery()
+            while (rs.next()) {
+                val obj = JSONObject()
+                obj.put("id", rs.getInt("id"))
+                obj.put("projectName", rs.getString("project_name"))
+                obj.put("urlPattern", rs.getString("url_pattern"))
+                obj.put("meetingTitle", rs.getString("meeting_title"))
+                obj.put("description", rs.getString("description"))
+                obj.put("autoAssign", rs.getInt("auto_assign") == 1)
+                obj.put("lastUsed", rs.getString("last_used"))
+                obj.put("createdAt", rs.getString("created_at"))
+                obj.put("updatedAt", rs.getString("updated_at"))
+                arr.put(obj)
+            }
+        }
+        return arr
+    }
+
+    /**
+     * Delete a meeting pattern by ID
+     */
+    fun deleteMeetingPattern(id: Int) {
+        conn.prepareStatement("DELETE FROM meeting_patterns WHERE id = ?").use { ps ->
+            ps.setInt(1, id)
+            ps.executeUpdate()
+        }
+    }
+
+    /**
+     * Update a meeting pattern's auto_assign flag
+     */
+    fun updateMeetingPatternAutoAssign(id: Int, autoAssign: Boolean) {
+        conn.prepareStatement("""
+            UPDATE meeting_patterns
+            SET auto_assign = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        """.trimIndent()).use { ps ->
+            ps.setInt(1, if (autoAssign) 1 else 0)
+            ps.setInt(2, id)
+            ps.executeUpdate()
+        }
     }
 }

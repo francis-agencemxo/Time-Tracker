@@ -34,8 +34,8 @@
   toolbar.id = "mxo-toolbar";
   toolbar.style.position = "fixed";
   toolbar.style.top = toolbarPosition?.top ? `${toolbarPosition.top}px` : "100px";
-  toolbar.style.left = toolbarPosition?.left !== null ? `${toolbarPosition.left}px` : "auto";
-  toolbar.style.right = toolbarPosition?.left === null ? "20px" : "auto";
+  toolbar.style.left = (toolbarPosition && toolbarPosition.left !== undefined && toolbarPosition.left !== null) ? `${toolbarPosition.left}px` : "auto";
+  toolbar.style.right = (!toolbarPosition || toolbarPosition.left === undefined || toolbarPosition.left === null) ? "20px" : "auto";
   toolbar.style.zIndex = "9999";
 
   const header = document.createElement("div");
@@ -67,6 +67,7 @@
         labelText = project.name;
       }
 
+      // Always include both logo/icon and label for better UX
       if (project.logo) {
         const img = document.createElement("img");
         img.src = project.logo;
@@ -74,13 +75,13 @@
         img.title = project.name;
         img.className = "mxo-toolbar-logo";
         btn.appendChild(img);
-      } else {
-        const span = document.createElement("span");
-        span.textContent = project.name;
-        span.title = project.name;
-        span.className = "mxo-toolbar-label";
-        btn.appendChild(span);
       }
+
+      const span = document.createElement("span");
+      span.textContent = project.name;
+      span.title = project.name;
+      span.className = "mxo-toolbar-label";
+      btn.appendChild(span);
 
       btn.addEventListener("click", () => {
         chrome.storage.sync.set({ activeProject: project.name });
@@ -115,7 +116,13 @@
     pinFloatingToolbar = !pinFloatingToolbar;
     chrome.storage.sync.set({ pinFloatingToolbar });
     pinBtn.textContent = pinFloatingToolbar ? "📌" : "📍";
+    pinBtn.classList.toggle("pinned", pinFloatingToolbar);
   });
+
+  // Set initial pinned class if already pinned
+  if (pinFloatingToolbar) {
+    pinBtn.classList.add("pinned");
+  }
 
   // Auto-collapse on mouse leave
   let collapseTimeout;

@@ -1,6 +1,7 @@
 let currentTabUrl = null;
 let currentStart = null;
 let trackerServerPort = 56000;
+let meetingProjectOverride = null; // Store project selection for meeting URLs
 
 // Import history sync functions
 importScripts('history-sync.js');
@@ -68,6 +69,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     return true;
   }
+
+  if (request.action === 'setMeetingProject') {
+    const { url, projectName } = request;
+    meetingProjectOverride = { url, projectName };
+    sendResponse({ success: true });
+    return true;
+  }
 });
 
 function updateBadge(projectName) {
@@ -82,7 +90,15 @@ function updateBadge(projectName) {
 function sendTimeSpent(url, durationSeconds, startTimestamp, endTimestamp) {
   if (!url || durationSeconds <= 0) return;
 
+  // Check if this is a meeting URL and use override if available
+  let projectToUse = null;
+  if (meetingProjectOverride && url.includes(meetingProjectOverride.url)) {
+    projectToUse = meetingProjectOverride.projectName;
+  }
+
   chrome.storage.sync.get("activeProject", ({ activeProject }) => {
+    const finalProject = projectToUse || activeProject || "";
+
     fetch(`http://localhost:${trackerServerPort}/url-track`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -91,7 +107,7 @@ function sendTimeSpent(url, durationSeconds, startTimestamp, endTimestamp) {
         duration: durationSeconds,
         start: new Date(startTimestamp).toISOString(),
         end: new Date(endTimestamp).toISOString(),
-        project: activeProject || ""
+        project: finalProject
       })
     }).catch(err => console.warn('❌ Failed to send tracking data:', err));
   });
@@ -110,7 +126,94 @@ function handleTabUpdate(activeInfo) {
 
     currentTabUrl = tab.url;
     currentStart = now;
+
+    // Check if this is a Google Meet URL and prompt for project
+    if (tab.url.includes('meet.google.com/')) {
+      promptForMeetingProject(tab.url);
+    }
   });
+}
+
+async function promptForMeetingProject(url) {
+  // Check if we already have a project set for this meeting session
+  if (meetingProjectOverride && url.includes(meetingProjectOverride.url)) {
+    return; // Already set for this session, don't prompt again
+  }
+
+  try {
+    // First, check if there's a saved pattern for this meeting URL
+    const matchResponse = await fetch(`http://localhost:${trackerServerPort}/api/meeting-patterns/match`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+
+    // Check if response is OK before parsing
+    if (!matchResponse.ok) {
+      console.warn(`Meeting pattern match API returned ${matchResponse.status}`);
+      // Continue to show manual selection prompt
+    } else {
+      const contentType = matchResponse.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const matchResult = await matchResponse.json();
+
+        if (matchResult.matched) {
+          // Auto-assign the project based on saved pattern
+          meetingProjectOverride = { url, projectName: matchResult.projectName };
+          console.log(`✅ Auto-assigned meeting to project: ${matchResult.projectName}`);
+
+          // Show a subtle notification that the meeting was auto-assigned
+          chrome.notifications.create({
+            type: 'basic',
+            title: '✅ Meeting Auto-Assigned',
+            message: `This meeting is being tracked under "${matchResult.projectName}"`,
+            priority: 1,
+            requireInteraction: false
+          });
+
+          // Auto-dismiss the notification after 5 seconds
+          setTimeout(() => {
+            chrome.notifications.clear(`meeting_auto_${Date.now()}`);
+          }, 5000);
+
+          return;
+        }
+      } else {
+        const text = await matchResponse.text();
+        console.warn('Meeting pattern match API returned non-JSON:', text.substring(0, 100));
+      }
+    }
+
+    // No saved pattern found or API error, prompt the user to select a project
+    const projectsResponse = await fetch(`http://localhost:${trackerServerPort}/api/projects`);
+
+    if (!projectsResponse.ok) {
+      console.error(`Projects API returned ${projectsResponse.status}`);
+      return;
+    }
+
+    const projects = await projectsResponse.json();
+
+    // Generate a unique ID for this meeting notification
+    const meetingId = `meeting_${Date.now()}`;
+
+    // Create notification with buttons for project selection
+    chrome.notifications.create(meetingId, {
+      type: 'basic',
+      title: '🎥 Meeting Detected',
+      message: 'Click to assign this Google Meet session to a project',
+      priority: 2,
+      requireInteraction: true
+    }, (notificationId) => {
+      // Store the URL associated with this notification
+      chrome.storage.local.set({
+        [notificationId]: { url, projects: projects.map(p => p.name) }
+      });
+    });
+  } catch (error) {
+    console.error('Failed to handle meeting detection:', error);
+    console.error('Error details:', error.message, error.stack);
+  }
 }
 
 // Track active tab switching
@@ -140,4 +243,27 @@ chrome.runtime.onSuspend.addListener(() => {
     const duration = Math.floor((now - currentStart) / 1000);
     sendTimeSpent(currentTabUrl, duration, currentStart, now);
   }
+});
+
+// Handle notification clicks to open project selector
+chrome.notifications.onClicked.addListener(async (notificationId) => {
+  if (!notificationId.startsWith('meeting_')) return;
+
+  // Get the meeting data
+  const data = await chrome.storage.local.get(notificationId);
+  const meetingData = data[notificationId];
+
+  if (!meetingData) return;
+
+  // Clear the notification
+  chrome.notifications.clear(notificationId);
+
+  // Open the extension popup to select project
+  // Since we can't directly open popup programmatically, we create a simple HTML page for project selection
+  chrome.windows.create({
+    url: chrome.runtime.getURL('meeting-selector.html') + `?notificationId=${notificationId}`,
+    type: 'popup',
+    width: 400,
+    height: 550
+  });
 });
