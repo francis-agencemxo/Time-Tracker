@@ -170,10 +170,10 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 flex items-center justify-center">
         <div className="text-center">
-          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading time tracking data...</p>
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-teal-600 dark:text-teal-400" />
+          <p className="text-gray-600 dark:text-gray-400">Loading time tracking data...</p>
         </div>
       </div>
     )
@@ -181,9 +181,9 @@ export default function HomePage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 mb-4">Error: {error}</p>
+          <p className="text-red-600 dark:text-red-400 mb-4">Error: {error}</p>
           <Button onClick={fetchStats}>
             <RefreshCw className="w-4 h-4 mr-2" />
             Retry
@@ -194,7 +194,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 p-6">
+    <div className="min-h-screen bg-stone-50 dark:bg-gray-900 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <Header
           idleTimeoutMinutes={idleTimeoutMinutes}

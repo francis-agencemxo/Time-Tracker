@@ -198,14 +198,14 @@ export function TimesheetView({
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
-                <tr className="border-b-2 border-gray-300">
-                  <th className="py-3 px-4 text-left font-semibold text-gray-700 bg-gray-50">Project</th>
+                <tr className="border-b-2 border-gray-300 dark:border-gray-700">
+                  <th className="py-3 px-4 text-left font-semibold text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800">Project</th>
                   {tableData.map((day) => (
-                    <th key={day.date} className="py-3 px-4 text-right font-semibold text-gray-700 bg-gray-50">
+                    <th key={day.date} className="py-3 px-4 text-right font-semibold text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800">
                       {day.day}
                     </th>
                   ))}
-                  <th className="py-3 px-4 text-right font-semibold text-gray-700 bg-teal-50">Total</th>
+                  <th className="py-3 px-4 text-right font-semibold text-gray-700 dark:text-gray-300 bg-teal-50 dark:bg-teal-950">Total</th>
                 </tr>
               </thead>
               <tbody>
@@ -213,14 +213,14 @@ export function TimesheetView({
                   const wrikeMapping = getWrikeMapping(project)
                   const clientName = getProjectClient(project)
                   return (
-                    <tr key={project} className="border-b hover:bg-gray-50">
-                      <td className="py-3 px-4 font-medium text-gray-900">
+                    <tr key={project} className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+                      <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: colorMap[project] }}></div>
                           <div className="flex flex-col">
                             <span>{getProjectDisplayName(project)}</span>
                             {clientName && (
-                              <span className="text-xs text-gray-500 font-normal">{clientName}</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400 font-normal">{clientName}</span>
                             )}
                           </div>
                           {wrikeMapping && (
@@ -228,7 +228,7 @@ export function TimesheetView({
                               href={wrikeMapping.wrikePermalink}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-blue-600 hover:text-blue-800 ml-1"
+                              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 ml-1"
                               title={`Open ${wrikeMapping.wrikeProjectTitle} in Wrike`}
                             >
                               <ExternalLink className="w-3.5 h-3.5" />
@@ -242,7 +242,7 @@ export function TimesheetView({
                           <td
                             key={day.date}
                             className={`py-3 px-4 text-right ${
-                              hours > 0 ? "cursor-pointer hover:bg-teal-50 font-medium" : "text-gray-400"
+                              hours > 0 ? "cursor-pointer hover:bg-teal-50 dark:hover:bg-teal-950 font-medium dark:text-gray-200" : "text-gray-400 dark:text-gray-600"
                             }`}
                             onClick={() => hours > 0 && handleCellClick(day.day, day.date, project, hours)}
                           >
@@ -250,7 +250,7 @@ export function TimesheetView({
                           </td>
                         )
                       })}
-                      <td className="py-3 px-4 text-right font-bold text-teal-800 bg-teal-50">
+                      <td className="py-3 px-4 text-right font-bold text-teal-800 dark:text-teal-300 bg-teal-50 dark:bg-teal-950">
                         {formatHoursForChart(projectTotals[project])}
                       </td>
                     </tr>
@@ -258,14 +258,14 @@ export function TimesheetView({
                 })}
               </tbody>
               <tfoot>
-                <tr className="bg-gray-100 border-t-2 border-gray-300">
-                  <td className="py-3 px-4 font-bold text-gray-900">Total</td>
+                <tr className="bg-gray-100 dark:bg-gray-800 border-t-2 border-gray-300 dark:border-gray-700">
+                  <td className="py-3 px-4 font-bold text-gray-900 dark:text-gray-100">Total</td>
                   {tableData.map((day) => (
-                    <td key={day.date} className="py-3 px-4 text-right font-bold text-gray-900">
+                    <td key={day.date} className="py-3 px-4 text-right font-bold text-gray-900 dark:text-gray-100">
                       {formatHoursForChart(day.totalHours)}
                     </td>
                   ))}
-                  <td className="py-3 px-4 text-right font-bold text-teal-900 bg-teal-100">
+                  <td className="py-3 px-4 text-right font-bold text-teal-900 dark:text-teal-200 bg-teal-100 dark:bg-teal-900">
                     {formatHoursForChart(weeklyTotal)}
                   </td>
                 </tr>
@@ -305,18 +305,18 @@ export function TimesheetView({
 
               {/* Timeline View with 24-hour bar */}
               <TabsContent value="timeline" className="space-y-4">
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   {selectedCell.sessions.length} session{selectedCell.sessions.length !== 1 ? "s" : ""}
                 </div>
 
                 {/* 24-hour horizontal timeline */}
-                <div className="border rounded-lg p-4 bg-gray-50">
-                  <h4 className="text-sm font-semibold mb-3">Activity Timeline</h4>
-                  <div className="relative h-12 bg-white rounded border">
+                <div className="border dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+                  <h4 className="text-sm font-semibold mb-3 dark:text-gray-200">Activity Timeline</h4>
+                  <div className="relative h-12 bg-white dark:bg-gray-900 rounded border dark:border-gray-700">
                     {/* Hour markers */}
                     <div className="absolute inset-0 flex">
                       {Array.from({ length: 24 }, (_, i) => (
-                        <div key={i} className="flex-1 border-r border-gray-200 text-xs text-gray-400 px-1">
+                        <div key={i} className="flex-1 border-r border-gray-200 dark:border-gray-700 text-xs text-gray-400 dark:text-gray-500 px-1">
                           {i.toString().padStart(2, "0")}
                         </div>
                       ))}
@@ -347,7 +347,7 @@ export function TimesheetView({
                       })}
                     </div>
                   </div>
-                  <div className="flex gap-4 mt-2 text-xs">
+                  <div className="flex gap-4 mt-2 text-xs dark:text-gray-300">
                     <div className="flex items-center gap-1">
                       <div className="w-3 h-3 rounded" style={{ backgroundColor: "#2D5A5A" }}></div>
                       <span>Coding</span>
@@ -362,18 +362,18 @@ export function TimesheetView({
                 {/* Session list */}
                 <div className="space-y-2">
                   {selectedCell.sessions.map((session, index) => (
-                    <div key={index} className="flex items-start gap-3 p-3 border rounded-lg bg-gray-50">
+                    <div key={index} className="flex items-start gap-3 p-3 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800">
                       <div className="flex items-center gap-2 pt-1">
                         {session.type === "coding" ? (
-                          <Code className="w-4 h-4 text-teal-600" />
+                          <Code className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                         ) : (
-                          <Globe className="w-4 h-4 text-amber-600" />
+                          <Globe className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <Badge variant={session.type === "coding" ? "default" : "secondary"}>{session.type}</Badge>
-                          <div className="text-sm font-medium">
+                          <div className="text-sm font-medium dark:text-gray-200">
                             {new Date(session.start).toLocaleTimeString([], {
                               hour: "2-digit",
                               minute: "2-digit",
@@ -384,13 +384,13 @@ export function TimesheetView({
                               minute: "2-digit",
                             })}
                           </div>
-                          <div className="flex items-center gap-1 text-sm font-medium text-gray-600">
+                          <div className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-400">
                             <Clock className="w-3 h-3" />
                             {formatHoursForChart(session.duration / 3600)}
                           </div>
                         </div>
                         {session.file && (
-                          <div className="text-sm text-gray-600 truncate" title={session.file}>
+                          <div className="text-sm text-gray-600 dark:text-gray-400 truncate" title={session.file}>
                             <FileText className="w-3 h-3 inline mr-1" />
                             {session.file}
                           </div>
@@ -400,7 +400,7 @@ export function TimesheetView({
                             href={session.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1 truncate"
+                            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 truncate"
                             title={session.url}
                           >
                             <Globe className="w-3 h-3" />
@@ -433,21 +433,21 @@ export function TimesheetView({
 
                   return fileList.length > 0 ? (
                     fileList.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div key={index} className="flex items-center justify-between p-3 border dark:border-gray-700 rounded-lg dark:bg-gray-800">
                         <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <FileText className="w-4 h-4 text-gray-600 flex-shrink-0" />
-                          <span className="text-sm truncate" title={item.file}>
+                          <FileText className="w-4 h-4 text-gray-600 dark:text-gray-400 flex-shrink-0" />
+                          <span className="text-sm dark:text-gray-200 truncate" title={item.file}>
                             {item.file}
                           </span>
                         </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-600">
+                        <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
                           <span>{item.sessions} session{item.sessions !== 1 ? "s" : ""}</span>
                           <span className="font-medium">{formatHoursForChart(item.duration / 3600)}</span>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-8 text-gray-500">No files recorded</div>
+                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">No files recorded</div>
                   )
                 })()}
               </TabsContent>
@@ -471,28 +471,28 @@ export function TimesheetView({
 
                   return urlList.length > 0 ? (
                     urlList.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div key={index} className="flex items-center justify-between p-3 border dark:border-gray-700 rounded-lg dark:bg-gray-800">
                         <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <Globe className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                          <Globe className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                           <a
                             href={item.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm text-blue-600 hover:text-blue-800 truncate flex items-center gap-1"
+                            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 truncate flex items-center gap-1"
                             title={item.url}
                           >
                             {item.host}
                             <ExternalLink className="w-3 h-3" />
                           </a>
                         </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-600">
+                        <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
                           <span>{item.sessions} session{item.sessions !== 1 ? "s" : ""}</span>
                           <span className="font-medium">{formatHoursForChart(item.duration / 3600)}</span>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-8 text-gray-500">No websites recorded</div>
+                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">No websites recorded</div>
                   )
                 })()}
               </TabsContent>
@@ -508,16 +508,16 @@ export function TimesheetView({
 
                   return dayCommits.length > 0 ? (
                     <>
-                      <div className="text-sm text-gray-600 mb-2">
+                      <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                         {dayCommits.length} commit{dayCommits.length !== 1 ? "s" : ""}
                       </div>
                       {dayCommits.map((commit, index) => (
-                        <div key={index} className="p-3 border rounded-lg bg-gray-50 space-y-2">
+                        <div key={index} className="p-3 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 space-y-2">
                           <div className="flex items-start gap-3">
-                            <GitCommit className="w-4 h-4 text-purple-600 flex-shrink-0 mt-1" />
+                            <GitCommit className="w-4 h-4 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-1" />
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <code className="text-xs font-mono bg-gray-200 px-2 py-0.5 rounded">
+                                <code className="text-xs font-mono bg-gray-200 dark:bg-gray-700 dark:text-gray-200 px-2 py-0.5 rounded">
                                   {commit.commitHash.substring(0, 7)}
                                 </code>
                                 {commit.branch && (
@@ -525,15 +525,15 @@ export function TimesheetView({
                                     {commit.branch}
                                   </Badge>
                                 )}
-                                <span className="text-xs text-gray-500">
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
                                   {new Date(commit.commitTime).toLocaleTimeString([], {
                                     hour: "2-digit",
                                     minute: "2-digit",
                                   })}
                                 </span>
                               </div>
-                              <div className="text-sm text-gray-900 mb-2">{commit.commitMessage}</div>
-                              <div className="flex items-center gap-4 text-xs text-gray-600">
+                              <div className="text-sm text-gray-900 dark:text-gray-100 mb-2">{commit.commitMessage}</div>
+                              <div className="flex items-center gap-4 text-xs text-gray-600 dark:text-gray-400">
                                 {commit.authorName && (
                                   <span>
                                     <strong>Author:</strong> {commit.authorName}
@@ -546,8 +546,8 @@ export function TimesheetView({
                                 )}
                                 {(commit.linesAdded > 0 || commit.linesDeleted > 0) && (
                                   <span>
-                                    <span className="text-green-600">+{commit.linesAdded}</span> /{" "}
-                                    <span className="text-red-600">-{commit.linesDeleted}</span>
+                                    <span className="text-green-600 dark:text-green-400">+{commit.linesAdded}</span> /{" "}
+                                    <span className="text-red-600 dark:text-red-400">-{commit.linesDeleted}</span>
                                   </span>
                                 )}
                               </div>
@@ -557,7 +557,7 @@ export function TimesheetView({
                       ))}
                     </>
                   ) : (
-                    <div className="text-center py-8 text-gray-500">No commits recorded for this day</div>
+                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">No commits recorded for this day</div>
                   )
                 })()}
               </TabsContent>

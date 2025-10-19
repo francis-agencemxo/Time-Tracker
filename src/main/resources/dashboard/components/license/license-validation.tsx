@@ -154,59 +154,59 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-stone-50 dark:bg-gray-900 flex items-center justify-center p-6">
       {/* Privacy Acknowledgement Dialog */}
       <Dialog open={showPrivacyDialog} onOpenChange={setShowPrivacyDialog}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl">
-              <Lock className="h-6 w-6 text-teal-600" />
+            <DialogTitle className="flex items-center gap-2 text-xl dark:text-gray-100">
+              <Lock className="h-6 w-6 text-teal-600 dark:text-teal-400" />
               Privacy & Data Storage
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="dark:text-gray-400">
               Understanding how your data is stored and protected
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            <Alert className="border-teal-200 bg-teal-50">
-              <HardDrive className="h-4 w-4 text-teal-600" />
-              <AlertDescription className="text-teal-800">
+            <Alert className="border-teal-200 bg-teal-50 dark:border-teal-800 dark:bg-teal-950">
+              <HardDrive className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <AlertDescription className="text-teal-800 dark:text-teal-200">
                 <strong>All data stays on your computer.</strong> Your time tracking data is stored locally and never uploaded to any server.
               </AlertDescription>
             </Alert>
 
             <div className="space-y-3 text-sm">
               <div className="flex gap-3">
-                <CheckCircle className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium">Local Storage Only</p>
-                  <p className="text-gray-600">All time tracking data is stored in your browser's local storage on your computer. No data is sent to external servers.</p>
+                  <p className="font-medium dark:text-gray-200">Local Storage Only</p>
+                  <p className="text-gray-600 dark:text-gray-400">All time tracking data is stored in your browser's local storage on your computer. No data is sent to external servers.</p>
                 </div>
               </div>
 
               <div className="flex gap-3">
-                <CheckCircle className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium">No Cloud Synchronization</p>
-                  <p className="text-gray-600">Your data remains private and is not synchronized or backed up to any cloud service.</p>
+                  <p className="font-medium dark:text-gray-200">No Cloud Synchronization</p>
+                  <p className="text-gray-600 dark:text-gray-400">Your data remains private and is not synchronized or backed up to any cloud service.</p>
                 </div>
               </div>
 
               <div className="flex gap-3">
-                <CheckCircle className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium">License Validation Only</p>
-                  <p className="text-gray-600">The only external connection is for license validation. Your usage data and project information are never shared.</p>
+                  <p className="font-medium dark:text-gray-200">License Validation Only</p>
+                  <p className="text-gray-600 dark:text-gray-400">The only external connection is for license validation. Your usage data and project information are never shared.</p>
                 </div>
               </div>
 
               <div className="flex gap-3">
-                <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+                <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium">Your Responsibility</p>
-                  <p className="text-gray-600 mb-2">Since data is stored locally, you are responsible for backing up your data if needed.</p>
-                  <p className="text-gray-600 text-xs font-mono bg-gray-100 p-2 rounded border break-all">
+                  <p className="font-medium dark:text-gray-200">Your Responsibility</p>
+                  <p className="text-gray-600 dark:text-gray-400 mb-2">Since data is stored locally, you are responsible for backing up your data if needed.</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-xs font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded border dark:border-gray-700 break-all">
                     Database location: {getDatabasePath()}
                   </p>
                 </div>
@@ -217,7 +217,7 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
           <DialogFooter>
             <Button
               onClick={handlePrivacyAcknowledge}
-              className="w-full bg-teal-600 hover:bg-teal-700"
+              className="w-full bg-teal-600 hover:bg-teal-700 dark:bg-teal-700 dark:hover:bg-teal-800"
             >
               <CheckCircle className="w-4 h-4 mr-2" />
               I Understand - Continue
@@ -238,11 +238,11 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
                 <div className="w-2 h-2 bg-white rounded-full"></div>
               </div>
             </div>
-            <Shield className="h-8 w-8 text-teal-600" />
+            <Shield className="h-8 w-8 text-teal-600 dark:text-teal-400" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-teal-800">Development Time Tracker</h1>
-            <p className="text-gray-600">License validation required</p>
+            <h1 className="text-2xl font-bold text-teal-800 dark:text-teal-400">Development Time Tracker</h1>
+            <p className="text-gray-600 dark:text-gray-400">License validation required</p>
           </div>
         </div>
 
@@ -281,9 +281,9 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
               )}
 
               {licenseKey && !error && (
-                <Alert className="border-green-200 bg-green-50">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <AlertDescription className="text-green-800">
+                <Alert className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+                  <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  <AlertDescription className="text-green-800 dark:text-green-200">
                     License key loaded successfully. Click "Validate License" to continue.
                   </AlertDescription>
                 </Alert>
@@ -291,7 +291,7 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
 
               <Button
                 type="submit"
-                className="w-full bg-teal-600 hover:bg-teal-700"
+                className="w-full bg-teal-600 hover:bg-teal-700 dark:bg-teal-700 dark:hover:bg-teal-800"
                 disabled={isValidating || !licenseKey.trim()}
               >
                 {isValidating ? (
@@ -337,13 +337,13 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
         </Card>
 
         {/* API Info */}
-        <Card className="border-blue-200">
+        <Card className="border-blue-200 dark:border-blue-800">
           <CardHeader>
-            <CardTitle className="text-sm text-blue-800 flex items-center gap-2">
+            <CardTitle className="text-sm text-blue-800 dark:text-blue-400 flex items-center gap-2">
               <Globe className="h-4 w-4" />
               License Validation
             </CardTitle>
-            <CardDescription className="text-xs">
+            <CardDescription className="text-xs dark:text-gray-400">
               {isPreview
                 ? "Running in preview mode - demo keys available below"
                 : "Licenses are validated through addons.francislabonte.com API"}
@@ -353,28 +353,28 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
 
         {/* Demo Keys Section - Only show in preview mode */}
         {isPreview && (
-          <Card className="border-teal-200">
+          <Card className="border-teal-200 dark:border-teal-800">
             <CardHeader>
-              <CardTitle className="text-sm text-teal-800">Demo License Key</CardTitle>
-              <CardDescription className="text-xs">
+              <CardTitle className="text-sm text-teal-800 dark:text-teal-400">Demo License Key</CardTitle>
+              <CardDescription className="text-xs dark:text-gray-400">
                 For testing purposes, you can use this demo key:
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               {DEMO_LICENSE_KEYS.map((key, index) => (
-                <div key={key} className="flex items-center justify-between p-2 bg-teal-50 rounded border">
+                <div key={key} className="flex items-center justify-between p-2 bg-teal-50 dark:bg-teal-950 rounded border dark:border-teal-800">
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs dark:border-teal-700">
                       {key.includes("DEV") ? "DEV" : key.includes("PRO") ? "PRO" : "DEMO"}
                     </Badge>
-                    <code className="text-xs font-mono text-teal-700">{key}</code>
+                    <code className="text-xs font-mono text-teal-700 dark:text-teal-300">{key}</code>
                   </div>
                   <div className="flex gap-1">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => copyToClipboard(key)}
-                      className="h-6 w-6 p-0 hover:bg-teal-100"
+                      className="h-6 w-6 p-0 hover:bg-teal-100 dark:hover:bg-teal-900"
                       title="Copy to clipboard"
                       disabled={isValidating}
                     >
@@ -384,7 +384,7 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDemoKeyClick(key)}
-                      className="h-6 px-2 text-xs hover:bg-teal-100"
+                      className="h-6 px-2 text-xs hover:bg-teal-100 dark:hover:bg-teal-900"
                       disabled={isValidating}
                     >
                       Use
@@ -398,14 +398,14 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
 
         {/* Footer Info */}
         <div className="text-center space-y-2">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
             {isPreview
               ? "Preview mode: Demo keys work offline for testing."
               : "License validation requires an internet connection."}
           </p>
           <button
             onClick={() => setShowPrivacyDialog(true)}
-            className="text-xs text-teal-600 hover:text-teal-700 underline"
+            className="text-xs text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 underline"
           >
             View Privacy & Data Storage Information
           </button>

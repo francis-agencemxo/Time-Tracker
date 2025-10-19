@@ -174,3 +174,9 @@ syncButton.addEventListener("click", async () => {
     syncButton.textContent = "📜 Sync Missing History";
   }
 });
+
+// Settings button
+const settingsButton = document.getElementById("settings-btn");
+settingsButton.addEventListener("click", () => {
+  chrome.runtime.openOptionsPage();
+});

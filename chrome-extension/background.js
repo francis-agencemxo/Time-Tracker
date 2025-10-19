@@ -1,3 +1,5 @@
+console.log('[CodePulse] Background script initializing...');
+
 let currentTabUrl = null;
 let currentStart = null;
 let trackerServerPort = 56000;
@@ -6,9 +8,12 @@ let meetingProjectOverride = null; // Store project selection for meeting URLs
 // Import history sync functions
 importScripts('history-sync.js');
 
+console.log('[CodePulse] Background script loaded successfully!');
+
 // Load initial settings
 chrome.storage.sync.get({ trackerServerPort }, (items) => {
   trackerServerPort = items.trackerServerPort;
+  console.log('[CodePulse] Server port loaded:', trackerServerPort);
 });
 
 // Listen for settings changes
@@ -128,18 +133,24 @@ function handleTabUpdate(activeInfo) {
     currentStart = now;
 
     // Check if this is a Google Meet URL and prompt for project
+    console.log('[CodePulse] Tab URL:', tab.url);
     if (tab.url.includes('meet.google.com/')) {
+      console.log('[CodePulse] Google Meet detected! Triggering meeting prompt...');
       promptForMeetingProject(tab.url);
     }
   });
 }
 
 async function promptForMeetingProject(url) {
+  console.log('[CodePulse] promptForMeetingProject called with URL:', url);
+
   // Check if we already have a project set for this meeting session
   if (meetingProjectOverride && url.includes(meetingProjectOverride.url)) {
+    console.log('[CodePulse] Meeting already has project assigned:', meetingProjectOverride.projectName);
     return; // Already set for this session, don't prompt again
   }
 
+  console.log('[CodePulse] Checking for saved meeting patterns...');
   try {
     // First, check if there's a saved pattern for this meeting URL
     const matchResponse = await fetch(`http://localhost:${trackerServerPort}/api/meeting-patterns/match`, {
@@ -185,17 +196,21 @@ async function promptForMeetingProject(url) {
     }
 
     // No saved pattern found or API error, prompt the user to select a project
+    console.log('[CodePulse] No saved pattern, fetching projects...');
     const projectsResponse = await fetch(`http://localhost:${trackerServerPort}/api/projects`);
 
     if (!projectsResponse.ok) {
-      console.error(`Projects API returned ${projectsResponse.status}`);
+      console.error(`[CodePulse] Projects API returned ${projectsResponse.status}`);
       return;
     }
 
     const projects = await projectsResponse.json();
+    console.log('[CodePulse] Fetched projects:', projects.length);
 
     // Generate a unique ID for this meeting notification
     const meetingId = `meeting_${Date.now()}`;
+
+    console.log('[CodePulse] Creating notification with ID:', meetingId);
 
     // Create notification with buttons for project selection
     chrome.notifications.create(meetingId, {
@@ -205,6 +220,7 @@ async function promptForMeetingProject(url) {
       priority: 2,
       requireInteraction: true
     }, (notificationId) => {
+      console.log('[CodePulse] Notification created:', notificationId);
       // Store the URL associated with this notification
       chrome.storage.local.set({
         [notificationId]: { url, projects: projects.map(p => p.name) }
@@ -219,9 +235,15 @@ async function promptForMeetingProject(url) {
 // Track active tab switching
 chrome.tabs.onActivated.addListener(handleTabUpdate);
 
-// Track URL changes
+// Track URL changes - trigger on URL change OR when complete
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === "complete" && tab.active) {
+  // Trigger on URL change (for SPAs like Google Meet)
+  if (changeInfo.url && tab.active) {
+    console.log('[CodePulse] URL changed:', changeInfo.url);
+    handleTabUpdate({ tabId: tab.id });
+  }
+  // Also trigger when page loads completely
+  else if (changeInfo.status === "complete" && tab.active) {
     handleTabUpdate({ tabId: tab.id });
   }
 });

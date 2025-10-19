@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar, RefreshCw, Settings, LogOut, Shield, Loader2, Clock, HelpCircle } from "lucide-react"
 import { useLicenseValidation } from "@/hooks/use-license-validation"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 interface HeaderProps {
   idleTimeoutMinutes: number
@@ -43,18 +44,20 @@ export function Header({
           </div>
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-teal-800">Development Time Tracking</h1>
-          <p className="text-gray-600 mt-1">Monitor your development productivity and project progress</p>
+          <h1 className="text-3xl font-bold text-teal-800 dark:text-teal-400">Development Time Tracking</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Monitor your development productivity and project progress</p>
         </div>
       </div>
       <div className="flex items-center gap-4">
+        {/* Theme Toggle */}
+        <ThemeToggle />
         {/* License Info */}
         {licenseInfo && (
           <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-teal-600" />
+            <Shield className="w-4 h-4 text-teal-600 dark:text-teal-400" />
             <div className="text-right">
-              <div className="text-xs font-medium text-teal-800">{licenseInfo.type}</div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs font-medium text-teal-800 dark:text-teal-300">{licenseInfo.type}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
                 {licenseInfo.isDemo ? "Demo License" : `...${licenseInfo.key.slice(-6)}`}
               </div>
             </div>
@@ -63,25 +66,25 @@ export function Header({
 
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="border-teal-200 text-teal-700 hover:bg-teal-50">
+            <Button variant="outline" size="sm" className="border-teal-200 text-teal-700 hover:bg-teal-50 dark:border-teal-800 dark:text-teal-300 dark:hover:bg-teal-950">
               <Settings className="w-4 h-4 mr-2" />
               Settings
               { /* settingsLoading && <Loader2 className="w-3 h-3 ml-2 animate-spin" /> */}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80">
+          <PopoverContent className="w-80 dark:bg-gray-800 dark:border-gray-700">
             <div className="space-y-4">
-              <h4 className="font-medium">Dashboard Settings</h4>
+              <h4 className="font-medium dark:text-gray-100">Dashboard Settings</h4>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label htmlFor="idle-timeout" className="text-sm font-medium">
+                  <label htmlFor="idle-timeout" className="text-sm font-medium dark:text-gray-200">
                     Idle Timeout: {idleTimeoutMinutes} minutes
                   </label>
                   <select
                     id="idle-timeout"
                     value={idleTimeoutMinutes}
                     onChange={(e) => onIdleTimeoutChange(Number(e.target.value))}
-                    className="bg-white border rounded px-2 py-1 text-sm"
+                    className="bg-white border rounded px-2 py-1 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                     disabled={settingsLoading}
                   >
                     <option value={5}>5 minutes</option>
@@ -91,13 +94,13 @@ export function Header({
                     <option value={30}>30 minutes</option>
                   </select>
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   Sessions within {idleTimeoutMinutes} minutes of each other will be merged
                 </p>
               </div>
 
               {false && settingsLoading && (
-                  <p className="text-xs text-blue-600 flex items-center gap-1">
+                  <p className="text-xs text-blue-600 flex items-center gap-1 dark:text-blue-400">
                     <Loader2 className="w-3 h-3 animate-spin" />
                     Saving settings...
                   </p>
@@ -105,17 +108,17 @@ export function Header({
 
               {licenseInfo && (
                 <>
-                  <hr />
+                  <hr className="dark:border-gray-700" />
                   <div className="space-y-2">
-                    <h5 className="font-medium text-sm">License Information</h5>
+                    <h5 className="font-medium text-sm dark:text-gray-100">License Information</h5>
                     <div className="text-xs space-y-1">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Type:</span>
-                        <span>{licenseInfo.type}</span>
+                        <span className="text-gray-600 dark:text-gray-400">Type:</span>
+                        <span className="dark:text-gray-200">{licenseInfo.type}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Key:</span>
-                        <span className="font-mono">
+                        <span className="text-gray-600 dark:text-gray-400">Key:</span>
+                        <span className="font-mono dark:text-gray-200">
                           {licenseInfo.isDemo ? "Demo" : `...${licenseInfo.key.slice(-6)}`}
                         </span>
                       </div>
@@ -126,7 +129,7 @@ export function Header({
                         onClick={onLogout}
                         variant="outline"
                         size="sm"
-                        className="w-full mt-3 text-red-600 border-red-200 hover:bg-red-50"
+                        className="w-full mt-3 text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-900 dark:hover:bg-red-950"
                       >
                         <LogOut className="w-4 h-4 mr-2" />
                         Logout
@@ -144,7 +147,7 @@ export function Header({
             onClick={onRestartTour}
             variant="outline"
             size="sm"
-            className="border-teal-200 text-teal-700 hover:bg-teal-50"
+            className="border-teal-200 text-teal-700 hover:bg-teal-50 dark:border-teal-800 dark:text-teal-300 dark:hover:bg-teal-950"
             title="Restart the guided tour"
           >
             <HelpCircle className="w-4 h-4 mr-2" />
@@ -156,12 +159,12 @@ export function Header({
           onClick={onRefresh}
           variant="outline"
           size="sm"
-          className="border-teal-200 text-teal-700 hover:bg-teal-50"
+          className="border-teal-200 text-teal-700 hover:bg-teal-50 dark:border-teal-800 dark:text-teal-300 dark:hover:bg-teal-950"
         >
           <RefreshCw className="w-4 h-4 mr-2" />
           Refresh
         </Button>
-        <Badge variant="outline" className="px-3 py-1">
+        <Badge variant="outline" className="px-3 py-1 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200">
           <Calendar className="w-4 h-4 mr-1" />
           {licenseInfo?.isDemo ? "Demo Data" : "Live Data"}
         </Badge>

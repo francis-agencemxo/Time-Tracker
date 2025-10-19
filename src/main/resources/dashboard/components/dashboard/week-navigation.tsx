@@ -37,12 +37,12 @@ export function WeekNavigation({ currentWeek, onNavigateWeek }: WeekNavigationPr
               onClick={() => onNavigateWeek("prev")}
               variant="outline"
               size="sm"
-              className="border-teal-200 text-teal-700 hover:bg-teal-50"
+              className="border-teal-200 text-teal-700 hover:bg-teal-50 dark:border-teal-800 dark:text-teal-300 dark:hover:bg-teal-950"
             >
               ← Previous Week
             </Button>
             <div className="text-center">
-              <div className="text-lg font-semibold text-teal-800">
+              <div className="text-lg font-semibold text-teal-800 dark:text-teal-400">
                 {getWeekStart(currentWeek).toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
@@ -54,7 +54,7 @@ export function WeekNavigation({ currentWeek, onNavigateWeek }: WeekNavigationPr
                   year: "numeric",
                 })}
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
                 {isCurrentWeek()
                   ? "Current Week"
                   : "Week of " +
@@ -69,7 +69,7 @@ export function WeekNavigation({ currentWeek, onNavigateWeek }: WeekNavigationPr
               onClick={() => onNavigateWeek("next")}
               variant="outline"
               size="sm"
-              className="border-teal-200 text-teal-700 hover:bg-teal-50"
+              className="border-teal-200 text-teal-700 hover:bg-teal-50 dark:border-teal-800 dark:text-teal-300 dark:hover:bg-teal-950"
               disabled={isCurrentWeek()}
             >
               Next Week →
@@ -80,7 +80,7 @@ export function WeekNavigation({ currentWeek, onNavigateWeek }: WeekNavigationPr
               onClick={() => onNavigateWeek("current")}
               variant="default"
               size="sm"
-              className="bg-teal-600 hover:bg-teal-700"
+              className="bg-teal-600 hover:bg-teal-700 dark:bg-teal-700 dark:hover:bg-teal-800"
             >
               Back to Current Week
             </Button>
