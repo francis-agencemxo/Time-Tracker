@@ -343,19 +343,22 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
         </Card>
 
         {/* API Info */}
-        <Card className="border-blue-200 dark:border-blue-800">
-          <CardHeader>
-            <CardTitle className="text-sm text-blue-800 dark:text-blue-400 flex items-center gap-2">
-              <Globe className="h-4 w-4" />
-              License Validation
-            </CardTitle>
-            <CardDescription className="text-xs dark:text-gray-400">
-              {isPreview
-                ? "Running in preview mode - demo keys available below"
-                : "Licenses are validated through addons.francislabonte.com API"}
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        {
+            isPreview ??
+            <Card className="border-blue-200 dark:border-blue-800">
+              <CardHeader>
+                <CardTitle className="text-sm text-blue-800 dark:text-blue-400 flex items-center gap-2">
+                  <Globe className="h-4 w-4" />
+                  License Validation
+                </CardTitle>
+                <CardDescription className="text-xs dark:text-gray-400">
+                  {isPreview
+                    ? "Running in preview mode - demo keys available below"
+                    : "Licenses are validated through addons.francislabonte.com API"}
+                </CardDescription>
+              </CardHeader>
+            </Card>
+        }
 
         {/* Demo Keys Section - Only show in preview mode */}
         {isPreview && (
