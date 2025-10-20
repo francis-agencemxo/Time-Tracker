@@ -10,6 +10,7 @@ import type { StatsData, ProjectCustomName, ProjectClient, Commit } from "@/hook
 import { useTimeCalculations } from "@/hooks/use-time-calculations"
 import { Clock, Code, Globe, FileText, ExternalLink, GitCommit } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 interface TimesheetViewProps {
   statsData: StatsData
@@ -195,26 +196,26 @@ export function TimesheetView({
           <CardDescription>Click any cell to view session details for that day and project</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className="border-b-2 border-gray-300 dark:border-gray-700">
-                  <th className="py-3 px-4 text-left font-semibold text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800">Project</th>
+          <div className="rounded-md border dark:border-gray-700">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-left font-semibold bg-gray-50 dark:bg-gray-800">Project</TableHead>
                   {tableData.map((day) => (
-                    <th key={day.date} className="py-3 px-4 text-right font-semibold text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800">
+                    <TableHead key={day.date} className="text-right font-semibold bg-gray-50 dark:bg-gray-800">
                       {day.day}
-                    </th>
+                    </TableHead>
                   ))}
-                  <th className="py-3 px-4 text-right font-semibold text-gray-700 dark:text-gray-300 bg-teal-50 dark:bg-teal-950">Total</th>
-                </tr>
-              </thead>
-              <tbody>
+                  <TableHead className="text-right font-semibold bg-teal-50 dark:bg-teal-950">Total</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {allProjects.map((project) => {
                   const wrikeMapping = getWrikeMapping(project)
                   const clientName = getProjectClient(project)
                   return (
-                    <tr key={project} className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
-                      <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">
+                    <TableRow key={project}>
+                      <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: colorMap[project] }}></div>
                           <div className="flex flex-col">
@@ -235,42 +236,40 @@ export function TimesheetView({
                             </a>
                           )}
                         </div>
-                      </td>
+                      </TableCell>
                       {tableData.map((day) => {
                         const hours = day.projectHours[project] || 0
                         return (
-                          <td
+                          <TableCell
                             key={day.date}
-                            className={`py-3 px-4 text-right ${
-                              hours > 0 ? "cursor-pointer hover:bg-teal-50 dark:hover:bg-teal-950 font-medium dark:text-gray-200" : "text-gray-400 dark:text-gray-600"
+                            className={`text-right ${
+                              hours > 0 ? "cursor-pointer hover:bg-teal-50 dark:hover:bg-teal-950 font-medium" : "text-gray-400 dark:text-gray-600"
                             }`}
                             onClick={() => hours > 0 && handleCellClick(day.day, day.date, project, hours)}
                           >
                             {hours > 0 ? formatHoursForChart(hours) : "-"}
-                          </td>
+                          </TableCell>
                         )
                       })}
-                      <td className="py-3 px-4 text-right font-bold text-teal-800 dark:text-teal-300 bg-teal-50 dark:bg-teal-950">
+                      <TableCell className="text-right font-bold text-teal-800 dark:text-teal-300 bg-teal-50 dark:bg-teal-950">
                         {formatHoursForChart(projectTotals[project])}
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   )
                 })}
-              </tbody>
-              <tfoot>
-                <tr className="bg-gray-100 dark:bg-gray-800 border-t-2 border-gray-300 dark:border-gray-700">
-                  <td className="py-3 px-4 font-bold text-gray-900 dark:text-gray-100">Total</td>
+                <TableRow className="bg-gray-100 dark:bg-gray-800 border-t-2 border-gray-300 dark:border-gray-700">
+                  <TableCell className="font-bold">Total</TableCell>
                   {tableData.map((day) => (
-                    <td key={day.date} className="py-3 px-4 text-right font-bold text-gray-900 dark:text-gray-100">
+                    <TableCell key={day.date} className="text-right font-bold">
                       {formatHoursForChart(day.totalHours)}
-                    </td>
+                    </TableCell>
                   ))}
-                  <td className="py-3 px-4 text-right font-bold text-teal-900 dark:text-teal-200 bg-teal-100 dark:bg-teal-900">
+                  <TableCell className="text-right font-bold text-teal-900 dark:text-teal-200 bg-teal-100 dark:bg-teal-900">
                     {formatHoursForChart(weeklyTotal)}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
           </div>
         </CardContent>
       </Card>

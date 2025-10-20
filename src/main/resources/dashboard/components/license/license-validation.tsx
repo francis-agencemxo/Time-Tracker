@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog"
 import { Shield, Key, CheckCircle, AlertCircle, Copy, Loader2, Globe, Clock, Lock, HardDrive, Info } from "lucide-react"
 import { useLicenseValidation } from "@/hooks/use-license-validation"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 interface LicenseValidationProps {
   onValidate: (licenseKey: string) => Promise<boolean>
@@ -154,7 +155,12 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-gray-900 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-stone-50 dark:bg-gray-900 flex items-center justify-center p-6 relative">
+      {/* Theme Toggle - Fixed Position */}
+      <div className="fixed top-6 right-6 z-50">
+        <ThemeToggle />
+      </div>
+
       {/* Privacy Acknowledgement Dialog */}
       <Dialog open={showPrivacyDialog} onOpenChange={setShowPrivacyDialog}>
         <DialogContent className="max-w-2xl">

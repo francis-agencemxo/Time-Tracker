@@ -162,7 +162,7 @@ export const useLicenseValidation = () => {
     if (!validatedLicense) return null
 
     // Check if it's a demo key
-    const demoKeys = ["MXO-DEV-2025", "@38R8UyyB8F6VR7", "MXO"]
+    const demoKeys = ["MXO-DEV-2025", "MXO"]
     const isDemo = demoKeys.map(k => k.toUpperCase()).includes(validatedLicense.toUpperCase())
 
     // Parse license type from the key

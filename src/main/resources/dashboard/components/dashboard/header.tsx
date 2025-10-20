@@ -49,10 +49,8 @@ export function Header({
         </div>
       </div>
       <div className="flex items-center gap-4">
-        {/* Theme Toggle */}
-        <ThemeToggle />
         {/* License Info */}
-        {licenseInfo && (
+        {false && licenseInfo && (
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4 text-teal-600 dark:text-teal-400" />
             <div className="text-right">
@@ -63,84 +61,6 @@ export function Header({
             </div>
           </div>
         )}
-
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="border-teal-200 text-teal-700 hover:bg-teal-50 dark:border-teal-800 dark:text-teal-300 dark:hover:bg-teal-950">
-              <Settings className="w-4 h-4 mr-2" />
-              Settings
-              { /* settingsLoading && <Loader2 className="w-3 h-3 ml-2 animate-spin" /> */}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80 dark:bg-gray-800 dark:border-gray-700">
-            <div className="space-y-4">
-              <h4 className="font-medium dark:text-gray-100">Dashboard Settings</h4>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label htmlFor="idle-timeout" className="text-sm font-medium dark:text-gray-200">
-                    Idle Timeout: {idleTimeoutMinutes} minutes
-                  </label>
-                  <select
-                    id="idle-timeout"
-                    value={idleTimeoutMinutes}
-                    onChange={(e) => onIdleTimeoutChange(Number(e.target.value))}
-                    className="bg-white border rounded px-2 py-1 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
-                    disabled={settingsLoading}
-                  >
-                    <option value={5}>5 minutes</option>
-                    <option value={10}>10 minutes</option>
-                    <option value={15}>15 minutes</option>
-                    <option value={20}>20 minutes</option>
-                    <option value={30}>30 minutes</option>
-                  </select>
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Sessions within {idleTimeoutMinutes} minutes of each other will be merged
-                </p>
-              </div>
-
-              {false && settingsLoading && (
-                  <p className="text-xs text-blue-600 flex items-center gap-1 dark:text-blue-400">
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                    Saving settings...
-                  </p>
-                )}
-
-              {licenseInfo && (
-                <>
-                  <hr className="dark:border-gray-700" />
-                  <div className="space-y-2">
-                    <h5 className="font-medium text-sm dark:text-gray-100">License Information</h5>
-                    <div className="text-xs space-y-1">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">Type:</span>
-                        <span className="dark:text-gray-200">{licenseInfo.type}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">Key:</span>
-                        <span className="font-mono dark:text-gray-200">
-                          {licenseInfo.isDemo ? "Demo" : `...${licenseInfo.key.slice(-6)}`}
-                        </span>
-                      </div>
-                    </div>
-
-                    {onLogout && (
-                      <Button
-                        onClick={onLogout}
-                        variant="outline"
-                        size="sm"
-                        className="w-full mt-3 text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-900 dark:hover:bg-red-950"
-                      >
-                        <LogOut className="w-4 h-4 mr-2" />
-                        Logout
-                      </Button>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-          </PopoverContent>
-        </Popover>
 
         {onRestartTour && (
           <Button
@@ -164,10 +84,87 @@ export function Header({
           <RefreshCw className="w-4 h-4 mr-2" />
           Refresh
         </Button>
-        <Badge variant="outline" className="px-3 py-1 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200">
-          <Calendar className="w-4 h-4 mr-1" />
-          {licenseInfo?.isDemo ? "Demo Data" : "Live Data"}
-        </Badge>
+
+        <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="border-teal-200 text-teal-700 hover:bg-teal-50 dark:border-teal-800 dark:text-teal-300 dark:hover:bg-teal-950">
+                      <Settings className="w-4 h-4 mr-2" />
+                      Settings
+                      { /* settingsLoading && <Loader2 className="w-3 h-3 ml-2 animate-spin" /> */}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 dark:bg-gray-800 dark:border-gray-700">
+                    <div className="space-y-4">
+                      <h4 className="font-medium dark:text-gray-100">Dashboard Settings</h4>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label htmlFor="idle-timeout" className="text-sm font-medium dark:text-gray-200">
+                            Idle Timeout: {idleTimeoutMinutes} minutes
+                          </label>
+                          <select
+                            id="idle-timeout"
+                            value={idleTimeoutMinutes}
+                            onChange={(e) => onIdleTimeoutChange(Number(e.target.value))}
+                            className="bg-white border rounded px-2 py-1 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                            disabled={settingsLoading}
+                          >
+                            <option value={5}>5 minutes</option>
+                            <option value={10}>10 minutes</option>
+                            <option value={15}>15 minutes</option>
+                            <option value={20}>20 minutes</option>
+                            <option value={30}>30 minutes</option>
+                          </select>
+                        </div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Sessions within {idleTimeoutMinutes} minutes of each other will be merged
+                        </p>
+                      </div>
+
+                      {false && settingsLoading && (
+                          <p className="text-xs text-blue-600 flex items-center gap-1 dark:text-blue-400">
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                            Saving settings...
+                          </p>
+                        )}
+
+                      {licenseInfo && (
+                        <>
+                          <hr className="dark:border-gray-700" />
+                          <div className="space-y-2">
+                            <h5 className="font-medium text-sm dark:text-gray-100">License Information</h5>
+                            <div className="text-xs space-y-1">
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 dark:text-gray-400">Type:</span>
+                                <span className="dark:text-gray-200">{licenseInfo.type}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 dark:text-gray-400">Key:</span>
+                                <span className="font-mono dark:text-gray-200">
+                                  {licenseInfo.isDemo ? "Demo" : `...${licenseInfo.key.slice(-6)}`}
+                                </span>
+                              </div>
+                            </div>
+
+                            {onLogout && (
+                              <Button
+                                onClick={onLogout}
+                                variant="outline"
+                                size="sm"
+                                className="w-full mt-3 text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-900 dark:hover:bg-red-950"
+                              >
+                                <LogOut className="w-4 h-4 mr-2" />
+                                Logout
+                              </Button>
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+        {/* Theme Toggle */}
+        <ThemeToggle />
       </div>
     </div>
   )

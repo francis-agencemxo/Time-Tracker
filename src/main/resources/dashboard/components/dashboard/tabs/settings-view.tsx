@@ -31,6 +31,9 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronRight,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react"
 import type { StatsData, IgnoredProject, ProjectCustomName, ProjectUrl, ProjectClient } from "@/hooks/use-time-tracking-data"
 import { useTimeCalculations } from "@/hooks/use-time-calculations"
@@ -111,6 +114,12 @@ export function SettingsView({
   // View mode state
   const [viewMode, setViewMode] = useState<"comfortable" | "compact">("comfortable")
 
+  // Sorting state
+  type SortField = "projectName" | "customName" | "client" | "lastWorkedOn"
+  type SortDirection = "asc" | "desc"
+  const [sortField, setSortField] = useState<SortField>("lastWorkedOn")
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
+
   // Active tab state - remember last visited tab
   const [activeTab, setActiveTab] = useState<string>(() => {
     if (typeof window !== "undefined") {
@@ -145,6 +154,45 @@ export function SettingsView({
     return Array.from(projectNames).sort()
   }
 
+  // Get project totals for ALL time (not just current week)
+  const getAllTimeProjectTotals = (): Array<{ name: string; duration: number; lastWorkedOn: number | null }> => {
+    const projectDurations = new Map<string, number>()
+    const projectLastWorked = new Map<string, number>()
+
+    // Iterate through all days in statsData
+    Object.values(statsData).forEach((dayData) => {
+      Object.entries(dayData).forEach(([projectName, projectData]) => {
+        if (!projectData.sessions) return
+
+        // Calculate total duration for this project on this day
+        let dayDuration = 0
+        projectData.sessions.forEach((session: any) => {
+          const startTime = new Date(session.start).getTime()
+          const endTime = new Date(session.end).getTime()
+          dayDuration += (endTime - startTime) / 1000 // duration in seconds
+
+          // Track the most recent session end time
+          const currentLastWorked = projectLastWorked.get(projectName) || 0
+          if (endTime > currentLastWorked) {
+            projectLastWorked.set(projectName, endTime)
+          }
+        })
+
+        // Add to project total
+        const currentTotal = projectDurations.get(projectName) || 0
+        projectDurations.set(projectName, currentTotal + dayDuration)
+      })
+    })
+
+    return Array.from(projectDurations.entries())
+      .map(([name, duration]) => ({
+        name,
+        duration,
+        lastWorkedOn: projectLastWorked.get(name) || null
+      }))
+      .sort((a, b) => b.duration - a.duration)
+  }
+
   // Helper function to get display name for a project
   const getProjectDisplayName = (projectName: string): string => {
     const customName = projectCustomNames.find((p) => p.projectName === projectName)
@@ -162,7 +210,7 @@ export function SettingsView({
   }
 
   const allProjectNames = getAllProjectNames()
-  const activeProjects = getFilteredProjectTotals()
+  const allTimeProjects = getAllTimeProjectTotals()
   const ignoredProjectNames = ignoredProjects.map((p) => p.projectName)
 
   // Helper to get URLs for a specific project (defined early to avoid hoisting issues)
@@ -175,6 +223,7 @@ export function SettingsView({
     name: string
     displayName: string
     duration: number
+    lastWorkedOn: number | null
     isIgnored: boolean
     ignoredAt?: string
     urls: ProjectUrl[]
@@ -183,12 +232,13 @@ export function SettingsView({
   const getAllProjects = (): ProjectRow[] => {
     const projectMap = new Map<string, ProjectRow>()
 
-    // Add active projects with duration
-    activeProjects.forEach((project) => {
+    // Add all projects with their all-time duration and last worked on
+    allTimeProjects.forEach((project) => {
       projectMap.set(project.name, {
         name: project.name,
         displayName: getProjectDisplayName(project.name),
         duration: project.duration,
+        lastWorkedOn: project.lastWorkedOn,
         isIgnored: false,
         urls: getProjectUrls(project.name),
       })
@@ -205,6 +255,7 @@ export function SettingsView({
           name: project.projectName,
           displayName: getProjectDisplayName(project.projectName),
           duration: 0,
+          lastWorkedOn: null,
           isIgnored: true,
           ignoredAt: project.ignoredAt,
           urls: getProjectUrls(project.projectName),
@@ -213,6 +264,18 @@ export function SettingsView({
     })
 
     return Array.from(projectMap.values())
+  }
+
+  // Helper function to handle sorting
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      // Toggle direction if clicking same field
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+    } else {
+      // Set new field with default direction
+      setSortField(field)
+      setSortDirection(field === "lastWorkedOn" ? "desc" : "asc")
+    }
   }
 
   // Filter and paginate projects
@@ -235,8 +298,28 @@ export function SettingsView({
       return true
     })
     .sort((a, b) => {
-      // Sort by name
-      return a.displayName.localeCompare(b.displayName)
+      let comparison = 0
+
+      switch (sortField) {
+        case "projectName":
+          comparison = a.name.localeCompare(b.name)
+          break
+        case "customName":
+          comparison = a.displayName.localeCompare(b.displayName)
+          break
+        case "client":
+          const clientA = getProjectClient(a.name)?.clientName || ""
+          const clientB = getProjectClient(b.name)?.clientName || ""
+          comparison = clientA.localeCompare(clientB)
+          break
+        case "lastWorkedOn":
+          const timeA = a.lastWorkedOn || 0
+          const timeB = b.lastWorkedOn || 0
+          comparison = timeA - timeB
+          break
+      }
+
+      return sortDirection === "asc" ? comparison : -comparison
     })
 
   // Group projects by client if enabled
@@ -505,7 +588,7 @@ export function SettingsView({
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Settings className="w-6 h-6 text-teal-600" />
+              <Settings className="w-6 h-6 text-teal-600 dark:text-teal-400" />
               <div>
                 <CardTitle>Settings</CardTitle>
                 <CardDescription>Manage your time tracker preferences and projects</CardDescription>
@@ -514,7 +597,7 @@ export function SettingsView({
             <div className="flex items-center gap-4">
               <Badge variant="outline" className="px-3 py-1">
                 <FolderOpen className="w-4 h-4 mr-1" />
-                {activeProjects.length} Active
+                {allTimeProjects.length} Total Projects
               </Badge>
               <Badge variant="secondary" className="px-3 py-1">
                 <EyeOff className="w-4 h-4 mr-1" />
@@ -598,7 +681,7 @@ export function SettingsView({
               {/* Filters and Search */}
               <div className="flex items-center gap-4 mb-4">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-4 w-4" />
                   <Input
                     placeholder="Search projects or URLs..."
                     value={searchQuery}
@@ -612,7 +695,7 @@ export function SettingsView({
                     checked={showIgnored}
                     onCheckedChange={(checked) => setShowIgnored(checked as boolean)}
                   />
-                  <Label htmlFor="show-ignored" className="text-sm cursor-pointer">
+                  <Label htmlFor="show-ignored" className="text-sm cursor-pointer dark:text-gray-300">
                     Show ignored
                   </Label>
                 </div>
@@ -622,7 +705,7 @@ export function SettingsView({
                     checked={groupByClient}
                     onCheckedChange={(checked) => setGroupByClient(checked as boolean)}
                   />
-                  <Label htmlFor="group-by-client" className="text-sm cursor-pointer">
+                  <Label htmlFor="group-by-client" className="text-sm cursor-pointer dark:text-gray-300">
                     Group by client
                   </Label>
                 </div>
@@ -649,14 +732,78 @@ export function SettingsView({
               </div>
 
               {/* Projects Table */}
-              <div className="rounded-md border">
+              <div className="rounded-md border dark:border-gray-700">
                 <Table>
                   <TableHeader>
                     <TableRow className={viewMode === "compact" ? "text-xs" : ""}>
-                      <TableHead>Project Name</TableHead>
-                      <TableHead>Custom Name</TableHead>
-                      <TableHead>Client</TableHead>
-                      <TableHead className="w-28">Duration</TableHead>
+                      <TableHead>
+                        <button
+                          onClick={() => handleSort("projectName")}
+                          className="flex items-center gap-1 hover:text-teal-600 dark:hover:text-teal-400"
+                        >
+                          Project Name
+                          {sortField === "projectName" ? (
+                            sortDirection === "asc" ? (
+                              <ArrowUp className="w-4 h-4" />
+                            ) : (
+                              <ArrowDown className="w-4 h-4" />
+                            )
+                          ) : (
+                            <ArrowUpDown className="w-4 h-4 opacity-50" />
+                          )}
+                        </button>
+                      </TableHead>
+                      <TableHead>
+                        <button
+                          onClick={() => handleSort("customName")}
+                          className="flex items-center gap-1 hover:text-teal-600 dark:hover:text-teal-400"
+                        >
+                          Custom Name
+                          {sortField === "customName" ? (
+                            sortDirection === "asc" ? (
+                              <ArrowUp className="w-4 h-4" />
+                            ) : (
+                              <ArrowDown className="w-4 h-4" />
+                            )
+                          ) : (
+                            <ArrowUpDown className="w-4 h-4 opacity-50" />
+                          )}
+                        </button>
+                      </TableHead>
+                      <TableHead>
+                        <button
+                          onClick={() => handleSort("client")}
+                          className="flex items-center gap-1 hover:text-teal-600 dark:hover:text-teal-400"
+                        >
+                          Client
+                          {sortField === "client" ? (
+                            sortDirection === "asc" ? (
+                              <ArrowUp className="w-4 h-4" />
+                            ) : (
+                              <ArrowDown className="w-4 h-4" />
+                            )
+                          ) : (
+                            <ArrowUpDown className="w-4 h-4 opacity-50" />
+                          )}
+                        </button>
+                      </TableHead>
+                      <TableHead className="w-40">
+                        <button
+                          onClick={() => handleSort("lastWorkedOn")}
+                          className="flex items-center gap-1 hover:text-teal-600 dark:hover:text-teal-400"
+                        >
+                          Last Worked On
+                          {sortField === "lastWorkedOn" ? (
+                            sortDirection === "asc" ? (
+                              <ArrowUp className="w-4 h-4" />
+                            ) : (
+                              <ArrowDown className="w-4 h-4" />
+                            )
+                          ) : (
+                            <ArrowUpDown className="w-4 h-4 opacity-50" />
+                          )}
+                        </button>
+                      </TableHead>
                       <TableHead>URLs</TableHead>
                       <TableHead className="w-32">Actions</TableHead>
                     </TableRow>
@@ -664,7 +811,7 @@ export function SettingsView({
                   <TableBody>
                     {paginatedProjects.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center text-gray-500 py-8">
+                        <TableCell colSpan={6} className="text-center text-gray-500 dark:text-gray-400 py-8">
                           {searchQuery ? "No projects match your search." : "No projects found."}
                         </TableCell>
                       </TableRow>
@@ -678,10 +825,10 @@ export function SettingsView({
                           // Group header row
                           <TableRow
                             key={`group-${group.clientName}`}
-                            className="bg-gray-100 hover:bg-gray-200 cursor-pointer"
+                            className="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer"
                             onClick={() => toggleGroupCollapse(group.clientName)}
                           >
-                            <TableCell colSpan={6} className="font-semibold">
+                            <TableCell colSpan={6} className="font-semibold dark:text-gray-200">
                               <div className="flex items-center gap-2">
                                 {isCollapsed ? (
                                   <ChevronRight className="w-4 h-4" />
@@ -700,18 +847,18 @@ export function SettingsView({
                             : groupProjects.map((project) => (
                                 <TableRow
                                   key={project.name}
-                                  className={`${project.isIgnored ? "bg-orange-50" : ""} ${viewMode === "compact" ? "text-xs" : ""}`}
+                                  className={`${project.isIgnored ? "bg-orange-50 dark:bg-orange-950/20" : ""} ${viewMode === "compact" ? "text-xs" : ""}`}
                                 >
                                   {/* Project Name */}
                                   <TableCell>
                                     <div className="flex items-center gap-2 pl-6">
                                       <div
-                                        className={`w-2 h-2 rounded-full ${project.isIgnored ? "bg-orange-500" : "bg-green-500"}`}
+                                        className={`w-2 h-2 rounded-full ${project.isIgnored ? "bg-orange-500 dark:bg-orange-400" : "bg-green-500 dark:bg-green-400"}`}
                                       ></div>
                                       <div>
-                                        <div className="font-medium">{project.name}</div>
+                                        <div className="font-medium dark:text-gray-200">{project.name}</div>
                                         {project.isIgnored && project.ignoredAt && (
-                                          <div className="text-xs text-gray-500">
+                                          <div className="text-xs text-gray-500 dark:text-gray-400">
                                             Ignored {new Date(project.ignoredAt).toLocaleDateString()}
                                           </div>
                                         )}
@@ -756,13 +903,13 @@ export function SettingsView({
                                       </div>
                                     ) : (
                                       <span
-                                        className="text-sm cursor-pointer hover:bg-gray-100 px-2 py-1 rounded -mx-2"
+                                        className="text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded -mx-2 dark:text-gray-200"
                                         onClick={() => handleEditCustomName(project.name)}
                                         title="Click to edit custom name"
                                       >
                                         {getProjectCustomName(project.name)
                                           ? getProjectCustomName(project.name)?.customName
-                                          : <span className="text-gray-400 italic">Not set</span>}
+                                          : <span className="text-gray-400 dark:text-gray-500 italic">Not set</span>}
                                       </span>
                                     )}
                                   </TableCell>
@@ -804,26 +951,26 @@ export function SettingsView({
                                       </div>
                                     ) : (
                                       <span
-                                        className="text-sm cursor-pointer hover:bg-gray-100 px-2 py-1 rounded -mx-2"
+                                        className="text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded -mx-2 dark:text-gray-200"
                                         onClick={() => handleEditClient(project.name)}
                                         title="Click to assign/edit client"
                                       >
                                         {getProjectClient(project.name)
                                           ? getProjectClient(project.name)?.clientName
-                                          : <span className="text-gray-400 italic">Not set</span>}
+                                          : <span className="text-gray-400 dark:text-gray-500 italic">Not set</span>}
                                       </span>
                                     )}
                                   </TableCell>
 
-                                  {/* Duration */}
+                                  {/* Last Worked On */}
                                   <TableCell>
-                                    {project.duration > 0 ? (
-                                      <div className="flex items-center gap-1 text-sm">
+                                    {project.lastWorkedOn ? (
+                                      <div className="flex items-center gap-1 text-sm dark:text-gray-200">
                                         <ClockIcon className="w-3 h-3" />
-                                        {formatDuration(project.duration)}
+                                        {new Date(project.lastWorkedOn).toLocaleDateString()}
                                       </div>
                                     ) : (
-                                      <span className="text-gray-400 text-sm">-</span>
+                                      <span className="text-gray-400 dark:text-gray-500 text-sm">-</span>
                                     )}
                                   </TableCell>
 
@@ -836,7 +983,7 @@ export function SettingsView({
                                             href={url.url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-teal-600 hover:text-teal-800 truncate max-w-[200px] inline-block"
+                                            className="text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 truncate max-w-[200px] inline-block"
                                             title={url.url}
                                           >
                                             {url.url}
@@ -894,7 +1041,7 @@ export function SettingsView({
                                           </Button>
                                         </div>
                                       ) : project.urls.length === 0 ? (
-                                        <span className="text-xs text-gray-400">No URLs</span>
+                                        <span className="text-xs text-gray-400 dark:text-gray-500">No URLs</span>
                                       ) : null}
                                     </div>
                                   </TableCell>
@@ -911,9 +1058,9 @@ export function SettingsView({
                                         title={project.isIgnored ? "Show project" : "Ignore project"}
                                       >
                                         {project.isIgnored ? (
-                                          <EyeOff className="w-4 h-4 text-orange-600" />
+                                          <EyeOff className="w-4 h-4 text-orange-600 dark:text-orange-400" />
                                         ) : (
-                                          <Eye className="w-4 h-4 text-green-600" />
+                                          <Eye className="w-4 h-4 text-green-600 dark:text-green-400" />
                                         )}
                                       </Button>
                                       <Button
@@ -941,18 +1088,18 @@ export function SettingsView({
                       paginatedProjects.map((project) => (
                         <TableRow
                           key={project.name}
-                          className={`${project.isIgnored ? "bg-orange-50" : ""} ${viewMode === "compact" ? "text-xs" : ""}`}
+                          className={`${project.isIgnored ? "bg-orange-50 dark:bg-orange-950/20" : ""} ${viewMode === "compact" ? "text-xs" : ""}`}
                         >
                           {/* Project Name */}
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <div
-                                className={`w-2 h-2 rounded-full ${project.isIgnored ? "bg-orange-500" : "bg-green-500"}`}
+                                className={`w-2 h-2 rounded-full ${project.isIgnored ? "bg-orange-500 dark:bg-orange-400" : "bg-green-500 dark:bg-green-400"}`}
                               ></div>
                               <div>
-                                <div className="font-medium">{project.name}</div>
+                                <div className="font-medium dark:text-gray-200">{project.name}</div>
                                 {project.isIgnored && project.ignoredAt && (
-                                  <div className="text-xs text-gray-500">
+                                  <div className="text-xs text-gray-500 dark:text-gray-400">
                                     Ignored {new Date(project.ignoredAt).toLocaleDateString()}
                                   </div>
                                 )}
@@ -997,13 +1144,13 @@ export function SettingsView({
                               </div>
                             ) : (
                               <span
-                                className="text-sm cursor-pointer hover:bg-gray-100 px-2 py-1 rounded -mx-2"
+                                className="text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded -mx-2 dark:text-gray-200"
                                 onClick={() => handleEditCustomName(project.name)}
                                 title="Click to edit custom name"
                               >
                                 {getProjectCustomName(project.name)
                                   ? getProjectCustomName(project.name)?.customName
-                                  : <span className="text-gray-400 italic">Not set</span>}
+                                  : <span className="text-gray-400 dark:text-gray-500 italic">Not set</span>}
                               </span>
                             )}
                           </TableCell>
@@ -1045,26 +1192,26 @@ export function SettingsView({
                               </div>
                             ) : (
                               <span
-                                className="text-sm cursor-pointer hover:bg-gray-100 px-2 py-1 rounded -mx-2"
+                                className="text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded -mx-2 dark:text-gray-200"
                                 onClick={() => handleEditClient(project.name)}
                                 title="Click to assign/edit client"
                               >
                                 {getProjectClient(project.name)
                                   ? getProjectClient(project.name)?.clientName
-                                  : <span className="text-gray-400 italic">Not set</span>}
+                                  : <span className="text-gray-400 dark:text-gray-500 italic">Not set</span>}
                               </span>
                             )}
                           </TableCell>
 
-                          {/* Duration */}
+                          {/* Last Worked On */}
                           <TableCell>
-                            {project.duration > 0 ? (
-                              <div className="flex items-center gap-1 text-sm">
+                            {project.lastWorkedOn ? (
+                              <div className="flex items-center gap-1 text-sm dark:text-gray-200">
                                 <ClockIcon className="w-3 h-3" />
-                                {formatDuration(project.duration)}
+                                {new Date(project.lastWorkedOn).toLocaleDateString()}
                               </div>
                             ) : (
-                              <span className="text-gray-400 text-sm">-</span>
+                              <span className="text-gray-400 dark:text-gray-500 text-sm">-</span>
                             )}
                           </TableCell>
 
@@ -1077,7 +1224,7 @@ export function SettingsView({
                                     href={url.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-teal-600 hover:text-teal-800 truncate max-w-[200px] inline-block"
+                                    className="text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 truncate max-w-[200px] inline-block"
                                     title={url.url}
                                   >
                                     {url.url}
@@ -1135,7 +1282,7 @@ export function SettingsView({
                                   </Button>
                                 </div>
                               ) : project.urls.length === 0 ? (
-                                <span className="text-xs text-gray-400">No URLs</span>
+                                <span className="text-xs text-gray-400 dark:text-gray-500">No URLs</span>
                               ) : null}
                             </div>
                           </TableCell>
@@ -1152,9 +1299,9 @@ export function SettingsView({
                                 title={project.isIgnored ? "Show project" : "Ignore project"}
                               >
                                 {project.isIgnored ? (
-                                  <EyeOff className="w-4 h-4 text-orange-600" />
+                                  <EyeOff className="w-4 h-4 text-orange-600 dark:text-orange-400" />
                                 ) : (
-                                  <Eye className="w-4 h-4 text-green-600" />
+                                  <Eye className="w-4 h-4 text-green-600 dark:text-green-400" />
                                 )}
                               </Button>
                               <Button
@@ -1183,7 +1330,7 @@ export function SettingsView({
               {/* Pagination Controls */}
               {totalPages > 1 && (
                 <div className="flex items-center justify-between mt-4">
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
                     Showing {startIndex + 1}-{Math.min(endIndex, filteredProjects.length)} of {filteredProjects.length} projects
                   </div>
                   <div className="flex items-center gap-2">

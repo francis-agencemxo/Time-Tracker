@@ -228,6 +228,26 @@ object DBManager {
         }
     }
 
+    /**
+     * Update a URL pattern by ID.
+     */
+    fun updateUrl(
+        id: Int,
+        project: String,
+        url: String
+    ) {
+        conn.prepareStatement("""
+      UPDATE urls
+      SET project = ?, url = ?
+      WHERE id = ?
+    """.trimIndent()).use { ps ->
+            ps.setString(1, project)
+            ps.setString(2, url)
+            ps.setInt(3, id)
+            ps.executeUpdate()
+        }
+    }
+
     fun queryUrls(project: String): JSONArray {
         val arr = JSONArray()
         conn.prepareStatement("""

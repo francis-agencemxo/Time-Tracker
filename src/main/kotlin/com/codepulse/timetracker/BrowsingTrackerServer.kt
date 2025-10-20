@@ -266,7 +266,7 @@ object BrowsingTrackerServer {
         override fun handle(exchange: HttpExchange) {
             with(exchange.responseHeaders) {
                 add("Access-Control-Allow-Origin", "*")
-                add("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+                add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
                 add("Access-Control-Allow-Headers", "Content-Type")
             }
             if (exchange.requestMethod.equals("OPTIONS", ignoreCase = true)) {
@@ -290,6 +290,28 @@ object BrowsingTrackerServer {
                         url = json.getString("url")
                     )
                     exchange.sendResponseHeaders(201, -1)
+                    exchange.responseBody.close()
+                }
+                "PUT" -> {
+                    println("PUT /api/urls")
+                    val body = exchange.requestBody.bufferedReader().readText()
+                    val json = JSONObject(body)
+
+                    val fullPath = exchange.requestURI.path
+                    val idSegment = fullPath.substringAfterLast("/", missingDelimiterValue = "")
+                    val id = idSegment.toIntOrNull()
+
+                    if (id != null) {
+                        DBManager.updateUrl(
+                            id = id,
+                            project = json.getString("project"),
+                            url = json.getString("url")
+                        )
+                        exchange.sendResponseHeaders(204, -1)
+                    } else {
+                        exchange.sendResponseHeaders(400, -1)
+                    }
+                    exchange.responseBody.close()
                 }
                 "DELETE" -> {
                     val fullPath = exchange.requestURI.path

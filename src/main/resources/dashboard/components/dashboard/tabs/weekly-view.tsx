@@ -6,6 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend
 import type { StatsData } from "@/hooks/use-time-tracking-data"
 import { useTimeCalculations } from "@/hooks/use-time-calculations"
 import { Badge } from "@/components/ui/badge"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 interface WeeklyViewProps {
   statsData: StatsData
@@ -185,39 +186,39 @@ export function WeeklyView({
           <CardDescription>Detailed view of hours by day and project</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b">
-                  <th className="py-2 px-3 text-left font-medium text-gray-600">Day</th>
-                  <th className="py-2 px-3 text-right font-medium text-gray-600">Total</th>
-                  <th className="py-2 px-3 text-right font-medium text-gray-600">Target</th>
-                  <th className="py-2 px-3 text-right font-medium text-gray-600">%</th>
-                  <th className="py-2 px-3 text-left font-medium text-gray-600">Projects</th>
-                </tr>
-              </thead>
-              <tbody>
+          <div className="rounded-md border dark:border-gray-700">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-left font-medium">Day</TableHead>
+                  <TableHead className="text-right font-medium">Total</TableHead>
+                  <TableHead className="text-right font-medium">Target</TableHead>
+                  <TableHead className="text-right font-medium">%</TableHead>
+                  <TableHead className="text-left font-medium">Projects</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {dailyTotals.map((day) => (
-                  <tr key={day.date} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-3 font-medium">{day.day}</td>
-                    <td className="py-3 px-3 text-right font-medium">{formatHoursForChart(day.totalHours)}</td>
-                    <td className="py-3 px-3 text-right text-gray-600">{formatHoursForChart(day.target)}</td>
-                    <td className="py-3 px-3 text-right">
+                  <TableRow key={day.date}>
+                    <TableCell className="font-medium">{day.day}</TableCell>
+                    <TableCell className="text-right font-medium">{formatHoursForChart(day.totalHours)}</TableCell>
+                    <TableCell className="text-right text-gray-600 dark:text-gray-400">{formatHoursForChart(day.target)}</TableCell>
+                    <TableCell className="text-right">
                       <Badge
                         variant={day.percentOfTarget >= 100 ? "default" : "outline"}
-                        className={`${day.percentOfTarget >= 100 ? "bg-green-600" : "text-gray-600"}`}
+                        className={`${day.percentOfTarget >= 100 ? "bg-green-600" : "text-gray-600 dark:text-gray-400"}`}
                       >
                         {Math.round(day.percentOfTarget)}%
                       </Badge>
-                    </td>
-                    <td className="py-3 px-3">
+                    </TableCell>
+                    <TableCell>
                       <div className="flex flex-wrap gap-2">
                         {Object.entries(day.projectHours)
                           .sort(([, a], [, b]) => (b as number) - (a as number))
                           .map(([project, hours]) => (
                             <div
                               key={project}
-                              className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded text-xs"
+                              className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-xs"
                               onClick={(e) => {
                                 e.stopPropagation()
                                 onProjectSelect && onProjectSelect(project)
@@ -233,27 +234,25 @@ export function WeeklyView({
                             </div>
                           ))}
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-              <tfoot>
-                <tr className="bg-gray-50">
-                  <td className="py-3 px-3 font-bold">Total</td>
-                  <td className="py-3 px-3 text-right font-bold">{formatHoursForChart(weeklyTotal)}</td>
-                  <td className="py-3 px-3 text-right font-medium">{formatHoursForChart(weeklyTarget)}</td>
-                  <td className="py-3 px-3 text-right">
+                <TableRow className="bg-gray-50 dark:bg-gray-800 border-t-2 border-gray-300 dark:border-gray-700">
+                  <TableCell className="font-bold">Total</TableCell>
+                  <TableCell className="text-right font-bold">{formatHoursForChart(weeklyTotal)}</TableCell>
+                  <TableCell className="text-right font-medium">{formatHoursForChart(weeklyTarget)}</TableCell>
+                  <TableCell className="text-right">
                     <Badge
                       variant={weeklyTotal >= weeklyTarget ? "default" : "outline"}
-                      className={`${weeklyTotal >= weeklyTarget ? "bg-green-600" : "text-gray-600"}`}
+                      className={`${weeklyTotal >= weeklyTarget ? "bg-green-600" : "text-gray-600 dark:text-gray-400"}`}
                     >
                       {weeklyTarget > 0 ? Math.round((weeklyTotal / weeklyTarget) * 100) : 0}%
                     </Badge>
-                  </td>
-                  <td className="py-3 px-3"></td>
-                </tr>
-              </tfoot>
-            </table>
+                  </TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
           </div>
         </CardContent>
       </Card>
