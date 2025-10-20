@@ -8,34 +8,75 @@
     <!-- Future: Consider migrating to projectService for dynamic reload support -->
 
     <description><![CDATA[
-        <h2>CodePulse</h2>
-    <p><strong>Track developer productivity across coding and browsing activity.</strong></p>
-    <p>
-      This plugin monitors file‑editing in IntelliJ IDEA and PhpStorm and active tabs in Chrome,
-      records time by project and domain, and provides daily/weekly breakdowns
-      with export or Google Sheets sync.
-    </p>
+    <h2>CodePulse - Comprehensive Time Tracking for Developers</h2>
+
+    <p><strong>Track your entire development workflow</strong> — from coding in your IDE to researching on the web. CodePulse provides detailed insights into how you spend your time across projects, files, and websites.</p>
+
+    <h3>✨ Key Features</h3>
     <ul>
-      <li><strong>IntelliJ Plugin</strong> – hooks into the IDE to record coding activity and serve a built‑in Tracker API.</li>
-      <li><strong>Chrome Extension</strong> – captures active‑tab URLs and reports browsing time back to the plugin’s API.</li>
-      <li><strong>Next.js Dashboard</strong> – real‑time and static dashboard (HMR in dev, static export for prod) to visualize time stats with configurable scopes, domains, and refresh intervals.</li>
+      <li><strong>Automatic IDE Tracking</strong> — Records file editing activity in IntelliJ IDEA, PhpStorm, and other JetBrains IDEs</li>
+      <li><strong>Browser Activity Monitoring</strong> — Tracks active tabs and browsing time via Chrome extension</li>
+      <li><strong>Real-Time Dashboard</strong> — Beautiful Next.js dashboard with live updates, charts, and detailed breakdowns</li>
+      <li><strong>Project-Based Reporting</strong> — Organize time by project with daily and weekly summaries</li>
+      <li><strong>Domain Grouping</strong> — See time spent on different websites (GitHub, Stack Overflow, documentation, etc.)</li>
+      <li><strong>Export & Sync</strong> — Export data or sync directly to Google Sheets for reporting</li>
+      <li><strong>Dark Mode Support</strong> — Seamless theme integration with IDE preferences</li>
+      <li><strong>Custom Project Names</strong> — Create aliases and organize projects your way</li>
     </ul>
 
-    ## 🔗 Chrome Extension Installation
+    <h3>🏗️ Architecture</h3>
+    <ul>
+      <li><strong>IntelliJ Plugin</strong> — Hooks into the IDE to record coding activity and serves a built-in Tracker API (default port: 56000)</li>
+      <li><strong>Chrome Extension</strong> — Captures active tab URLs and reports browsing time back to the plugin's API</li>
+      <li><strong>Next.js Dashboard</strong> — Real-time dashboard with HMR in dev mode and static export for production</li>
+    </ul>
 
-To enable browser activity tracking:
+    <h3>🚀 Getting Started</h3>
+    <ol>
+      <li><strong>Install the Plugin</strong> — CodePulse will start tracking your IDE activity automatically</li>
+      <li><strong>Access the Dashboard</strong> — Click the CodePulse icon in your IDE status bar to open the dashboard</li>
+      <li><strong>Install Chrome Extension</strong> (Optional) — Enable browser activity tracking by following the steps below</li>
+      <li><strong>Configure Settings</strong> — Go to <em>Settings → Tools → CodePulse Time Tracker</em> to customize tracking options</li>
+    </ol>
 
-1. Open **Chrome** and go to `chrome://extensions`
-2. Toggle **Developer Mode** (top-right)
-3. Click **"Load unpacked"**
-4. Select the `chrome-extension` folder from the plugin installation directory.
+    <h3>🔗 Chrome Extension Setup</h3>
+    <p>To enable browser activity tracking:</p>
+    <ol>
+      <li>Open Chrome and navigate to <code>chrome://extensions</code></li>
+      <li>Enable <strong>Developer Mode</strong> (toggle in top-right corner)</li>
+      <li>Click <strong>"Load unpacked"</strong></li>
+      <li>Select the <code>chrome-extension</code> folder from your plugin installation directory</li>
+    </ol>
 
-After installation, click on the CodePulse icon in the Chrome toolbar to open the project selector popup. Use the search input to filter and pick a project or enter a custom project name. The badge will update to reflect the active project. You can enable or disable the floating toolbar on web pages via the popup toggle, or drag, collapse, and pin the toolbar for quick project switching directly from any website.
+    <p><strong>Using the Extension:</strong></p>
+    <ul>
+      <li>Click the CodePulse icon in Chrome toolbar to select your active project</li>
+      <li>Use the search input to filter projects or enter a custom project name</li>
+      <li>Enable the floating toolbar for quick project switching on any webpage</li>
+      <li>The toolbar can be dragged, collapsed, and pinned for convenience</li>
+    </ul>
 
-To adjust the Tracker Server port (`56000` by default) or restore default settings, click **Details** → **Extension options** on the `chrome://extensions` page. After changing the port, reload any open tabs to ensure the floating toolbar is injected with the new settings.
+    <p><strong>Configuration:</strong> Click <em>Details → Extension options</em> on the <code>chrome://extensions</code> page to adjust the Tracker Server port (default: 56000) or restore default settings. Reload open tabs after changing the port.</p>
 
-The extension tracks active tab changes and reports browsing duration (in seconds) along with URL, start/end timestamps, and active project to the CodePulse plugin’s built-in API at `http://localhost:<port>`.
+    <h3>📊 What Gets Tracked</h3>
+    <ul>
+      <li><strong>Coding Activity:</strong> Active file editing time, project names, file paths</li>
+      <li><strong>Browsing Activity:</strong> Active tab URLs, domain names, timestamps, duration</li>
+      <li><strong>Git Integration:</strong> Commit tracking and repository information</li>
+    </ul>
 
+    <h3>⚙️ System Requirements</h3>
+    <ul>
+      <li>IntelliJ IDEA, PhpStorm, or other JetBrains IDE (Build 193.0+)</li>
+      <li>Chrome browser (for browser tracking)</li>
+      <li>Port 56000 available (configurable)</li>
+    </ul>
+
+    <h3>📝 License</h3>
+    <p>CodePulse requires a valid license for full functionality. License management is available in the plugin settings.</p>
+
+    <h3>🆘 Support</h3>
+    <p>For questions, issues, or feature requests, contact: <a href="mailto:info@francislabonte.com">info@francislabonte.com</a></p>
     ]]></description>
 
     <change-notes><![CDATA[
