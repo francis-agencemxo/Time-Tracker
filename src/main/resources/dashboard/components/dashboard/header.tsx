@@ -1,10 +1,14 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar, RefreshCw, Settings, LogOut, Shield, Loader2, Clock, HelpCircle } from "lucide-react"
+import { Calendar, RefreshCw, Settings, LogOut, Shield, Loader2, Clock, HelpCircle, Info, X } from "lucide-react"
 import { useLicenseValidation } from "@/hooks/use-license-validation"
+import { useChromeExtensionInstalled } from "@/hooks/use-chrome-extension-installed"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 interface HeaderProps {
@@ -30,19 +34,75 @@ export function Header({
 }: HeaderProps) {
   const { getLicenseInfo } = useLicenseValidation()
   const licenseInfo = getLicenseInfo()
+  const extInstalled = useChromeExtensionInstalled()
+  const [showExtPrompt, setShowExtPrompt] = useState(true)
+
+  useEffect(() => {
+    const dismissed = localStorage.getItem("chromeExtInstallDismissed")
+    setShowExtPrompt(dismissed !== "true")
+  }, [])
+
+  const handleDismissExtPrompt = () => {
+    localStorage.setItem("chromeExtInstallDismissed", "true")
+    setShowExtPrompt(false)
+  }
+
+  // Determine extension folder path based on OS
+  const [extPath, setExtPath] = useState<string>("")
+  useEffect(() => {
+    const ua = window.navigator.userAgent.toLowerCase()
+    if (ua.includes("win")) {
+      setExtPath("%USERPROFILE%\\.cache\\phpstorm-time-tracker\\chrome-extension")
+    } else {
+      setExtPath("~/.cache/phpstorm-time-tracker/chrome-extension")
+    }
+  }, [])
 
   return (
-    <div className="flex items-center justify-between" data-tour="header">
-      <div className="flex items-center gap-4">
-        {/* Custom Logo Design */}
-        <div className="relative">
-          <div className="w-10 h-10 bg-gradient-to-br from-teal-600 to-teal-800 rounded-lg flex items-center justify-center shadow-md">
-            <Clock className="h-6 w-6 text-white" />
+    <>
+      {extInstalled === false && showExtPrompt && (
+        <Alert className="mb-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center">
+              <Info className="h-5 w-5 mr-2 text-teal-600 dark:text-teal-400" />
+              <AlertDescription>Install Chrome plugin to add URL tracing</AlertDescription>
+            </div>
+            <button
+              type="button"
+              onClick={handleDismissExtPrompt}
+              className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+              aria-label="Dismiss installation prompt"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
-          <div className="absolute -top-1 -right-1 w-3 h-3 bg-amber-500 rounded-full flex items-center justify-center">
-            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+          <Accordion type="single" collapsible className="mt-2">
+            <AccordionItem value="install">
+              <AccordionTrigger>How to install?</AccordionTrigger>
+              <AccordionContent>
+                <ol className="list-decimal list-inside space-y-1">
+                  <li>Open Chrome and go to <code>chrome://extensions</code></li>
+                  <li>Enable Developer mode (toggle upper-right)</li>
+<li>
+                    Click “Load unpacked” and select <code>{extPath}</code>
+                  </li>
+                </ol>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </Alert>
+      )}
+      <div className="flex items-center justify-between" data-tour="header">
+        <div className="flex items-center gap-4">
+          {/* Custom Logo Design */}
+          <div className="relative">
+            <div className="w-10 h-10 bg-gradient-to-br from-teal-600 to-teal-800 rounded-lg flex items-center justify-center shadow-md">
+              <Clock className="h-6 w-6 text-white" />
+            </div>
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-amber-500 rounded-full flex items-center justify-center">
+              <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+            </div>
           </div>
-        </div>
         <div>
           <h1 className="text-3xl font-bold text-teal-800 dark:text-teal-400">Development Time Tracking</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">Monitor your development productivity and project progress</p>
@@ -167,5 +227,6 @@ export function Header({
         <ThemeToggle />
       </div>
     </div>
+  </>
   )
 }

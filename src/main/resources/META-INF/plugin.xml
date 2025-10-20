@@ -45,7 +45,7 @@
       <li>Open Chrome and navigate to <code>chrome://extensions</code></li>
       <li>Enable <strong>Developer Mode</strong> (toggle in top-right corner)</li>
       <li>Click <strong>"Load unpacked"</strong></li>
-      <li>Select the <code>chrome-extension</code> folder from your plugin installation directory</li>
+      <li>Select the <code>chrome-extension</code> folder from your plugin installation directory (by default extracted to <code>%USERPROFILE%\.cache\phpstorm-time-tracker\chrome-extension</code> on Windows or <code>~/.cache/phpstorm-time-tracker/chrome-extension</code> on macOS/Linux)</li>
     </ol>
 
     <p><strong>Using the Extension:</strong></p>
