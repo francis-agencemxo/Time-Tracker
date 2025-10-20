@@ -40,6 +40,7 @@ The extension tracks active tab changes and reports browsing duration (in second
 
     <change-notes><![CDATA[
         <ul>
+<li>2025-10-20: Add theme toggle component and enhance dark mode support across the application</li>
 <li>2025-06-25: Add Daily Details view and integrate into dashboard tabs</li>
 <li>2025-06-24: Add custom project input and floating toolbar enhancements</li>
 <li>2025-06-21: Implement project custom names feature with CRUD operations and UI updates</li>
