@@ -1053,7 +1053,7 @@ object BrowsingTrackerServer {
                     addBrowsingTime(projectFromBody, host, fullUrl, duration)
                     println("🕒 Added $duration seconds browsing time to project '$projectFromBody' from $url")
                 } else {
-                    println("⚠️ URL $url did not match any project")
+                    //println("⚠️ URL $url did not match any project")
                 }
 
                 respond(exchange, "OK")

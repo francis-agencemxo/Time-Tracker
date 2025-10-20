@@ -94,7 +94,7 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
         // Check if backend is available
         const backendAvailable = await checkBackendAvailability()
         if (!backendAvailable) {
-          setError("Please open a PhpStorm project with the Time Tracker plugin to access the dashboard.")
+          setError("Please open a PhpStorm project to access the dashboard.")
         } else {
           setError("The license key from login portal is invalid. Please try again.")
         }
@@ -127,7 +127,7 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
         // Check if backend is available
         const backendAvailable = await checkBackendAvailability()
         if (!backendAvailable) {
-          setError("Please open a PhpStorm project with the Time Tracker plugin to access the dashboard.")
+          setError("Please open a PhpStorm project to access the dashboard.")
         } else {
           setError("Invalid license key. Please check your key and try again.")
         }
@@ -269,6 +269,7 @@ export function LicenseValidation({ onValidate }: LicenseValidationProps) {
                 <Label htmlFor="license-key">License Key</Label>
                 <Input
                   id="license-key"
+                  name="username"
                   type="text"
                   placeholder="Enter your license key"
                   value={licenseKey}
