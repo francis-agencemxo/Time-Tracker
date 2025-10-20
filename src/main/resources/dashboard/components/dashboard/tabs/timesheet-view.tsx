@@ -93,10 +93,20 @@ export function TimesheetView({
     {} as { [key: string]: string },
   )
 
-  // Get all unique projects from the week
+  // Calculate project totals for sorting
+  const projectTotalsForSorting = stackedData.reduce((acc, day) => {
+    Object.entries(day).forEach(([key, value]) => {
+      if (!["day", "date", "target"].includes(key)) {
+        acc[key] = (acc[key] || 0) + (value as number)
+      }
+    })
+    return acc
+  }, {} as { [key: string]: number })
+
+  // Get all unique projects from the week, sorted by total hours worked (descending)
   const allProjects = Array.from(
     new Set(stackedData.flatMap((day) => Object.keys(day).filter((key) => !["day", "date", "target"].includes(key)))),
-  ).sort()
+  ).sort((a, b) => (projectTotalsForSorting[b] || 0) - (projectTotalsForSorting[a] || 0))
 
   // Create chart config for all projects
   const chartConfig = allProjects.reduce((config, project) => {
