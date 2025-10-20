@@ -13,8 +13,19 @@ ZIP_BASENAME="$PLUGIN_NAME"
 SED_EXT=".bak"
 # ----------------------
 
+# --- 0. Parse version bump argument (MUST be first, before flag parsing) ---
+BUMP_TYPE=${1:-patch}
+if [[ ! "$BUMP_TYPE" =~ ^(major|minor|patch)$ ]]; then
+  echo "❌ Invalid bump type: $BUMP_TYPE"
+  echo "Usage: ./release.sh [major|minor|patch] [-m|--message \"commit message\"] [-cn|--change-note \"change note\"]"
+  exit 1
+fi
+
+# Shift to remove BUMP_TYPE from arguments, leaving only flags for the loop
+shift
+
 # --- Parse optional commit message and change note ---
-COMMIT_MESSAGE="Release $NEW_VERSION"
+COMMIT_MESSAGE="Release \$NEW_VERSION"
 CHANGE_NOTE=""
 
 while [[ "$#" -gt 0 ]]; do
@@ -40,14 +51,6 @@ done
 export PORT=
 export TRACKER_SERVER_PORT=
 export NEXT_PUBLIC_TRACKER_SERVER_PORT=
-
-# --- 0. Parse version bump argument ---
-BUMP_TYPE=${1:-patch}
-if [[ ! "$BUMP_TYPE" =~ ^(major|minor|patch)$ ]]; then
-  echo "❌ Invalid bump type: $BUMP_TYPE"
-  echo "Usage: ./release.sh [major|minor|patch]"
-  exit 1
-fi
 
 # --- 1. Extract and bump version ---
 CURRENT_VERSION=$(grep -oP 'version\s*=\s*"\K[0-9]+\.[0-9]+\.[0-9]+' "$BUILD_FILE")
