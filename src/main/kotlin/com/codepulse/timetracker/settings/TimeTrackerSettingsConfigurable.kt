@@ -6,7 +6,6 @@ import com.intellij.openapi.project.ProjectManager
 import com.codepulse.timetracker.settings.TimeTrackerSettings
 import com.intellij.ui.JBIntSpinner
 import com.intellij.ui.components.*
-import org.json.JSONObject
 import java.awt.BorderLayout
 import java.awt.FlowLayout
 import java.io.File

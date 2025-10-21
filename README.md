@@ -25,6 +25,25 @@ git clone https://github.com/francis-agencemxo/Time-Tracker.git
 cd phpstorm-time-tracker-ui-v7
 ```
 
+### VS Code Extension (Experimental)
+
+The VS Code companion extension lives under `src/main/vscode`. It records the
+same events as the PhpStorm plugin and exposes the tracker HTTP API. To run it
+in development:
+
+```bash
+cd src/main/vscode
+npm install
+npm run watch
+
+# In another terminal
+code --extensionDevelopmentPath=$PWD
+```
+
+By default the extension starts the tracker server on `56000` and writes to the
+shared SQLite database in `~/.cache/phpstorm-time-tracker` so the dashboard and
+Chrome extension continue to work without changes.
+
 ### Build and Run the Plugin
 
 To build the plugin and launch a sandbox IDE with the plugin loaded:

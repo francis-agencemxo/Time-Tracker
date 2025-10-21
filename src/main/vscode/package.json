@@ -1,0 +1,114 @@
+{
+  "name": "codepulse-time-tracker-vscode",
+  "displayName": "CodePulse Time Tracker",
+  "description": "VS Code companion extension for logging CodePulse activity and serving the dashboard API.",
+  "version": "0.1.0",
+  "publisher": "codepulse",
+  "license": "SEE LICENSE IN ../../LICENSE",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "codepulseTimeTracker.openDashboard",
+        "title": "CodePulse: Open Dashboard"
+      },
+      {
+        "command": "codepulseTimeTracker.restartServer",
+        "title": "CodePulse: Restart Tracker Server"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "CodePulse Time Tracker",
+      "properties": {
+        "codepulseTimeTracker.autoStartServer": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically start the built-in tracker HTTP server when VS Code loads."
+        },
+        "codepulseTimeTracker.trackerServerPort": {
+          "type": "number",
+          "default": 56000,
+          "minimum": 1024,
+          "maximum": 65535,
+          "description": "Port used by the local tracker HTTP API server."
+        },
+        "codepulseTimeTracker.dashboardUrl": {
+          "type": "string",
+          "default": "http://localhost:56000",
+          "description": "URL opened when launching the CodePulse dashboard."
+        },
+        "codepulseTimeTracker.idleTimeoutMinutes": {
+          "type": "number",
+          "default": 2,
+          "minimum": 1,
+          "maximum": 30,
+          "description": "Number of minutes without input before activity is considered idle."
+        },
+        "codepulseTimeTracker.activitySamplingIntervalSeconds": {
+          "type": "number",
+          "default": 60,
+          "minimum": 15,
+          "maximum": 300,
+          "description": "Interval (in seconds) used to aggregate coding activity while focused."
+        },
+        "codepulseTimeTracker.projectNameStrategy": {
+          "type": "string",
+          "enum": [
+            "workspaceFolder",
+            "gitOrigin",
+            "custom"
+          ],
+          "default": "workspaceFolder",
+          "description": "How CodePulse should derive the project name for recorded activity."
+        },
+        "codepulseTimeTracker.customProjectName": {
+          "type": "string",
+          "default": "",
+          "description": "Custom project name to use when projectNameStrategy is set to 'custom'."
+        },
+        "codepulseTimeTracker.storageType": {
+          "type": "string",
+          "default": "local",
+          "description": "Storage backend identifier returned to the dashboard (currently informational)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "precompile": "node ./scripts/sync-public.mjs",
+    "prewatch": "node ./scripts/sync-public.mjs",
+    "compile": "tsc -p ./tsconfig.json",
+    "watch": "tsc -w -p ./tsconfig.json",
+    "lint": "eslint ./src --ext .ts",
+    "vscode:prepublish": "npm run rebuild-native && npm run compile",
+    "rebuild-native": "node ./scripts/rebuild-native.mjs",
+    "prepare": "npm run rebuild-native"
+  },
+  "dependencies": {
+    "better-sqlite3": "^9.0.0",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.7",
+    "@types/body-parser": "^1.19.5",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.5",
+    "@types/vscode": "^1.85.0",
+    "eslint": "^8.54.0",
+    "typescript": "^5.3.3",
+    "electron-rebuild": "^3.2.9"
+  }
+}

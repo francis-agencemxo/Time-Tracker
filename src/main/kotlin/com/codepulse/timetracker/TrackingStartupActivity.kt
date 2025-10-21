@@ -1,32 +1,20 @@
 package com.codepulse.timetracker
 
-import com.codepulse.timetracker.license.LicenseDialog
-import com.codepulse.timetracker.license.LicenseStateService
-import com.codepulse.timetracker.license.LicenseValidator
-import com.intellij.notification.NotificationGroupManager
-import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.diagnostic.Logger
-import java.time.LocalDate
 import java.io.File
-import java.io.FileWriter
 import javax.swing.Timer
 import java.awt.event.ActionListener
 import java.util.concurrent.ConcurrentHashMap
-import org.json.JSONObject
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileDocumentManagerListener
 import com.intellij.openapi.startup.ProjectActivity
-import com.intellij.openapi.ui.Messages
-import org.json.JSONArray
 import java.net.BindException
 import java.net.InetSocketAddress
 import java.net.Socket
-import java.net.URL
 import java.nio.file.*
 import java.time.LocalDateTime
 
