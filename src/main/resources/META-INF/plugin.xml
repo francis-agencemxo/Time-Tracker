@@ -100,7 +100,7 @@
     <depends optional="true" config-file="php-support.xml">com.jetbrains.php</depends>
     <depends>Git4Idea</depends>
 
-    <idea-version since-build="241.0" until-build="*.*"/>
+    <idea-version since-build="241.0" until-build="252.*"/>
 
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity implementation="com.codepulse.timetracker.TrackingStartupActivity"/>

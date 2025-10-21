@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.codepulse.timetracker"
-version = "2.10.4"
+version = "2.10.5"
 
 repositories {
     mavenCentral()
@@ -69,7 +69,7 @@ tasks.processResources {
 
 tasks.patchPluginXml {
     sinceBuild.set("241")
-    untilBuild.set("251.*")
+    untilBuild.set("252.*")
 }
 
 tasks.buildPlugin {
