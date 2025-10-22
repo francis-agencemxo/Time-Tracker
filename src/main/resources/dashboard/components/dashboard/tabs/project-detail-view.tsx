@@ -9,7 +9,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, LineChart, Line } from "recharts"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronDown, ChevronRight, Clock, Code, Globe, ArrowLeft, FileText } from "lucide-react"
+import { ChevronDown, ChevronRight, Clock, Code, Globe, ArrowLeft, FileText, Video } from "lucide-react"
 import type { StatsData } from "@/hooks/use-time-tracking-data"
 import { useTimeCalculations } from "@/hooks/use-time-calculations"
 import { ActivityBreakdownView } from "./activity-breakdown-view"
@@ -301,9 +301,10 @@ export function ProjectDetailView({
                         sessions: typeof sessionDetails
                         start: string
                         end: string
-                        primaryType: "coding" | "browsing"
+                        primaryType: "coding" | "browsing" | "meeting"
                         codingSessions: number
                         browsingSessions: number
+                        meetingSessions: number
                       }> = []
 
                       // Sort sessions by start time
@@ -328,6 +329,7 @@ export function ProjectDetailView({
                             primaryType: session.type,
                             codingSessions: session.type === "coding" ? 1 : 0,
                             browsingSessions: session.type === "browsing" ? 1 : 0,
+                            meetingSessions: session.type === "meeting" ? 1 : 0,
                           }
                           groupedSessions.push(currentGroup)
                         } else {
@@ -338,13 +340,21 @@ export function ProjectDetailView({
                           // Update session counts
                           if (session.type === "coding") {
                             currentGroup.codingSessions++
+                          } else if (session.type === "meeting") {
+                            currentGroup.meetingSessions++
                           } else {
                             currentGroup.browsingSessions++
                           }
 
                           // Update primary type based on which type has more sessions
-                          currentGroup.primaryType =
-                            currentGroup.codingSessions >= currentGroup.browsingSessions ? "coding" : "browsing"
+                          const nonCodingCount = currentGroup.browsingSessions + currentGroup.meetingSessions
+                          if (currentGroup.codingSessions >= nonCodingCount) {
+                            currentGroup.primaryType = "coding"
+                          } else if (currentGroup.meetingSessions >= currentGroup.browsingSessions) {
+                            currentGroup.primaryType = "meeting"
+                          } else {
+                            currentGroup.primaryType = "browsing"
+                          }
                         }
                       })
 
@@ -356,7 +366,10 @@ export function ProjectDetailView({
                             const isExpanded = expandedSessions[sessionId]
                             const duration = (new Date(group.end).getTime() - new Date(group.start).getTime()) / 1000
                             const sessionCount = group.sessions.length
-                            const hasMixedTypes = group.codingSessions > 0 && group.browsingSessions > 0
+                            const hasMixedTypes =
+                              (group.codingSessions > 0 &&
+                                (group.browsingSessions > 0 || group.meetingSessions > 0)) ||
+                              (group.browsingSessions > 0 && group.meetingSessions > 0)
 
                             return (
                               <Collapsible key={sessionId}>
@@ -374,15 +387,29 @@ export function ProjectDetailView({
                                         )}
                                         <div
                                           className={`w-3 h-3 rounded-full ${
-                                            group.primaryType === "coding" ? "bg-teal-500" : "bg-amber-500"
+                                            group.primaryType === "coding"
+                                              ? "bg-teal-500"
+                                              : group.primaryType === "meeting"
+                                              ? "bg-violet-500"
+                                              : "bg-amber-500"
                                           }`}
                                         />
                                       </div>
                                       <div className="text-left">
                                         <div className="flex items-center gap-2">
-                                          <Badge variant={group.primaryType === "coding" ? "default" : "secondary"}>
+                                          <Badge
+                                            variant={
+                                              group.primaryType === "coding"
+                                                ? "default"
+                                                : group.primaryType === "meeting"
+                                                ? "outline"
+                                                : "secondary"
+                                            }
+                                          >
                                             {group.primaryType === "coding" ? (
                                               <Code className="w-3 h-3 mr-1" />
+                                            ) : group.primaryType === "meeting" ? (
+                                              <Video className="w-3 h-3 mr-1" />
                                             ) : (
                                               <Globe className="w-3 h-3 mr-1" />
                                             )}
@@ -399,6 +426,12 @@ export function ProjectDetailView({
                                                 <Globe className="w-2 h-2 mr-1" />
                                                 {group.browsingSessions}
                                               </Badge>
+                                              {group.meetingSessions > 0 && (
+                                                <Badge variant="outline" className="text-xs">
+                                                  <Video className="w-2 h-2 mr-1" />
+                                                  {group.meetingSessions}
+                                                </Badge>
+                                              )}
                                             </div>
                                           )}
                                         </div>
@@ -485,7 +518,13 @@ export function ProjectDetailView({
                                           </>
                                         ) : (
                                           <>
-                                            {group.primaryType === "coding" ? "Coding" : "Browsing"} session from{" "}
+                                            {
+                                              group.primaryType === "coding"
+                                                ? "Coding"
+                                                : group.primaryType === "meeting"
+                                                ? "Meeting"
+                                                : "Browsing"
+                                            } session from{" "}
                                             {new Date(group.start).toLocaleTimeString([], {
                                               hour: "2-digit",
                                               minute: "2-digit",

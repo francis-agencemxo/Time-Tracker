@@ -9,7 +9,6 @@ This extension automatically tracks the time you spend on websites and associate
 - **Automatic Time Tracking** - Tracks active tab URL and duration
 - **Project Association** - Link browsing time to specific projects
 - **Google Meet Integration** - Automatically detect and assign meetings to projects
-- **History Sync** - Backfill missing browsing history
 - **Floating Toolbar** - Optional on-page toolbar for quick project switching
 - **URL Pattern Matching** - Automatically assign websites to projects based on URL patterns
 
@@ -61,13 +60,6 @@ When you join a Google Meet:
 - Prompts you to assign it to a project
 - Remembers the assignment for future meetings
 
-### History Sync
-
-Click **"📜 Sync Missing History"** to:
-- Backfill browsing history since last sync
-- Manually import specific date ranges
-- See sync status and results
-
 ### Floating Toolbar
 
 Enable **"Show Floating Toolbar"** to:
@@ -87,7 +79,6 @@ chrome-extension/
 ├── options.html/js        # Settings page
 ├── content.js             # Injected into pages (toolbar)
 ├── toolbar.css            # Toolbar styles
-├── history-sync.js        # Browser history sync
 ├── meeting-selector.html/js # Meeting assignment UI
 └── icon-*.png            # Extension icons
 ```
@@ -110,11 +101,6 @@ chrome-extension/
    - Runs on all web pages
    - Displays floating toolbar (if enabled)
    - Provides quick project switching
-
-4. **History Sync** (`history-sync.js`)
-   - Queries Chrome history API
-   - Sends historical data to server
-   - Tracks last sync timestamp
 
 ### Data Flow
 
@@ -191,7 +177,6 @@ Access via: Right-click icon → **Options**
 The extension stores:
 - **Active project** - Currently selected project (`chrome.storage.sync`)
 - **Server port** - Custom port configuration (`chrome.storage.sync`)
-- **Last sync time** - Last history sync timestamp (`chrome.storage.local`)
 - **Meeting project overrides** - Meeting URL → Project mappings (`chrome.storage.local`)
 - **Toolbar preference** - Show/hide floating toolbar (`chrome.storage.sync`)
 
@@ -200,11 +185,8 @@ The extension stores:
 The extension requires these permissions:
 
 - **tabs** - Access tab information for URL tracking
-- **activeTab** - Access currently active tab
 - **storage** - Store settings and project selection
-- **scripting** - Inject floating toolbar into pages
-- **history** - Sync browsing history
-- **notifications** - Show meeting assignment notifications
+- **windows** - Manage meeting assignment popups
 - **host_permissions: <all_urls>** - Track time on any website
 
 See [PRIVACY.md](./PRIVACY.md) for privacy details.
@@ -247,21 +229,9 @@ See [PRIVACY.md](./PRIVACY.md) for privacy details.
 - Grant notification permissions to Chrome
 - Check background service worker console for errors
 
-### History sync failing
-
-**Check:**
-1. Background service worker console for sync errors
-2. PhpStorm server is responding: `curl -X POST http://localhost:56000/url-track`
-3. Chrome history permission is granted
-
-**Solution:**
-- Reload extension
-- Check IDE logs for server errors
-
 ## Known Issues
 
 - Extension cannot track `chrome://` pages (Chrome security restriction)
-- History sync may be slow for large history databases
 - Floating toolbar may conflict with some website layouts
 
 ## Privacy

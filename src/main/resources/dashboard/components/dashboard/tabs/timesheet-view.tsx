@@ -1,14 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend } from "recharts"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { StatsData, ProjectCustomName, ProjectClient, Commit } from "@/hooks/use-time-tracking-data"
 import { useTimeCalculations } from "@/hooks/use-time-calculations"
-import { Clock, Code, Globe, FileText, ExternalLink, GitCommit } from "lucide-react"
+import { Clock, Code, Globe, FileText, ExternalLink, GitCommit, Video, Pencil, Loader2 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
@@ -26,6 +28,7 @@ interface TimesheetViewProps {
     wrikeProjectTitle: string
     wrikePermalink: string
   }>
+  onReassignSessions: (sessionIds: number[], projectName: string) => Promise<void>
 }
 
 interface DayProjectDetail {
@@ -34,13 +37,16 @@ interface DayProjectDetail {
   project: string
   hours: number
   sessions: Array<{
+    id?: number
     start: string
     end: string
     duration: number
-    type: "coding" | "browsing"
+    type: "coding" | "browsing" | "meeting"
     file?: string
     url?: string
     host?: string
+    meetingTitle?: string
+    sessionIds?: number[]
   }>
 }
 
@@ -53,9 +59,22 @@ export function TimesheetView({
   projectClients = [],
   commits = [],
   wrikeProjectMappings = [],
+  onReassignSessions,
 }: TimesheetViewProps) {
   const [selectedCell, setSelectedCell] = useState<DayProjectDetail | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [editingSession, setEditingSession] = useState<{
+    index: number
+    sessionIds: number[]
+    selectedProject: string
+    currentProject: string
+  } | null>(null)
+  const [sessionUpdatePending, setSessionUpdatePending] = useState(false)
+
+  useEffect(() => {
+    setEditingSession(null)
+    setSessionUpdatePending(false)
+  }, [selectedCell])
 
   const { getStackedWeeklyData, getProjectChartData, formatHoursForChart, getMergedSessionsForProjectDay, calculateMergedDuration } = useTimeCalculations(
     statsData,
@@ -74,6 +93,46 @@ export function TimesheetView({
   const getProjectClient = (projectName: string): string | null => {
     const client = projectClients.find((p) => p.projectName === projectName)
     return client ? client.clientName : null
+  }
+
+  const getSessionColor = (type: "coding" | "browsing" | "meeting") => {
+    switch (type) {
+      case "coding":
+        return "#2D5A5A"
+      case "meeting":
+        return "#8B5CF6"
+      default:
+        return "#F59E0B"
+    }
+  }
+
+  const formatSessionType = (type: "coding" | "browsing" | "meeting") => {
+    switch (type) {
+      case "coding":
+        return "Coding"
+      case "meeting":
+        return "Meeting"
+      default:
+        return "Browsing"
+    }
+  }
+
+  const getSessionIds = (session: DayProjectDetail["sessions"][number]): number[] => {
+    if (session.sessionIds && session.sessionIds.length > 0) {
+      return session.sessionIds
+    }
+    if (typeof session.id === "number" && !Number.isNaN(session.id)) {
+      return [session.id]
+    }
+    return []
+  }
+
+  const handleDialogOpenChange = (open: boolean) => {
+    if (!open) {
+      setEditingSession(null)
+      setSessionUpdatePending(false)
+    }
+    setIsDialogOpen(open)
   }
 
   // Helper function to get Wrike mapping for a project
@@ -176,7 +235,14 @@ export function TimesheetView({
     const sessions = mergedSessions.map((session) => {
       const startTime = new Date(session.start)
       const endTime = new Date(session.end)
+      const sessionIds =
+        session.sessionIds && session.sessionIds.length > 0
+          ? session.sessionIds
+          : typeof session.id === "number" && !Number.isNaN(session.id)
+            ? [session.id]
+            : []
       return {
+        id: session.id,
         start: session.start,
         end: session.end,
         duration: (endTime.getTime() - startTime.getTime()) / 1000,
@@ -184,6 +250,8 @@ export function TimesheetView({
         file: session.file,
         url: session.url,
         host: session.host,
+        meetingTitle: session.meetingTitle || session.host,
+        sessionIds,
       }
     })
 
@@ -195,6 +263,76 @@ export function TimesheetView({
       sessions,
     })
     setIsDialogOpen(true)
+  }
+
+  const handleStartEditingSession = (session: DayProjectDetail["sessions"][number], index: number) => {
+    if (!selectedCell) return
+    const ids = getSessionIds(session)
+    if (ids.length === 0) {
+      return
+    }
+    setEditingSession({
+      index,
+      sessionIds: ids,
+      selectedProject: selectedCell.project,
+      currentProject: selectedCell.project,
+    })
+  }
+
+  const handleProjectSelectionChange = (value: string) => {
+    setEditingSession((prev) => (prev ? { ...prev, selectedProject: value } : prev))
+  }
+
+  const handleCancelEditingSession = () => {
+    if (sessionUpdatePending) return
+    setEditingSession(null)
+  }
+
+  const handleConfirmProjectChange = async () => {
+    if (!editingSession) return
+    if (editingSession.selectedProject === editingSession.currentProject) {
+      setEditingSession(null)
+      return
+    }
+
+    try {
+      setSessionUpdatePending(true)
+      await onReassignSessions(editingSession.sessionIds, editingSession.selectedProject)
+
+      let shouldCloseDialog = false
+      setSelectedCell((prev) => {
+        if (!prev) return prev
+
+        const idsToRemove = new Set(editingSession.sessionIds)
+        const remainingSessions = prev.sessions.filter((session) => {
+          const ids = getSessionIds(session)
+          return !ids.some((id) => idsToRemove.has(id))
+        })
+
+        if (remainingSessions.length === 0) {
+          shouldCloseDialog = true
+          return null
+        }
+
+        const remainingSeconds = remainingSessions.reduce((total, session) => total + session.duration, 0)
+
+        return {
+          ...prev,
+          sessions: remainingSessions,
+          hours: remainingSeconds / 3600,
+        }
+      })
+
+      if (shouldCloseDialog) {
+        setIsDialogOpen(false)
+      }
+
+      setEditingSession(null)
+    } catch (error) {
+      console.error("Failed to reassign session project", error)
+    } finally {
+      setSessionUpdatePending(false)
+    }
   }
 
   return (
@@ -285,7 +423,7 @@ export function TimesheetView({
       </Card>
 
       {/* Session Details Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
@@ -340,6 +478,7 @@ export function TimesheetView({
                         const left = (startHour / 24) * 100
                         const width = ((endHour - startHour) / 24) * 100
 
+                        const barColor = getSessionColor(session.type)
                         return (
                           <div
                             key={index}
@@ -347,7 +486,7 @@ export function TimesheetView({
                             style={{
                               left: `${left}%`,
                               width: `${width}%`,
-                              backgroundColor: session.type === "coding" ? "#2D5A5A" : "#F59E0B",
+                              backgroundColor: barColor,
                               opacity: 0.8,
                             }}
                             title={`${startTime.toLocaleTimeString()} - ${endTime.toLocaleTimeString()}`}
@@ -358,68 +497,170 @@ export function TimesheetView({
                   </div>
                   <div className="flex gap-4 mt-2 text-xs dark:text-gray-300">
                     <div className="flex items-center gap-1">
-                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#2D5A5A" }}></div>
+                      <div className="w-3 h-3 rounded" style={{ backgroundColor: getSessionColor("coding") }}></div>
                       <span>Coding</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <div className="w-3 h-3 rounded" style={{ backgroundColor: "#F59E0B" }}></div>
+                      <div className="w-3 h-3 rounded" style={{ backgroundColor: getSessionColor("browsing") }}></div>
                       <span>Browsing</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded" style={{ backgroundColor: getSessionColor("meeting") }}></div>
+                      <span>Meeting</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Session list */}
                 <div className="space-y-2">
-                  {selectedCell.sessions.map((session, index) => (
-                    <div key={index} className="flex items-start gap-3 p-3 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800">
-                      <div className="flex items-center gap-2 pt-1">
-                        {session.type === "coding" ? (
-                          <Code className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-                        ) : (
-                          <Globe className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Badge variant={session.type === "coding" ? "default" : "secondary"}>{session.type}</Badge>
-                          <div className="text-sm font-medium dark:text-gray-200">
-                            {new Date(session.start).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}{" "}
-                            -{" "}
-                            {new Date(session.end).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                  {selectedCell.sessions.map((session, index) => {
+                    const sessionIds = getSessionIds(session)
+                    const isEditing = editingSession?.index === index
+                    const disableActions = sessionUpdatePending
+                    const canEdit = sessionIds.length > 0
+                    const availableProjects = Array.from(
+                      new Set([selectedCell.project, ...allProjects].filter(Boolean)),
+                    ) as string[]
+
+                    return (
+                      <div
+                        key={index}
+                        className="flex items-start gap-3 p-3 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800"
+                      >
+                        <div className="flex items-center gap-2 pt-1">
+                          {session.type === "coding" ? (
+                            <Code className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                          ) : session.type === "meeting" ? (
+                            <Video className="w-4 h-4 text-violet-500 dark:text-violet-300" />
+                          ) : (
+                            <Globe className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge
+                              variant={
+                                session.type === "coding"
+                                  ? "default"
+                                  : session.type === "meeting"
+                                  ? "outline"
+                                  : "secondary"
+                              }
+                            >
+                              {formatSessionType(session.type)}
+                            </Badge>
+                            <div className="text-sm font-medium dark:text-gray-200">
+                              {new Date(session.start).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}{" "}
+                              -{" "}
+                              {new Date(session.end).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </div>
                           </div>
+                          {session.file && (
+                            <div className="text-sm text-gray-600 dark:text-gray-400 truncate" title={session.file}>
+                              <FileText className="w-3 h-3 inline mr-1" />
+                              {session.file}
+                            </div>
+                          )}
+                          {session.type === "meeting" ? (
+                            <div className="text-sm text-violet-600 dark:text-violet-300 flex items-center gap-1 truncate">
+                              <Video className="w-3 h-3" />
+                              {session.meetingTitle || session.host || "Meeting"}
+                              {session.url && (
+                                <a
+                                  href={session.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-violet-500 dark:text-violet-200 hover:text-violet-700 dark:hover:text-violet-100 flex items-center gap-1"
+                                  title={session.url}
+                                >
+                                  <ExternalLink className="w-3 h-3" />
+                                </a>
+                              )}
+                            </div>
+                          ) : session.url ? (
+                            <a
+                              href={session.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 truncate"
+                              title={session.url}
+                            >
+                              <Globe className="w-3 h-3" />
+                              {session.host || new URL(session.url).hostname}
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          ) : null}
+                        </div>
+                        <div className="flex flex-col items-end gap-2 min-w-[180px]">
                           <div className="flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-400">
                             <Clock className="w-3 h-3" />
                             {formatHoursForChart(session.duration / 3600)}
                           </div>
+                          {canEdit ? (
+                            isEditing ? (
+                              <div className="flex items-center gap-2">
+                                <Select
+                                  value={editingSession?.selectedProject ?? selectedCell.project}
+                                  onValueChange={handleProjectSelectionChange}
+                                  disabled={disableActions}
+                                >
+                                  <SelectTrigger className="w-44 h-8 text-left">
+                                    <SelectValue placeholder="Select project" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {availableProjects.map((projectName) => (
+                                      <SelectItem key={projectName} value={projectName}>
+                                        {getProjectDisplayName(projectName)}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <Button
+                                  size="sm"
+                                  onClick={handleConfirmProjectChange}
+                                  disabled={
+                                    disableActions ||
+                                    !editingSession ||
+                                    !editingSession.selectedProject ||
+                                    editingSession.selectedProject === editingSession.currentProject
+                                  }
+                                >
+                                  {disableActions ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={handleCancelEditingSession}
+                                  disabled={disableActions}
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="flex items-center gap-1"
+                                onClick={() => handleStartEditingSession(session, index)}
+                                disabled={disableActions}
+                              >
+                                <Pencil className="w-4 h-4" />
+                                Change project
+                              </Button>
+                            )
+                          ) : (
+                            <span className="text-xs text-gray-400 dark:text-gray-500">Cannot edit</span>
+                          )}
                         </div>
-                        {session.file && (
-                          <div className="text-sm text-gray-600 dark:text-gray-400 truncate" title={session.file}>
-                            <FileText className="w-3 h-3 inline mr-1" />
-                            {session.file}
-                          </div>
-                        )}
-                        {session.url && (
-                          <a
-                            href={session.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 truncate"
-                            title={session.url}
-                          >
-                            <Globe className="w-3 h-3" />
-                            {session.host || new URL(session.url).hostname}
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        )}
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </TabsContent>
 

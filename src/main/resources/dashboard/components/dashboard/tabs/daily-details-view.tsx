@@ -101,7 +101,7 @@ export function DailyDetailsView({
       minute: number
       sessions: TimelineSession[]
       activities: Array<{
-        type: "coding" | "browsing"
+        type: "coding" | "browsing" | "meeting"
         project: string
         file?: string
         url?: string
@@ -120,7 +120,7 @@ export function DailyDetailsView({
           minute,
           sessions: [] as TimelineSession[],
           activities: [] as Array<{
-            type: "coding" | "browsing"
+            type: "coding" | "browsing" | "meeting"
             project: string
             file?: string
             url?: string
@@ -521,6 +521,8 @@ export function DailyDetailsView({
                           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: session.color }}></div>
                           {session.type === "coding" ? (
                             <Code className="w-4 h-4 text-teal-600" />
+                          ) : session.type === "meeting" ? (
+                            <Video className="w-4 h-4 text-violet-500" />
                           ) : (
                             <Globe className="w-4 h-4 text-amber-600" />
                           )}
@@ -528,7 +530,17 @@ export function DailyDetailsView({
                         <div className="flex-1">
                           <div className="flex items-center justify-between">
                             <div className="font-medium">{session.project}</div>
-                            <Badge variant={session.type === "coding" ? "default" : "secondary"}>{session.type}</Badge>
+                            <Badge
+                              variant={
+                                session.type === "coding"
+                                  ? "default"
+                                  : session.type === "meeting"
+                                  ? "outline"
+                                  : "secondary"
+                              }
+                            >
+                              {session.type}
+                            </Badge>
                           </div>
                           <div className="text-sm text-gray-600">
                             {new Date(session.start).toLocaleTimeString([], {

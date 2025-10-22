@@ -14,6 +14,7 @@ object DBManager {
     private val conn: Connection
 
     data class Session(
+        val id: Int,
         val project: String,
         val start: String,
         val end: String,
@@ -332,6 +333,35 @@ object DBManager {
         }
     }
 
+    fun updateSessionProject(sessionId: Int, newProject: String) {
+        conn.prepareStatement("""
+      UPDATE sessions
+         SET project = ?
+       WHERE id = ?
+    """.trimIndent()).use { ps ->
+            ps.setString(1, newProject)
+            ps.setInt(2, sessionId)
+            ps.executeUpdate()
+        }
+    }
+
+    fun updateSessionsProject(sessionIds: List<Int>, newProject: String) {
+        if (sessionIds.isEmpty()) return
+
+        val placeholders = sessionIds.joinToString(",") { "?" }
+        conn.prepareStatement("""
+      UPDATE sessions
+         SET project = ?
+       WHERE id IN ($placeholders)
+    """.trimIndent()).use { ps ->
+            ps.setString(1, newProject)
+            sessionIds.forEachIndexed { index, id ->
+                ps.setInt(index + 2, id)
+            }
+            ps.executeUpdate()
+        }
+    }
+
     fun querySessions(fromDate: LocalDate, toDate: LocalDate): JSONArray {
         val arr = JSONArray()
         conn.prepareStatement("""
@@ -344,11 +374,12 @@ object DBManager {
             val rs = ps.executeQuery()
             while (rs.next()) {
                 val obj = JSONObject()
+                obj.put("id", rs.getInt("id"))
                 obj.put("project", rs.getString("project"))
-                obj.put("date",    rs.getString("date"))
-                obj.put("start",   rs.getString("start"))
-                obj.put("end",     rs.getString("end"))
-                obj.put("type",    rs.getString("type"))
+                obj.put("date", rs.getString("date"))
+                obj.put("start", rs.getString("start"))
+                obj.put("end", rs.getString("end"))
+                obj.put("type", rs.getString("type"))
                 rs.getString("file")?.let { obj.put("file", it) }
                 rs.getString("host")?.let { obj.put("host", it) }
                 rs.getString("url")?.let { obj.put("url", it) }
@@ -363,15 +394,18 @@ object DBManager {
         val sessions = mutableListOf<Session>()
         val rs = conn.prepareStatement("SELECT * FROM sessions").executeQuery()
         while (rs.next()) {
-            sessions.add(Session(
-                project = rs.getString("project"),
-                start = rs.getString("start"),
-                end = rs.getString("end"),
-                type = rs.getString("type"),
-                file = rs.getString("file"),
-                host = rs.getString("host"),
-                url = rs.getString("url")
-            ))
+            sessions.add(
+                Session(
+                    id = rs.getInt("id"),
+                    project = rs.getString("project"),
+                    start = rs.getString("start"),
+                    end = rs.getString("end"),
+                    type = rs.getString("type"),
+                    file = rs.getString("file"),
+                    host = rs.getString("host"),
+                    url = rs.getString("url")
+                )
+            )
         }
         return sessions
     }
@@ -389,11 +423,12 @@ object DBManager {
             val rs = ps.executeQuery()
             while (rs.next()) {
                 val obj = JSONObject()
+                obj.put("id", rs.getInt("id"))
                 obj.put("project", rs.getString("project"))
-                obj.put("date",    rs.getString("date"))
-                obj.put("start",   rs.getString("start"))
-                obj.put("end",     rs.getString("end"))
-                obj.put("type",    rs.getString("type"))
+                obj.put("date", rs.getString("date"))
+                obj.put("start", rs.getString("start"))
+                obj.put("end", rs.getString("end"))
+                obj.put("type", rs.getString("type"))
                 rs.getString("file")?.let { obj.put("file", it) }
                 rs.getString("host")?.let { obj.put("host", it) }
                 rs.getString("url")?.let { obj.put("url", it) }

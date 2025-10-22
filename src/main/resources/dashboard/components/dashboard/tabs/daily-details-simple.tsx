@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Clock, Code, Globe, ChevronLeft, ChevronRight, Calendar } from "lucide-react"
+import { Clock, Code, Globe, ChevronLeft, ChevronRight, Calendar, Video } from "lucide-react"
 import type { StatsData } from "@/hooks/use-time-tracking-data"
 import { useTimeCalculations } from "@/hooks/use-time-calculations"
 import { formatDateInEST, formatDateLong, dateToESTString, createESTDate } from "@/lib/date-utils"
@@ -25,7 +25,7 @@ interface ProcessedSession {
   start: string
   end: string
   duration: number
-  type: "coding" | "browsing"
+  type: "coding" | "browsing" | "meeting"
 }
 
 export function DailyDetailsSimple({
@@ -243,6 +243,8 @@ export function DailyDetailsSimple({
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: session.color }}></div>
                       {session.type === "coding" ? (
                         <Code className="w-4 h-4 text-teal-600" />
+                      ) : session.type === "meeting" ? (
+                        <Video className="w-4 h-4 text-violet-500" />
                       ) : (
                         <Globe className="w-4 h-4 text-amber-600" />
                       )}
@@ -250,7 +252,17 @@ export function DailyDetailsSimple({
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <div className="font-medium">{session.project}</div>
-                        <Badge variant={session.type === "coding" ? "default" : "secondary"}>{session.type}</Badge>
+                        <Badge
+                          variant={
+                            session.type === "coding"
+                              ? "default"
+                              : session.type === "meeting"
+                              ? "outline"
+                              : "secondary"
+                          }
+                        >
+                          {session.type}
+                        </Badge>
                       </div>
                       <div className="text-sm text-gray-600">
                         {new Date(session.start).toLocaleTimeString([], {

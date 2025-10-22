@@ -137,44 +137,6 @@ toolbarCheckbox.addEventListener("change", () => {
   chrome.storage.sync.set({ showFloatingToolbar: toolbarCheckbox.checked });
 });
 
-// History sync button
-const syncButton = document.getElementById("sync-history-btn");
-const syncStatus = document.getElementById("sync-status");
-
-syncButton.addEventListener("click", async () => {
-  syncButton.disabled = true;
-  syncButton.textContent = "⏳ Syncing...";
-  syncStatus.textContent = "Checking browser history...";
-
-  try {
-    // Sync history since last sync
-    const response = await chrome.runtime.sendMessage({
-      action: 'syncHistorySinceLastSync',
-      projectName: activeProject || ''
-    });
-
-    if (response.success) {
-      const { synced, failed } = response.result;
-      syncStatus.textContent = `✅ Synced ${synced} visits${failed > 0 ? `, ${failed} failed` : ''}`;
-      syncStatus.style.color = "#4CAF50";
-
-      setTimeout(() => {
-        syncStatus.textContent = "";
-        syncStatus.style.color = "#999";
-      }, 5000);
-    } else {
-      syncStatus.textContent = `❌ Sync failed: ${response.error}`;
-      syncStatus.style.color = "#f44336";
-    }
-  } catch (error) {
-    syncStatus.textContent = `❌ Error: ${error.message}`;
-    syncStatus.style.color = "#f44336";
-  } finally {
-    syncButton.disabled = false;
-    syncButton.textContent = "📜 Sync Missing History";
-  }
-});
-
 // Settings button
 const settingsButton = document.getElementById("settings-btn");
 settingsButton.addEventListener("click", () => {

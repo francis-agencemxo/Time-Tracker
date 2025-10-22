@@ -144,6 +144,11 @@
               opacity 0.3s ease;
 }
 
+#mxo-toolbar-search-container {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 /* Custom Scrollbar */
 #mxo-project-list::-webkit-scrollbar {
   width: 5px;
@@ -189,6 +194,16 @@
 
 .mxo-toolbar-search::placeholder {
   color: #888;
+}
+
+.mxo-toolbar-button.mxo-toolbar-create {
+  color: #00BCD4;
+  font-weight: 600;
+}
+
+.mxo-toolbar-button.mxo-toolbar-create:hover {
+  background: rgba(0, 188, 212, 0.15);
+  color: #00E5FF;
 }
 
 /* Animations */

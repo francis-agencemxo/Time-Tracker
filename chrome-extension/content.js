@@ -26,7 +26,7 @@
     const res = await fetch(`http://localhost:${trackerServerPort}/api/projects`);
     projects = await res.json();
   } catch (e) {
-    console.error("❌ Failed to load projects", e);
+    console.log("❌ Failed to load projects", e);
     return;
   }
 
@@ -47,19 +47,65 @@
   `;
   toolbar.appendChild(header);
 
+  const searchContainer = document.createElement("div");
+  searchContainer.id = "mxo-toolbar-search-container";
+  const searchInput = document.createElement("input");
+  searchInput.type = "text";
+  searchInput.placeholder = "Search or create project...";
+  searchInput.className = "mxo-toolbar-search";
+  searchContainer.appendChild(searchInput);
+
   const projectList = document.createElement("div");
   projectList.id = "mxo-project-list";
   projectList.style.transition = "max-height 0.3s ease, opacity 0.3s ease";
   projectList.style.overflowY = "auto";
   projectList.style.maxHeight = collapsed ? "0px" : "500px";
   projectList.style.opacity = collapsed ? "0" : "1";
+  toolbar.appendChild(searchContainer);
   toolbar.appendChild(projectList);
 
+  let searchQuery = "";
+
+  function ensureProjectExists(projectName) {
+    if (!projectName) return;
+    const exists = projects.some(
+      (project) => project.name.toLowerCase() === projectName.toLowerCase()
+    );
+    if (!exists) {
+      console.log("[Floating Toolbar] Adding placeholder for project:", projectName);
+      projects.unshift({ name: projectName });
+    }
+  }
+
+  function handleProjectSelection(projectName) {
+    if (!projectName) return;
+    currentActive = projectName;
+    chrome.storage.sync.set({ activeProject: projectName });
+
+    // Add project locally if it was created from the search field
+    ensureProjectExists(projectName);
+
+    searchQuery = "";
+    searchInput.value = "";
+    console.log("[Floating Toolbar] Project selected:", projectName);
+    renderProjects();
+  }
+
   function renderProjects() {
+    ensureProjectExists(currentActive);
     projectList.innerHTML = "";
     let labelText = "CodePulse";
 
-    projects.forEach((project) => {
+    searchContainer.style.display = collapsed ? "none" : "block";
+
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    const filteredProjects = normalizedQuery
+      ? projects.filter((project) =>
+          project.name.toLowerCase().includes(normalizedQuery)
+        )
+      : projects;
+
+    filteredProjects.forEach((project) => {
       const btn = document.createElement("div");
       btn.className = "mxo-toolbar-button";
       if (project.name === currentActive) {
@@ -83,12 +129,38 @@
       span.className = "mxo-toolbar-label";
       btn.appendChild(span);
 
-      btn.addEventListener("click", () => {
-        chrome.storage.sync.set({ activeProject: project.name });
-      });
+      btn.addEventListener("click", () => handleProjectSelection(project.name));
 
       projectList.appendChild(btn);
     });
+
+    if (
+      normalizedQuery &&
+      !projects.some(
+        (project) => project.name.toLowerCase() === normalizedQuery
+      )
+    ) {
+      const createBtn = document.createElement("div");
+      createBtn.className = "mxo-toolbar-button mxo-toolbar-create";
+
+      const span = document.createElement("span");
+      span.textContent = `Create "${searchQuery.trim()}"`;
+      span.className = "mxo-toolbar-label";
+      createBtn.appendChild(span);
+
+      createBtn.addEventListener("click", () => {
+        handleProjectSelection(searchQuery.trim());
+      });
+
+      projectList.appendChild(createBtn);
+    }
+
+    if (!filteredProjects.length && !normalizedQuery) {
+      const emptyState = document.createElement("div");
+      emptyState.className = "mxo-toolbar-empty";
+      emptyState.textContent = "No projects available";
+      projectList.appendChild(emptyState);
+    }
 
     const headerLabel = document.getElementById("mxo-header-label");
     if (headerLabel) headerLabel.textContent = collapsed ? labelText : "CodePulse";
@@ -156,10 +228,35 @@
     }
   });
 
+  searchInput.addEventListener("input", (event) => {
+    searchQuery = event.target.value;
+    renderProjects();
+  });
+
+  searchInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      const value = searchInput.value.trim();
+      if (!value) return;
+
+      const existing = projects.find(
+        (project) => project.name.toLowerCase() === value.toLowerCase()
+      );
+      handleProjectSelection(existing ? existing.name : value);
+    }
+
+    if (event.key === "Escape") {
+      searchQuery = "";
+      searchInput.value = "";
+      renderProjects();
+    }
+  });
+
   // Sync project change from popup
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === "sync" && changes.activeProject) {
       currentActive = changes.activeProject.newValue;
+      ensureProjectExists(currentActive);
+      console.log("[Floating Toolbar] Active project synced from storage:", currentActive);
       renderProjects();
     }
   });

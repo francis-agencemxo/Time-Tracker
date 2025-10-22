@@ -19,8 +19,6 @@ Quick reference for finding logs when debugging CodePulse Time Tracker.
 [CodePulse] Google Meet detected!
 ✅ Auto-assigned meeting to project: my-project
 ❌ Failed to send tracking data: <error>
-📜 Syncing history from <date> to <date>
-✅ History sync complete: 50 synced, 0 failed
 ```
 
 ### Popup Logs

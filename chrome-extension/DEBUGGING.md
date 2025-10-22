@@ -7,7 +7,6 @@ This guide will help you debug issues with the CodePulse Browsing Tracker Chrome
 The extension consists of several components that log useful debugging information:
 - **Background Script** (`background.js`) - Handles tab tracking, meeting detection, and time tracking
 - **Popup** (`popup.js`) - The extension popup UI for project selection
-- **History Sync** (`history-sync.js`) - Syncs browser history to the tracker
 - **Content Script** (`content.js`) - Runs on web pages for floating toolbar
 - **Options Page** (`options.js`) - Extension settings page
 
@@ -55,15 +54,6 @@ To debug the floating toolbar on web pages:
 
 **What you'll see:**
 - `❌ Failed to load projects` - Cannot load project list for toolbar
-
-### 4. History Sync Logs
-
-History sync logs appear in the background service worker console:
-
-- `📜 Syncing history from [date] to [date]` - Sync operation started
-- `📜 Found X history items to process` - Number of items found
-- `✅ History sync complete: X synced, Y failed` - Sync results
-- `❌ Failed to sync visit:` - Individual sync errors
 
 ## Common Issues and Solutions
 
@@ -113,18 +103,6 @@ History sync logs appear in the background service worker console:
    ```
    (Run in background service worker console)
 
-### History Sync Failing
-
-**Symptoms:**
-- "Sync Missing History" button shows errors
-- `❌ Sync failed: ...` message in popup
-
-**Debug:**
-1. Open background service worker console
-2. Click "Sync Missing History" button
-3. Check console for detailed error messages
-4. Verify server is accepting `/url-track` POST requests
-
 ## Extension Settings
 
 Access settings by:
@@ -145,7 +123,6 @@ When testing the extension, verify:
 - [ ] Background script console shows `[CodePulse]` logs
 - [ ] Tab switching is tracked (check console)
 - [ ] Google Meet detection works
-- [ ] History sync completes successfully
 - [ ] Floating toolbar appears on web pages (if enabled)
 - [ ] Server connection is stable (no fetch errors)
 
@@ -317,11 +294,6 @@ fetch('http://localhost:56000/api/projects')
   .then(console.log)
   .catch(console.error);
 
-// Manually trigger history sync
-chrome.runtime.sendMessage({
-  action: 'syncHistorySinceLastSync',
-  projectName: ''
-}, response => console.log(response));
 ```
 
 ## Privacy Note

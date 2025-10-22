@@ -84,11 +84,6 @@ Test that the extension can connect to the PhpStorm plugin:
 - [x] **Project Assignment** - Notification should appear to assign meeting to project
 - [x] **Auto-Assignment** - Previously assigned meetings should auto-assign
 
-### History Sync
-
-- [x] **Manual Sync** - Click "📜 Sync Missing History" button
-- [x] **Verify Sync** - Check that past browsing history appears in dashboard
-
 ### Floating Toolbar (Optional)
 
 - [x] **Enable Toolbar** - Check "Show Floating Toolbar" in popup
@@ -177,7 +172,6 @@ chrome-extension/
 ├── options.js            # Settings logic
 ├── content.js            # Floating toolbar script
 ├── toolbar.css           # Toolbar styles
-├── history-sync.js       # Browser history sync
 ├── meeting-selector.html # Meeting project assignment UI
 ├── meeting-selector.js   # Meeting project assignment logic
 └── icon-*.png           # Extension icons
@@ -188,12 +182,9 @@ chrome-extension/
 The extension requires these permissions:
 
 - **tabs** - Track active tab URL
-- **activeTab** - Access current tab information
 - **storage** - Save settings and project selection
-- **scripting** - Inject floating toolbar
-- **history** - Sync browsing history
-- **notifications** - Show meeting assignment alerts
-- **host_permissions: <all_urls>** - Track time on any website
+- **windows** - Manage meeting project selector popups
+- **host_permissions: <all_urls>** - Inject toolbar on any website
 
 ## Testing Checklist
 

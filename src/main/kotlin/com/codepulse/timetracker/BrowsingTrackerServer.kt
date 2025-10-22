@@ -102,6 +102,7 @@ object BrowsingTrackerServer {
                     projectNode.put("duration", projectNode.getInt("duration") + duration)
 
                     val sessionJson = JSONObject()
+                        .put("id", session.id)
                         .put("start", session.start)
                         .put("end", session.end)
                         .put("type", type)
@@ -120,6 +121,91 @@ object BrowsingTrackerServer {
                 val error = "Error: ${e.message}".toByteArray()
                 exchange.sendResponseHeaders(500, error.size.toLong())
                 exchange.responseBody.use { it.write(error) }
+            }
+        }
+    }
+
+    /**
+     * Handler for updating session metadata such as project assignment.
+     */
+    private class SessionsHandler : HttpHandler {
+        override fun handle(exchange: HttpExchange) {
+            with(exchange.responseHeaders) {
+                add("Access-Control-Allow-Origin", "*")
+                add("Access-Control-Allow-Methods", "PUT, PATCH, POST, OPTIONS")
+                add("Access-Control-Allow-Headers", "Content-Type")
+            }
+
+            if (exchange.requestMethod.equals("OPTIONS", ignoreCase = true)) {
+                exchange.sendResponseHeaders(204, -1)
+                exchange.responseBody.close()
+                return
+            }
+
+            try {
+                when (exchange.requestMethod.uppercase()) {
+                    "PUT", "PATCH" -> {
+                        val fullPath = exchange.requestURI.path
+                        val idSegment = fullPath.substringAfterLast("/", missingDelimiterValue = "")
+                        val sessionId = idSegment.toIntOrNull()
+
+                        if (sessionId == null) {
+                            exchange.sendResponseHeaders(400, -1)
+                            exchange.responseBody.close()
+                            return
+                        }
+
+                        val body = exchange.requestBody.bufferedReader().readText()
+                        val json = if (body.isNotBlank()) JSONObject(body) else JSONObject()
+                        val project = json.optString("project", "").trim()
+
+                        if (project.isBlank()) {
+                            exchange.sendResponseHeaders(400, -1)
+                            exchange.responseBody.close()
+                            return
+                        }
+
+                        DBManager.updateSessionProject(sessionId, project)
+                        exchange.sendResponseHeaders(204, -1)
+                        exchange.responseBody.close()
+                    }
+                    "POST" -> {
+                        val fullPath = exchange.requestURI.path
+                        if (!fullPath.endsWith("/reassign", ignoreCase = true)) {
+                            exchange.sendResponseHeaders(404, -1)
+                            exchange.responseBody.close()
+                            return
+                        }
+
+                        val body = exchange.requestBody.bufferedReader().readText()
+                        val json = JSONObject(body)
+                        val project = json.optString("project", "").trim()
+                        val idsArray = json.optJSONArray("sessionIds")
+
+                        if (project.isBlank() || idsArray == null || idsArray.length() == 0) {
+                            exchange.sendResponseHeaders(400, -1)
+                            exchange.responseBody.close()
+                            return
+                        }
+
+                        val sessionIds = mutableListOf<Int>()
+                        for (i in 0 until idsArray.length()) {
+                            sessionIds.add(idsArray.getInt(i))
+                        }
+
+                        DBManager.updateSessionsProject(sessionIds, project)
+                        exchange.sendResponseHeaders(204, -1)
+                        exchange.responseBody.close()
+                    }
+                    else -> {
+                        exchange.sendResponseHeaders(405, -1)
+                        exchange.responseBody.close()
+                    }
+                }
+            } catch (ex: Exception) {
+                println("❌ Error updating session project: ${ex.message}")
+                exchange.sendResponseHeaders(500, -1)
+                exchange.responseBody.close()
             }
         }
     }
@@ -1006,6 +1092,7 @@ object BrowsingTrackerServer {
         server?.createContext("/url-track", UrlTrackHandler())
         server?.createContext("/", StaticFileHandler())
         server?.createContext("/api/stats", StatsHandler())
+        server?.createContext("/api/sessions", SessionsHandler())
         server?.createContext("/api/projects", ProjectsHandler())
         server?.createContext("/api/project-names", ProjectNamesHandler())
         server?.createContext("/api/project-clients", ProjectClientsHandler())
@@ -1044,14 +1131,30 @@ object BrowsingTrackerServer {
                 val host = url.host
 
                 val duration = json.getLong("duration")
+                val sessionType = if (json.has("sessionType")) json.getString("sessionType") else "browsing"
+                val meetingTitle = if (json.has("meetingTitle")) json.getString("meetingTitle") else null
 
                 val matchedProject = findMatchingProject(host)
                 if (matchedProject != null) {
-                    addBrowsingTime(matchedProject, host, fullUrl, duration)
-                    println("🕒 Added $duration seconds browsing time to project '$matchedProject' from $url")
+                    logSession(
+                        projectName = matchedProject,
+                        host = host,
+                        fullUrl = fullUrl,
+                        seconds = duration,
+                        sessionType = sessionType,
+                        meetingTitle = meetingTitle
+                    )
+                    println("🕒 Added $duration seconds ${sessionType} time to project '$matchedProject' from $url")
                 } else if (projectFromBody !== null && projectFromBody.isNotEmpty()) {
-                    addBrowsingTime(projectFromBody, host, fullUrl, duration)
-                    println("🕒 Added $duration seconds browsing time to project '$projectFromBody' from $url")
+                    logSession(
+                        projectName = projectFromBody,
+                        host = host,
+                        fullUrl = fullUrl,
+                        seconds = duration,
+                        sessionType = sessionType,
+                        meetingTitle = meetingTitle
+                    )
+                    println("🕒 Added $duration seconds ${sessionType} time to project '$projectFromBody' from $url")
                 } else {
                     //println("⚠️ URL $url did not match any project")
                 }
@@ -1072,26 +1175,57 @@ object BrowsingTrackerServer {
             return DBManager.queryProjectByUrl(host);
         }
 
-        fun addBrowsingTime(projectName: String, host: String, fullUrl: String, seconds: Long) {
+        fun logSession(
+            projectName: String,
+            host: String?,
+            fullUrl: String,
+            seconds: Long,
+            sessionType: String,
+            meetingTitle: String?
+        ) {
 
             val now = LocalDateTime.now()
             val start = now.minusSeconds(seconds)
+
+            val sessionHost = if (sessionType == "meeting" && !meetingTitle.isNullOrBlank()) {
+                meetingTitle
+            } else {
+                host
+            }
 
             DBManager.insertSession(
                 project = projectName,
                 startIso = start.toString(),
                 endIso   = now.toString(),
-                type      = "browsing",
-                host      = host,
+                type      = sessionType,
+                host      = sessionHost,
                 url       = fullUrl
             )
 
             ApplicationManager.getApplication().invokeLater {
+                val displayLabel = when {
+                    sessionType == "meeting" && !meetingTitle.isNullOrBlank() -> meetingTitle
+                    !host.isNullOrBlank() -> host
+                    else -> fullUrl
+                }
+
+                val notificationTitle = if (sessionType == "meeting") {
+                    "Meeting Time Logged"
+                } else {
+                    "Browsing Time Logged"
+                }
+
+                val notificationBody = if (sessionType == "meeting") {
+                    "Added ${seconds}s for meeting <b>$displayLabel</b><br>→ <b>project: $projectName</b>"
+                } else {
+                    "Added ${seconds}s for <b>$displayLabel</b><br><i>$displayLabel</i><br>→ <b>project: $projectName</b>"
+                }
+
                 NotificationGroupManager.getInstance()
                     .getNotificationGroup("CodePulse Time Tracker")
                     ?.createNotification(
-                        "Browsing Time Logged",
-                        "Added ${seconds}s for <b>$host</b><br><i>$host</i><br>→ <b>project: $projectName</b>",
+                        notificationTitle,
+                        notificationBody,
                         NotificationType.INFORMATION
                     )?.notify(null)
             }

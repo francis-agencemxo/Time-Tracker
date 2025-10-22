@@ -7,12 +7,15 @@ import { getWrikeClient, type WrikeProject } from "@/lib/wrike-api"
 
 // Types
 export interface Session {
+  id?: number
   start: string
   end: string
-  type: "coding" | "browsing"
+  type: "coding" | "browsing" | "meeting"
   file?: string // Add file field for coding sessions
-  host?: string // Add host field for browsing sessions
-  url?: string // Add url field for browsing sessions
+  host?: string // Add host field for browsing sessions or meeting title for meetings
+  url?: string // Add url field for browsing/meeting sessions
+  meetingTitle?: string
+  sessionIds?: number[]
 }
 
 export interface ProjectData {
@@ -91,6 +94,7 @@ const generateFakeData = (): StatsData => {
   const data: StatsData = {}
   const projects = ["Dashboard Redesign", "API Integration", "Mobile App", "Documentation", "Bug Fixes"]
   const today = new Date()
+  let sessionIdCounter = 1
 
   // Mock file paths for coding sessions
   const mockFiles = [
@@ -136,21 +140,32 @@ const generateFakeData = (): StatsData => {
         start.setHours(startHour, Math.floor(Math.random() * 60))
         const end = new Date(start.getTime() + duration * 60000)
 
-        const sessionType = Math.random() > 0.3 ? "coding" : "browsing"
+        const randomValue = Math.random()
+        const sessionType = randomValue > 0.6 ? "coding" : randomValue > 0.3 ? "browsing" : "meeting"
+        const sessionId = sessionIdCounter++
         const session: Session = {
+          id: sessionId,
           start: start.toISOString(),
           end: end.toISOString(),
           type: sessionType,
+          sessionIds: [sessionId],
         }
 
         // Add file data for coding sessions
         if (sessionType === "coding") {
           session.file = mockFiles[Math.floor(Math.random() * mockFiles.length)]
-        } else {
+        } else if (sessionType === "browsing") {
           // Add URL data for browsing sessions
           const url = mockUrls[Math.floor(Math.random() * mockUrls.length)]
           session.url = url
           session.host = new URL(url).hostname
+        } else {
+          // Meeting session
+          const meetingNames = ["Daily Standup", "Sprint Planning", "Client Review", "Design Sync", "Retrospective"]
+          const meetingName = meetingNames[Math.floor(Math.random() * meetingNames.length)]
+          session.url = `https://meet.google.com/${Math.random().toString(36).substring(2, 12)}`
+          session.host = meetingName
+          session.meetingTitle = meetingName
         }
 
         sessions.push(session)
@@ -235,7 +250,40 @@ const normalizeStatsData = (rawData: StatsData): StatsData => {
       return
     }
 
-    normalizedData[normalizedDate] = dayData
+    const normalizedDay: DayData = {}
+
+    Object.entries(dayData).forEach(([projectName, projectData]) => {
+      const normalizedSessions = projectData.sessions.map((session) => {
+        const sessionIds =
+          session.sessionIds && session.sessionIds.length > 0
+            ? session.sessionIds
+            : typeof session.id === "number"
+              ? [session.id]
+              : []
+
+        const normalizedSession: Session = {
+          ...session,
+          sessionIds,
+        }
+
+        if (
+          normalizedSession.type === "meeting" &&
+          normalizedSession.host &&
+          !normalizedSession.meetingTitle
+        ) {
+          normalizedSession.meetingTitle = normalizedSession.host
+        }
+
+        return normalizedSession
+      })
+
+      normalizedDay[projectName] = {
+        ...projectData,
+        sessions: normalizedSessions,
+      }
+    })
+
+    normalizedData[normalizedDate] = normalizedDay
   })
 
   return normalizedData
@@ -267,6 +315,81 @@ const filterIgnoredProjects = (statsData: StatsData, ignoredProjectNames: string
   })
 
   return filteredData
+}
+
+const calculateSessionDurationSeconds = (session: Session): number => {
+  return Math.max(0, (new Date(session.end).getTime() - new Date(session.start).getTime()) / 1000)
+}
+
+const sessionHasId = (session: Session): boolean => typeof session.id === "number" && !Number.isNaN(session.id)
+
+const extractSessionIds = (session: Session): number[] => {
+  if (session.sessionIds && session.sessionIds.length > 0) {
+    return session.sessionIds
+  }
+  if (sessionHasId(session)) {
+    return [session.id]
+  }
+  return []
+}
+
+const reassignSessionsInStatsData = (statsData: StatsData, sessionIds: number[], newProject: string): StatsData => {
+  if (sessionIds.length === 0) {
+    return statsData
+  }
+
+  const idsToMove = new Set(sessionIds)
+  const updatedData: StatsData = {}
+
+  Object.entries(statsData).forEach(([date, dayData]) => {
+    const newDayData: DayData = {}
+    let movedSessions: Session[] = []
+
+    Object.entries(dayData).forEach(([projectName, projectData]) => {
+      const remainingSessions: Session[] = []
+      const sessionsToMove: Session[] = []
+
+      projectData.sessions.forEach((session) => {
+        const ids = extractSessionIds(session)
+        const shouldMove = ids.some((id) => idsToMove.has(id))
+        if (shouldMove) {
+          sessionsToMove.push({ ...session })
+        } else {
+          remainingSessions.push({ ...session })
+        }
+      })
+
+      if (remainingSessions.length > 0) {
+        newDayData[projectName] = {
+          duration: remainingSessions.reduce((total, session) => total + calculateSessionDurationSeconds(session), 0),
+          sessions: remainingSessions,
+        }
+      }
+
+      if (sessionsToMove.length > 0) {
+        movedSessions = movedSessions.concat(sessionsToMove)
+      }
+    })
+
+    if (movedSessions.length > 0) {
+      const existingTarget = newDayData[newProject]
+      const combinedSessions = [
+        ...(existingTarget ? existingTarget.sessions : []),
+        ...movedSessions.map((session) => ({ ...session })),
+      ]
+
+      newDayData[newProject] = {
+        duration: combinedSessions.reduce((total, session) => total + calculateSessionDurationSeconds(session), 0),
+        sessions: combinedSessions,
+      }
+    }
+
+    if (Object.keys(newDayData).length > 0) {
+      updatedData[date] = newDayData
+    }
+  })
+
+  return updatedData
 }
 
 export const useTimeTrackingData = (isLicenseValid = false, isDemoLicense = false) => {
@@ -734,6 +857,65 @@ export const useTimeTrackingData = (isLicenseValid = false, isDemoLicense = fals
         description: err instanceof Error ? err.message : "Failed to delete project URL",
         variant: "destructive",
       })
+    }
+  }
+
+  const reassignSessionsProject = async (sessionIds: number[], projectName: string) => {
+    if (!isLicenseValid) return
+
+    const trimmedProject = projectName.trim()
+    if (!trimmedProject) {
+      toast({
+        title: "Invalid project",
+        description: "Please select a valid project name",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      if (isPreview) {
+        setRawStatsData((prev) => reassignSessionsInStatsData(prev, sessionIds, trimmedProject))
+        toast({
+          title: "Project updated",
+          description: `Session reassigned to "${trimmedProject}"`,
+        })
+        return
+      }
+
+      const isSingleSession = sessionIds.length === 1
+      const endpoint = isSingleSession
+        ? `${baseUrl}/api/sessions/${sessionIds[0]}`
+        : `${baseUrl}/api/sessions/reassign`
+
+      const payload = isSingleSession
+        ? { project: trimmedProject }
+        : { project: trimmedProject, sessionIds }
+
+      const response = await fetch(endpoint, {
+        method: isSingleSession ? "PUT" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      await fetchStats()
+      toast({
+        title: "Project updated",
+        description: `Session reassigned to "${trimmedProject}"`,
+      })
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to update session project",
+        variant: "destructive",
+      })
+      throw err
     }
   }
 
@@ -1416,6 +1598,7 @@ export const useTimeTrackingData = (isLicenseValid = false, isDemoLicense = fals
     createProjectUrl,
     updateProjectUrl,
     deleteProjectUrl,
+    reassignSessionsProject,
     addIgnoredProject,
     removeIgnoredProject,
     storageType,

@@ -35,6 +35,7 @@ interface DashboardTabsProps {
   onCreateUrl: (formData: { project: string; url: string; description: string }) => Promise<void>
   onUpdateUrl: (id: string, formData: { project: string; url: string; description: string }) => Promise<void>
   onDeleteUrl: (id: string) => Promise<void>
+  onReassignSessionsProject: (sessionIds: number[], projectName: string) => Promise<void>
   onFetchWrikeProjects: (bearerToken: string) => Promise<void>
   onSaveWrikeMapping: (projectName: string, wrikeProject: WrikeProject) => Promise<void>
   activeTab: string
@@ -63,6 +64,7 @@ export function DashboardTabs({
   onCreateUrl,
   onUpdateUrl,
   onDeleteUrl,
+  onReassignSessionsProject,
   onFetchWrikeProjects,
   onSaveWrikeMapping,
   activeTab,
@@ -95,6 +97,7 @@ export function DashboardTabs({
           projectClients={projectClients}
           commits={commits}
           wrikeProjectMappings={wrikeProjectMappings}
+          onReassignSessions={onReassignSessionsProject}
         />
       </TabsContent>
 

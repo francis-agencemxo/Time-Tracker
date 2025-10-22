@@ -95,12 +95,25 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
     return `${wholeHours}h${minutes.toString().padStart(2, "0")}`
   }
 
+  const getSessionIds = (session: Session): number[] => {
+    if (session.sessionIds && session.sessionIds.length > 0) {
+      return session.sessionIds
+    }
+    if (typeof session.id === "number" && !Number.isNaN(session.id)) {
+      return [session.id]
+    }
+    return []
+  }
+
   const mergeSessions = (sessions: Session[]): Session[] => {
     if (sessions.length === 0) return sessions
 
     const sortedSessions = [...sessions].sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
     const mergedSessions: Session[] = []
-    let currentSession = { ...sortedSessions[0] }
+    let currentSession: Session = {
+      ...sortedSessions[0],
+      sessionIds: getSessionIds(sortedSessions[0]),
+    }
 
     for (let i = 1; i < sortedSessions.length; i++) {
       const session = sortedSessions[i]
@@ -111,9 +124,18 @@ export const useTimeCalculations = (statsData: StatsData, currentWeek: Date, idl
       // If sessions are within the idle timeout (in ms) and same type, merge them
       if (timeDiff <= idleTimeoutMinutes * 60 * 1000 && currentSession.type === session.type) {
         currentSession.end = session.end
+        const mergedIds = new Set(currentSession.sessionIds || [])
+        getSessionIds(session).forEach((id) => mergedIds.add(id))
+        currentSession = {
+          ...currentSession,
+          sessionIds: Array.from(mergedIds),
+        }
       } else {
         mergedSessions.push(currentSession)
-        currentSession = { ...session }
+        currentSession = {
+          ...session,
+          sessionIds: getSessionIds(session),
+        }
       }
     }
 

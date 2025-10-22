@@ -1,15 +1,12 @@
 {
   "manifest_version": 3,
   "name": "Code Pulse Browsing Tracker",
-  "version": "1.7.0.4",
-  "description": "A Chrome extension to track browsing activity and manage Code Pulse projects.",
+  "version": "1.8.0.1",
+  "description": "A Chrome extension to locally track browsing activity push to CodePulse phpStorm plugin.",
   "permissions": [
     "tabs",
-    "activeTab",
     "storage",
-    "scripting",
-    "history",
-    "notifications"
+    "windows"
   ],
   "host_permissions": [
     "<all_urls>"

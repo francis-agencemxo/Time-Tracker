@@ -4,9 +4,46 @@ let currentTabUrl = null;
 let currentStart = null;
 let trackerServerPort = 56000;
 let meetingProjectOverride = null; // Store project selection for meeting URLs
+const pendingMeetingSelections = {}; // Track forced selection windows by ID
+let previousActiveProject = null; // Store active project before meeting override
 
-// Import history sync functions
-importScripts('history-sync.js');
+function captureMeetingMetadata(normalizedUrl) {
+  chrome.tabs.query({ url: `${normalizedUrl}*` }, (tabs) => {
+    if (chrome.runtime.lastError) {
+      console.warn('[CodePulse] Failed to query tabs for meeting metadata:', chrome.runtime.lastError.message);
+      return;
+    }
+
+    if (!meetingProjectOverride || meetingProjectOverride.url !== normalizedUrl) {
+      return;
+    }
+
+    if (tabs.length > 0) {
+      const tab = tabs[0];
+      meetingProjectOverride.tabId = tab.id;
+      meetingProjectOverride.meetingTitle = sanitizeMeetingTitle(tab.title) || meetingProjectOverride.meetingTitle || null;
+      console.log('[CodePulse] Captured meeting metadata', {
+        title: meetingProjectOverride.meetingTitle,
+        tabId: meetingProjectOverride.tabId
+      });
+    }
+  });
+}
+
+function sanitizeMeetingTitle(rawTitle) {
+  if (!rawTitle) return rawTitle;
+  return rawTitle.replace(/\s*\|.*$/, '').trim();
+}
+
+function normalizeMeetingUrl(rawUrl) {
+  try {
+    const url = new URL(rawUrl);
+    return `${url.origin}${url.pathname}`;
+  } catch (error) {
+    console.warn('[CodePulse] Failed to normalize meeting URL, falling back to raw value', rawUrl);
+    return rawUrl;
+  }
+}
 
 console.log('[CodePulse] Background script loaded successfully!');
 
@@ -26,6 +63,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
     if (changes.activeProject) {
       const newProject = changes.activeProject.newValue;
       updateBadge(newProject);
+      console.log('[CodePulse] chrome.storage.sync activeProject changed:', newProject);
     }
   }
 });
@@ -43,41 +81,47 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-// Listen for messages from popup/options to trigger history sync
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'syncHistory') {
-    const { startTime, endTime, projectName } = request;
-
-    syncHistoryRange(startTime, endTime, trackerServerPort, projectName)
-      .then(result => sendResponse({ success: true, result }))
-      .catch(error => sendResponse({ success: false, error: error.message }));
-
-    return true; // Keep channel open for async response
-  }
-
-  if (request.action === 'syncHistorySinceLastSync') {
-    const { projectName } = request;
-
-    syncHistorySinceLastSync(trackerServerPort, projectName)
-      .then(result => sendResponse({ success: true, result }))
-      .catch(error => sendResponse({ success: false, error: error.message }));
-
-    return true;
-  }
-
-  if (request.action === 'syncHistoryForDate') {
-    const { date, projectName } = request;
-
-    syncHistoryForDate(new Date(date), trackerServerPort, projectName)
-      .then(result => sendResponse({ success: true, result }))
-      .catch(error => sendResponse({ success: false, error: error.message }));
-
-    return true;
-  }
-
   if (request.action === 'setMeetingProject') {
-    const { url, projectName } = request;
-    meetingProjectOverride = { url, projectName };
+    const { url, projectName, selectionId } = request;
+    const normalizedUrl = normalizeMeetingUrl(url);
+    const defaultTitle = normalizedUrl.substring(normalizedUrl.lastIndexOf('/') + 1);
+    meetingProjectOverride = {
+      url: normalizedUrl,
+      projectName,
+      meetingTitle: defaultTitle ? defaultTitle.replace(/-/g, ' ') : null,
+      tabId: null
+    };
+
+    console.log('[CodePulse] setMeetingProject received', {
+      url: normalizedUrl,
+      projectName,
+      selectionId
+    });
+
+    if (selectionId && pendingMeetingSelections[selectionId]) {
+      console.log('[CodePulse] Clearing pending selection', selectionId);
+      delete pendingMeetingSelections[selectionId];
+      chrome.storage.local.remove(selectionId);
+    }
+
+    chrome.storage.sync.get('activeProject', ({ activeProject }) => {
+      if (previousActiveProject === null && activeProject !== undefined) {
+        previousActiveProject = activeProject || null;
+        console.log('[CodePulse] Stored previous active project before meeting override:', previousActiveProject || 'none');
+      }
+
+      chrome.storage.sync.set({ activeProject: projectName }, () => {
+        if (chrome.runtime.lastError) {
+          console.error('[CodePulse] Failed to sync activeProject from meeting selector:', chrome.runtime.lastError.message);
+        } else {
+          console.log('[CodePulse] Active project updated from meeting selector:', projectName);
+          updateBadge(projectName);
+          captureMeetingMetadata(normalizedUrl);
+        }
+      });
+    });
+
     sendResponse({ success: true });
     return true;
   }
@@ -97,24 +141,58 @@ function sendTimeSpent(url, durationSeconds, startTimestamp, endTimestamp) {
 
   // Check if this is a meeting URL and use override if available
   let projectToUse = null;
+  let sessionType = 'browsing';
+  let meetingTitle = null;
   if (meetingProjectOverride && url.includes(meetingProjectOverride.url)) {
     projectToUse = meetingProjectOverride.projectName;
+    sessionType = 'meeting';
+    meetingTitle = meetingProjectOverride.meetingTitle || null;
   }
 
   chrome.storage.sync.get("activeProject", ({ activeProject }) => {
     const finalProject = projectToUse || activeProject || "";
 
+    const payload = {
+      url,
+      duration: durationSeconds,
+      start: new Date(startTimestamp).toISOString(),
+      end: new Date(endTimestamp).toISOString(),
+      project: finalProject,
+      sessionType
+    };
+
+    if (meetingTitle) {
+      payload.meetingTitle = meetingTitle;
+    }
+
     fetch(`http://localhost:${trackerServerPort}/url-track`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        url,
-        duration: durationSeconds,
-        start: new Date(startTimestamp).toISOString(),
-        end: new Date(endTimestamp).toISOString(),
-        project: finalProject
-      })
+      body: JSON.stringify(payload)
     }).catch(err => console.warn('❌ Failed to send tracking data:', err));
+  });
+}
+
+function clearMeetingProjectOverride(reason) {
+  if (!meetingProjectOverride) return;
+
+  const clearedMeeting = { ...meetingProjectOverride };
+  meetingProjectOverride = null;
+
+  chrome.storage.sync.get("activeProject", ({ activeProject }) => {
+    if (activeProject === clearedMeeting.projectName) {
+      chrome.storage.sync.set({ activeProject: previousActiveProject }, () => {
+        if (chrome.runtime.lastError) {
+          console.error('[CodePulse] Failed to restore active project after meeting:', chrome.runtime.lastError.message);
+        } else {
+          console.log('[CodePulse] Cleared meeting project override; restored active project to:', previousActiveProject || 'none', 'Reason:', reason);
+        }
+        previousActiveProject = null;
+      });
+    } else {
+      console.log('[CodePulse] Meeting override cleared but active project has changed externally; leaving as-is.', { activeProject, reason });
+      previousActiveProject = null;
+    }
   });
 }
 
@@ -123,14 +201,22 @@ function handleTabUpdate(activeInfo) {
     if (!tab || !tab.url || tab.url.startsWith('chrome://')) return;
 
     const now = Date.now();
+    const previousUrl = currentTabUrl;
+    const previousStart = currentStart;
 
-    if (currentTabUrl && currentStart) {
-      const duration = Math.floor((now - currentStart) / 1000);
-      sendTimeSpent(currentTabUrl, duration, currentStart, now);
+    if (previousUrl && previousStart) {
+      const duration = Math.floor((now - previousStart) / 1000);
+      sendTimeSpent(previousUrl, duration, previousStart, now);
     }
 
     currentTabUrl = tab.url;
     currentStart = now;
+
+    const isMeetingTab = meetingProjectOverride && tab.url.includes(meetingProjectOverride.url);
+    if (isMeetingTab) {
+      meetingProjectOverride.tabId = tab.id;
+      meetingProjectOverride.meetingTitle = sanitizeMeetingTitle(tab.title) || meetingProjectOverride.meetingTitle || null;
+    }
 
     // Check if this is a Google Meet URL and prompt for project
     console.log('[CodePulse] Tab URL:', tab.url);
@@ -143,15 +229,17 @@ function handleTabUpdate(activeInfo) {
 
 async function promptForMeetingProject(url) {
   console.log('[CodePulse] promptForMeetingProject called with URL:', url);
+  const meetingKey = normalizeMeetingUrl(url);
 
   // Check if we already have a project set for this meeting session
-  if (meetingProjectOverride && url.includes(meetingProjectOverride.url)) {
-    console.log('[CodePulse] Meeting already has project assigned:', meetingProjectOverride.projectName);
+  if (meetingProjectOverride && meetingKey === meetingProjectOverride.url) {
+    console.log('promptForMeetingProject [CodePulse] Meeting already has project assigned:', meetingProjectOverride.projectName);
     return; // Already set for this session, don't prompt again
   }
 
-  console.log('[CodePulse] Checking for saved meeting patterns...');
+  console.log('promptForMeetingProject [CodePulse] Checking for saved meeting patterns...');
   try {
+          console.log("First, check if there's a saved pattern for this meeting URL");
     // First, check if there's a saved pattern for this meeting URL
     const matchResponse = await fetch(`http://localhost:${trackerServerPort}/api/meeting-patterns/match`, {
       method: 'POST',
@@ -169,23 +257,32 @@ async function promptForMeetingProject(url) {
         const matchResult = await matchResponse.json();
 
         if (matchResult.matched) {
-          // Auto-assign the project based on saved pattern
-          meetingProjectOverride = { url, projectName: matchResult.projectName };
-          console.log(`✅ Auto-assigned meeting to project: ${matchResult.projectName}`);
+          const defaultTitle = meetingKey.substring(meetingKey.lastIndexOf('/') + 1);
+          meetingProjectOverride = {
+            url: meetingKey,
+            projectName: matchResult.projectName,
+            meetingTitle: defaultTitle ? defaultTitle.replace(/-/g, ' ') : null,
+            tabId: null
+          };
 
-          // Show a subtle notification that the meeting was auto-assigned
-          chrome.notifications.create({
-            type: 'basic',
-            title: '✅ Meeting Auto-Assigned',
-            message: `This meeting is being tracked under "${matchResult.projectName}"`,
-            priority: 1,
-            requireInteraction: false
+          chrome.storage.sync.get('activeProject', ({ activeProject }) => {
+            if (previousActiveProject === null && activeProject !== undefined) {
+              previousActiveProject = activeProject || null;
+              console.log('[CodePulse] Stored previous active project before auto-assigned meeting override:', previousActiveProject || 'none');
+            }
+
+            chrome.storage.sync.set({ activeProject: matchResult.projectName }, () => {
+              if (chrome.runtime.lastError) {
+                console.error('[CodePulse] Failed to update activeProject for auto-assigned meeting:', chrome.runtime.lastError.message);
+              } else {
+                console.log('[CodePulse] Active project auto-updated from meeting pattern:', matchResult.projectName);
+                updateBadge(matchResult.projectName);
+                captureMeetingMetadata(meetingKey);
+              }
+            });
           });
 
-          // Auto-dismiss the notification after 5 seconds
-          setTimeout(() => {
-            chrome.notifications.clear(`meeting_auto_${Date.now()}`);
-          }, 5000);
+          console.log(`✅ Auto-assigned meeting to project: ${matchResult.projectName}`);
 
           return;
         }
@@ -196,39 +293,56 @@ async function promptForMeetingProject(url) {
     }
 
     // No saved pattern found or API error, prompt the user to select a project
-    console.log('[CodePulse] No saved pattern, fetching projects...');
-    const projectsResponse = await fetch(`http://localhost:${trackerServerPort}/api/projects`);
+    console.log('[CodePulse] No saved pattern, opening forced selector...');
 
-    if (!projectsResponse.ok) {
-      console.error(`[CodePulse] Projects API returned ${projectsResponse.status}`);
+    const existingEntry = Object.entries(pendingMeetingSelections)
+      .find(([, entry]) => entry.meetingKey === meetingKey);
+
+    if (existingEntry) {
+      const current = existingEntry[1];
+      if (current.windowId !== null && current.windowId !== undefined) {
+        console.log('[CodePulse] Meeting selector already open, focusing existing window');
+        chrome.windows.update(current.windowId, { focused: true });
+      } else {
+        console.log('[CodePulse] Meeting selector is already being opened, waiting for window ID...');
+      }
       return;
     }
 
-    const projects = await projectsResponse.json();
-    console.log('[CodePulse] Fetched projects:', projects.length);
+    // Generate a unique ID for this meeting selection flow
+    const selectionId = `meeting_${Date.now()}`;
+    pendingMeetingSelections[selectionId] = {
+      meetingKey,
+      windowId: null
+    };
 
-    // Generate a unique ID for this meeting notification
-    const meetingId = `meeting_${Date.now()}`;
+    const selectionUrl = `${chrome.runtime.getURL('meeting-selector.html')}?notificationId=${selectionId}`;
 
-    console.log('[CodePulse] Creating notification with ID:', meetingId);
+    chrome.storage.local.set({ [selectionId]: { url: meetingKey } }, () => {
+      chrome.windows.create({
+        url: selectionUrl,
+        type: 'popup',
+        focused: true,
+        width: 420,
+        height: 600
+      }, (createdWindow) => {
+        if (chrome.runtime.lastError) {
+          console.log('[CodePulse] Failed to open meeting selector window:', chrome.runtime.lastError.message);
+          delete pendingMeetingSelections[selectionId];
+          chrome.storage.local.remove(selectionId);
+          return;
+        }
 
-    // Create notification with buttons for project selection
-    chrome.notifications.create(meetingId, {
-      type: 'basic',
-      title: '🎥 Meeting Detected',
-      message: 'Click to assign this Google Meet session to a project',
-      priority: 2,
-      requireInteraction: true
-    }, (notificationId) => {
-      console.log('[CodePulse] Notification created:', notificationId);
-      // Store the URL associated with this notification
-      chrome.storage.local.set({
-        [notificationId]: { url, projects: projects.map(p => p.name) }
+        console.log('[CodePulse] Meeting selector window opened:', selectionId, 'windowId:', createdWindow?.id);
+        pendingMeetingSelections[selectionId] = {
+          meetingKey,
+          windowId: createdWindow?.id ?? null
+        };
       });
     });
   } catch (error) {
-    console.error('Failed to handle meeting detection:', error);
-    console.error('Error details:', error.message, error.stack);
+    console.log('Failed to handle meeting detection:', error);
+    console.log('Error details:', error.message, error.stack);
   }
 }
 
@@ -237,6 +351,19 @@ chrome.tabs.onActivated.addListener(handleTabUpdate);
 
 // Track URL changes - trigger on URL change OR when complete
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.url && meetingProjectOverride) {
+    const normalizedUrl = normalizeMeetingUrl(changeInfo.url);
+    const isMeetingUrl = normalizedUrl === meetingProjectOverride.url;
+
+    if (!meetingProjectOverride.tabId && isMeetingUrl) {
+      meetingProjectOverride.tabId = tabId;
+    }
+
+    if (meetingProjectOverride.tabId === tabId && !isMeetingUrl) {
+      clearMeetingProjectOverride('Meeting tab navigated away');
+    }
+  }
+
   // Trigger on URL change (for SPAs like Google Meet)
   if (changeInfo.url && tab.active) {
     console.log('[CodePulse] URL changed:', changeInfo.url);
@@ -245,6 +372,12 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   // Also trigger when page loads completely
   else if (changeInfo.status === "complete" && tab.active) {
     handleTabUpdate({ tabId: tab.id });
+  }
+});
+
+chrome.tabs.onRemoved.addListener((tabId) => {
+  if (meetingProjectOverride && meetingProjectOverride.tabId === tabId) {
+    clearMeetingProjectOverride('Meeting tab closed');
   }
 });
 
@@ -265,27 +398,42 @@ chrome.runtime.onSuspend.addListener(() => {
     const duration = Math.floor((now - currentStart) / 1000);
     sendTimeSpent(currentTabUrl, duration, currentStart, now);
   }
+
+  if (meetingProjectOverride) {
+    clearMeetingProjectOverride('Runtime suspended');
+  }
 });
 
-// Handle notification clicks to open project selector
-chrome.notifications.onClicked.addListener(async (notificationId) => {
-  if (!notificationId.startsWith('meeting_')) return;
+chrome.windows.onRemoved.addListener((windowId) => {
+  console.log('[CodePulse] Window removed', windowId);
+  const pendingEntry = Object.entries(pendingMeetingSelections)
+    .find(([, entry]) => entry.windowId === windowId);
 
-  // Get the meeting data
-  const data = await chrome.storage.local.get(notificationId);
-  const meetingData = data[notificationId];
+  if (!pendingEntry) return;
 
-  if (!meetingData) return;
+  const [selectionId, entry] = pendingEntry;
+  const selectionUrl = `${chrome.runtime.getURL('meeting-selector.html')}?notificationId=${selectionId}`;
 
-  // Clear the notification
-  chrome.notifications.clear(notificationId);
+  console.log('[CodePulse] Meeting selector window closed without selection, reopening...');
 
-  // Open the extension popup to select project
-  // Since we can't directly open popup programmatically, we create a simple HTML page for project selection
-  chrome.windows.create({
-    url: chrome.runtime.getURL('meeting-selector.html') + `?notificationId=${notificationId}`,
-    type: 'popup',
-    width: 400,
-    height: 550
+  chrome.storage.local.set({ [selectionId]: { url: entry.meetingKey } }, () => {
+    chrome.windows.create({
+      url: selectionUrl,
+      type: 'popup',
+      focused: true,
+      width: 420,
+      height: 600
+    }, (newWindow) => {
+      if (chrome.runtime.lastError) {
+        console.log('[CodePulse] Failed to reopen meeting selector window:', chrome.runtime.lastError.message);
+        return;
+      }
+
+      console.log('[CodePulse] Meeting selector window reopened:', selectionId, 'windowId:', newWindow?.id);
+      pendingMeetingSelections[selectionId] = {
+        meetingKey: entry.meetingKey,
+        windowId: newWindow?.id ?? null
+      };
+    });
   });
 });
