@@ -8,6 +8,14 @@ const listElement = document.getElementById("project-list");
 const customInput = document.getElementById("custom-project-input");
 const toolbarCheckbox = document.getElementById("toggle-toolbar");
 
+function setActiveProject(projectValue, displayLabel, filter = "") {
+  chrome.storage.sync.set({ activeProject: projectValue }, () => {
+    activeProject = projectValue;
+    updateBadge(displayLabel);
+    renderProjects(filter);
+  });
+}
+
 // Load settings and fetch projects
 (async function () {
   const storage = await chrome.storage.sync.get([
@@ -55,12 +63,8 @@ const toolbarCheckbox = document.getElementById("toggle-toolbar");
       const value = customInput.value.trim();
       if (!value) return;
 
-      chrome.storage.sync.set({ activeProject: value }, () => {
-        activeProject = value;
-        updateBadge(value);
-        customInput.value = "";
-        renderProjects(searchInput.value);
-      });
+      setActiveProject(value, value, searchInput.value);
+      customInput.value = "";
     }
   });
 })();
@@ -86,11 +90,7 @@ function renderProjects(filter = "") {
     `;
     noneBtn.title = "Clear active project";
     noneBtn.addEventListener("click", () => {
-      chrome.storage.sync.set({ activeProject: null }, () => {
-        activeProject = null;
-        updateBadge(null);
-        renderProjects();
-      });
+      setActiveProject(null, null);
     });
     listElement.appendChild(noneBtn);
   }
@@ -106,11 +106,7 @@ function renderProjects(filter = "") {
     btn.textContent = project.label;
 
     btn.addEventListener("click", () => {
-      chrome.storage.sync.set({ activeProject: project.name }, () => {
-        activeProject = project.name;
-        updateBadge(project.label);
-        renderProjects(filter);
-      });
+      setActiveProject(project.name, project.label, filter);
     });
 
     listElement.appendChild(btn);
@@ -141,4 +137,16 @@ toolbarCheckbox.addEventListener("change", () => {
 const settingsButton = document.getElementById("settings-btn");
 settingsButton.addEventListener("click", () => {
   chrome.runtime.openOptionsPage();
+});
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== "sync" || !changes.activeProject) return;
+
+  const newValue = changes.activeProject.newValue || null;
+  const project = allProjects.find((p) => p.name === newValue);
+  const displayLabel = newValue ? (project ? project.label : newValue) : null;
+
+  activeProject = newValue;
+  updateBadge(displayLabel);
+  renderProjects(searchInput.value);
 });

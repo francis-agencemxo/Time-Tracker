@@ -66,6 +66,7 @@ export default function HomePage() {
     updateProjectUrl,
     deleteProjectUrl,
     reassignSessionsProject,
+    deleteSessions,
     addIgnoredProject,
     removeIgnoredProject,
     saveProjectCustomName,
@@ -233,6 +234,7 @@ export default function HomePage() {
           onUpdateUrl={updateProjectUrl}
           onDeleteUrl={deleteProjectUrl}
           onReassignSessionsProject={reassignSessionsProject}
+          onDeleteSessions={deleteSessions}
           onFetchWrikeProjects={fetchWrikeProjects}
           onSaveWrikeMapping={() => Promise.resolve()}
           activeTab={tab}

@@ -132,7 +132,7 @@ object BrowsingTrackerServer {
         override fun handle(exchange: HttpExchange) {
             with(exchange.responseHeaders) {
                 add("Access-Control-Allow-Origin", "*")
-                add("Access-Control-Allow-Methods", "PUT, PATCH, POST, OPTIONS")
+                add("Access-Control-Allow-Methods", "PUT, PATCH, POST, DELETE, OPTIONS")
                 add("Access-Control-Allow-Headers", "Content-Type")
             }
 
@@ -143,9 +143,9 @@ object BrowsingTrackerServer {
             }
 
             try {
+                val fullPath = exchange.requestURI.path
                 when (exchange.requestMethod.uppercase()) {
                     "PUT", "PATCH" -> {
-                        val fullPath = exchange.requestURI.path
                         val idSegment = fullPath.substringAfterLast("/", missingDelimiterValue = "")
                         val sessionId = idSegment.toIntOrNull()
 
@@ -169,33 +169,68 @@ object BrowsingTrackerServer {
                         exchange.sendResponseHeaders(204, -1)
                         exchange.responseBody.close()
                     }
-                    "POST" -> {
-                        val fullPath = exchange.requestURI.path
-                        if (!fullPath.endsWith("/reassign", ignoreCase = true)) {
-                            exchange.sendResponseHeaders(404, -1)
-                            exchange.responseBody.close()
-                            return
-                        }
+                    "DELETE" -> {
+                        val idSegment = fullPath.substringAfterLast("/", missingDelimiterValue = "")
+                        val sessionId = idSegment.toIntOrNull()
 
-                        val body = exchange.requestBody.bufferedReader().readText()
-                        val json = JSONObject(body)
-                        val project = json.optString("project", "").trim()
-                        val idsArray = json.optJSONArray("sessionIds")
-
-                        if (project.isBlank() || idsArray == null || idsArray.length() == 0) {
+                        if (sessionId == null) {
                             exchange.sendResponseHeaders(400, -1)
                             exchange.responseBody.close()
                             return
                         }
 
-                        val sessionIds = mutableListOf<Int>()
-                        for (i in 0 until idsArray.length()) {
-                            sessionIds.add(idsArray.getInt(i))
-                        }
-
-                        DBManager.updateSessionsProject(sessionIds, project)
+                        DBManager.deleteSession(sessionId)
                         exchange.sendResponseHeaders(204, -1)
                         exchange.responseBody.close()
+                    }
+                    "POST" -> {
+                        when {
+                            fullPath.endsWith("/reassign", ignoreCase = true) -> {
+                                val body = exchange.requestBody.bufferedReader().readText()
+                                val json = JSONObject(body)
+                                val project = json.optString("project", "").trim()
+                                val idsArray = json.optJSONArray("sessionIds")
+
+                                if (project.isBlank() || idsArray == null || idsArray.length() == 0) {
+                                    exchange.sendResponseHeaders(400, -1)
+                                    exchange.responseBody.close()
+                                    return
+                                }
+
+                                val sessionIds = mutableListOf<Int>()
+                                for (i in 0 until idsArray.length()) {
+                                    sessionIds.add(idsArray.getInt(i))
+                                }
+
+                                DBManager.updateSessionsProject(sessionIds, project)
+                                exchange.sendResponseHeaders(204, -1)
+                                exchange.responseBody.close()
+                            }
+                            fullPath.endsWith("/delete", ignoreCase = true) -> {
+                                val body = exchange.requestBody.bufferedReader().readText()
+                                val json = JSONObject(body)
+                                val idsArray = json.optJSONArray("sessionIds")
+
+                                if (idsArray == null || idsArray.length() == 0) {
+                                    exchange.sendResponseHeaders(400, -1)
+                                    exchange.responseBody.close()
+                                    return
+                                }
+
+                                val sessionIds = mutableListOf<Int>()
+                                for (i in 0 until idsArray.length()) {
+                                    sessionIds.add(idsArray.getInt(i))
+                                }
+
+                                DBManager.deleteSessions(sessionIds)
+                                exchange.sendResponseHeaders(204, -1)
+                                exchange.responseBody.close()
+                            }
+                            else -> {
+                                exchange.sendResponseHeaders(404, -1)
+                                exchange.responseBody.close()
+                            }
+                        }
                     }
                     else -> {
                         exchange.sendResponseHeaders(405, -1)
@@ -209,7 +244,6 @@ object BrowsingTrackerServer {
             }
         }
     }
-
     /**
      * Handler for CRUD operations on URL matching patterns.
      */

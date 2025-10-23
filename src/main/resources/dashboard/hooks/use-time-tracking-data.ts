@@ -321,7 +321,8 @@ const calculateSessionDurationSeconds = (session: Session): number => {
   return Math.max(0, (new Date(session.end).getTime() - new Date(session.start).getTime()) / 1000)
 }
 
-const sessionHasId = (session: Session): boolean => typeof session.id === "number" && !Number.isNaN(session.id)
+const sessionHasId = (session: Session): session is Session & { id: number } =>
+  typeof session.id === "number" && !Number.isNaN(session.id)
 
 const extractSessionIds = (session: Session): number[] => {
   if (session.sessionIds && session.sessionIds.length > 0) {
@@ -383,6 +384,41 @@ const reassignSessionsInStatsData = (statsData: StatsData, sessionIds: number[],
         sessions: combinedSessions,
       }
     }
+
+    if (Object.keys(newDayData).length > 0) {
+      updatedData[date] = newDayData
+    }
+  })
+
+  return updatedData
+}
+
+const removeSessionsFromStatsData = (statsData: StatsData, sessionIds: number[]): StatsData => {
+  if (sessionIds.length === 0) {
+    return statsData
+  }
+
+  const idsToRemove = new Set(sessionIds)
+  const updatedData: StatsData = {}
+
+  Object.entries(statsData).forEach(([date, dayData]) => {
+    const newDayData: DayData = {}
+
+    Object.entries(dayData).forEach(([projectName, projectData]) => {
+      const remainingSessions = projectData.sessions
+        .map((session) => ({ ...session }))
+        .filter((session) => {
+          const ids = extractSessionIds(session)
+          return !ids.some((id) => idsToRemove.has(id))
+        })
+
+      if (remainingSessions.length > 0) {
+        newDayData[projectName] = {
+          duration: remainingSessions.reduce((total, session) => total + calculateSessionDurationSeconds(session), 0),
+          sessions: remainingSessions,
+        }
+      }
+    })
 
     if (Object.keys(newDayData).length > 0) {
       updatedData[date] = newDayData
@@ -913,6 +949,57 @@ export const useTimeTrackingData = (isLicenseValid = false, isDemoLicense = fals
       toast({
         title: "Error",
         description: err instanceof Error ? err.message : "Failed to update session project",
+        variant: "destructive",
+      })
+      throw err
+    }
+  }
+
+  const deleteSessions = async (sessionIds: number[]) => {
+    if (!isLicenseValid || sessionIds.length === 0) return
+
+    try {
+      if (isPreview) {
+        setRawStatsData((prev) => removeSessionsFromStatsData(prev, sessionIds))
+        toast({
+          title: "Session deleted",
+          description: "The session has been removed",
+        })
+        return
+      }
+
+      const isSingleSession = sessionIds.length === 1
+      let response: Response
+
+      if (isSingleSession) {
+        response = await fetch(`${baseUrl}/api/sessions/${sessionIds[0]}`, {
+          method: "DELETE",
+        })
+      } else {
+        response = await fetch(`${baseUrl}/api/sessions/delete`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ sessionIds }),
+        })
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      setRawStatsData((prev) => removeSessionsFromStatsData(prev, sessionIds))
+      await fetchStats()
+
+      toast({
+        title: "Session deleted",
+        description: sessionIds.length === 1 ? "The session has been removed" : "Sessions have been removed",
+      })
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to delete sessions",
         variant: "destructive",
       })
       throw err
@@ -1599,6 +1686,7 @@ export const useTimeTrackingData = (isLicenseValid = false, isDemoLicense = fals
     updateProjectUrl,
     deleteProjectUrl,
     reassignSessionsProject,
+    deleteSessions,
     addIgnoredProject,
     removeIgnoredProject,
     storageType,

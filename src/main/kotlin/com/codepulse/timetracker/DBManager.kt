@@ -362,6 +362,31 @@ object DBManager {
         }
     }
 
+    fun deleteSession(sessionId: Int) {
+        conn.prepareStatement("""
+      DELETE FROM sessions
+       WHERE id = ?
+    """.trimIndent()).use { ps ->
+            ps.setInt(1, sessionId)
+            ps.executeUpdate()
+        }
+    }
+
+    fun deleteSessions(sessionIds: List<Int>) {
+        if (sessionIds.isEmpty()) return
+
+        val placeholders = sessionIds.joinToString(",") { "?" }
+        conn.prepareStatement("""
+      DELETE FROM sessions
+       WHERE id IN ($placeholders)
+    """.trimIndent()).use { ps ->
+            sessionIds.forEachIndexed { index, id ->
+                ps.setInt(index + 1, id)
+            }
+            ps.executeUpdate()
+        }
+    }
+
     fun querySessions(fromDate: LocalDate, toDate: LocalDate): JSONArray {
         val arr = JSONArray()
         conn.prepareStatement("""

@@ -7,6 +7,58 @@ let meetingProjectOverride = null; // Store project selection for meeting URLs
 const pendingMeetingSelections = {}; // Track forced selection windows by ID
 let previousActiveProject = null; // Store active project before meeting override
 
+function closePendingMeetingSelection(selectionId, { reason, removeStorage = true, closeWindow = true } = {}) {
+  const entry = pendingMeetingSelections[selectionId];
+  if (!entry) return;
+
+  if (closeWindow && entry.windowId) {
+    chrome.windows.remove(entry.windowId, () => {
+      if (chrome.runtime.lastError) {
+        console.warn('[CodePulse] Failed to close meeting selector window', selectionId, chrome.runtime.lastError.message);
+      }
+    });
+  }
+
+  if (removeStorage) {
+    chrome.storage.local.remove(selectionId);
+  }
+
+  delete pendingMeetingSelections[selectionId];
+
+  if (reason) {
+    console.log('[CodePulse] Meeting selector entry cleared', selectionId, 'Reason:', reason);
+  }
+}
+
+function hasActiveMeetingTab(entry, callback) {
+  if (!entry) {
+    callback(false);
+    return;
+  }
+
+  const { tabId, meetingKey } = entry;
+
+  if (tabId !== null && tabId !== undefined) {
+    chrome.tabs.get(tabId, (tab) => {
+      if (chrome.runtime.lastError || !tab || !tab.url) {
+        callback(false);
+        return;
+      }
+      callback(normalizeMeetingUrl(tab.url) === meetingKey);
+    });
+    return;
+  }
+
+  chrome.tabs.query({ url: `${meetingKey}*` }, (tabs) => {
+    if (chrome.runtime.lastError) {
+      console.warn('[CodePulse] Failed to query tabs for meeting presence:', chrome.runtime.lastError.message);
+      callback(false);
+      return;
+    }
+    callback(Array.isArray(tabs) && tabs.length > 0);
+  });
+}
+
 function captureMeetingMetadata(normalizedUrl) {
   chrome.tabs.query({ url: `${normalizedUrl}*` }, (tabs) => {
     if (chrome.runtime.lastError) {
@@ -222,13 +274,17 @@ function handleTabUpdate(activeInfo) {
     console.log('[CodePulse] Tab URL:', tab.url);
     if (tab.url.includes('meet.google.com/')) {
       console.log('[CodePulse] Google Meet detected! Triggering meeting prompt...');
-      promptForMeetingProject(tab.url);
+      promptForMeetingProject(tab);
     }
   });
 }
 
-async function promptForMeetingProject(url) {
-  console.log('[CodePulse] promptForMeetingProject called with URL:', url);
+async function promptForMeetingProject(tab) {
+  if (!tab || !tab.url) return;
+
+  const { url, id: tabId } = tab;
+
+  console.log('[CodePulse] promptForMeetingProject called with URL:', url, 'tabId:', tabId);
   const meetingKey = normalizeMeetingUrl(url);
 
   // Check if we already have a project set for this meeting session
@@ -300,6 +356,9 @@ async function promptForMeetingProject(url) {
 
     if (existingEntry) {
       const current = existingEntry[1];
+      if (tabId !== undefined) {
+        current.tabId = tabId;
+      }
       if (current.windowId !== null && current.windowId !== undefined) {
         console.log('[CodePulse] Meeting selector already open, focusing existing window');
         chrome.windows.update(current.windowId, { focused: true });
@@ -313,7 +372,8 @@ async function promptForMeetingProject(url) {
     const selectionId = `meeting_${Date.now()}`;
     pendingMeetingSelections[selectionId] = {
       meetingKey,
-      windowId: null
+      windowId: null,
+      tabId: tabId ?? null
     };
 
     const selectionUrl = `${chrome.runtime.getURL('meeting-selector.html')}?notificationId=${selectionId}`;
@@ -324,7 +384,7 @@ async function promptForMeetingProject(url) {
         type: 'popup',
         focused: true,
         width: 420,
-        height: 600
+        height: 700
       }, (createdWindow) => {
         if (chrome.runtime.lastError) {
           console.log('[CodePulse] Failed to open meeting selector window:', chrome.runtime.lastError.message);
@@ -336,7 +396,8 @@ async function promptForMeetingProject(url) {
         console.log('[CodePulse] Meeting selector window opened:', selectionId, 'windowId:', createdWindow?.id);
         pendingMeetingSelections[selectionId] = {
           meetingKey,
-          windowId: createdWindow?.id ?? null
+          windowId: createdWindow?.id ?? null,
+          tabId: tabId ?? null
         };
       });
     });
@@ -364,6 +425,16 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
   }
 
+  if (changeInfo.url) {
+    const updatedUrl = normalizeMeetingUrl(changeInfo.url);
+    Object.entries(pendingMeetingSelections).forEach(([selectionId, entry]) => {
+      if (entry.tabId === tabId && updatedUrl !== entry.meetingKey) {
+        console.log('[CodePulse] Meeting tab navigated away, closing selector window', { selectionId, tabId });
+        closePendingMeetingSelection(selectionId, { reason: 'Meeting tab navigated away' });
+      }
+    });
+  }
+
   // Trigger on URL change (for SPAs like Google Meet)
   if (changeInfo.url && tab.active) {
     console.log('[CodePulse] URL changed:', changeInfo.url);
@@ -379,6 +450,13 @@ chrome.tabs.onRemoved.addListener((tabId) => {
   if (meetingProjectOverride && meetingProjectOverride.tabId === tabId) {
     clearMeetingProjectOverride('Meeting tab closed');
   }
+
+  Object.entries(pendingMeetingSelections).forEach(([selectionId, entry]) => {
+    if (entry.tabId === tabId) {
+      console.log('[CodePulse] Meeting tab closed, closing selector window', { selectionId, tabId });
+      closePendingMeetingSelection(selectionId, { reason: 'Associated meeting tab closed' });
+    }
+  });
 });
 
 // Handle window focus changes
@@ -414,26 +492,35 @@ chrome.windows.onRemoved.addListener((windowId) => {
   const [selectionId, entry] = pendingEntry;
   const selectionUrl = `${chrome.runtime.getURL('meeting-selector.html')}?notificationId=${selectionId}`;
 
-  console.log('[CodePulse] Meeting selector window closed without selection, reopening...');
+  hasActiveMeetingTab(entry, (hasTab) => {
+    if (!hasTab) {
+      console.log('[CodePulse] Meeting tab not found; cleaning up selector instead of reopening', { selectionId });
+      closePendingMeetingSelection(selectionId, { reason: 'No associated meeting tab', removeStorage: true, closeWindow: false });
+      return;
+    }
 
-  chrome.storage.local.set({ [selectionId]: { url: entry.meetingKey } }, () => {
-    chrome.windows.create({
-      url: selectionUrl,
-      type: 'popup',
-      focused: true,
-      width: 420,
-      height: 600
-    }, (newWindow) => {
-      if (chrome.runtime.lastError) {
-        console.log('[CodePulse] Failed to reopen meeting selector window:', chrome.runtime.lastError.message);
-        return;
-      }
+    console.log('[CodePulse] Meeting selector window closed without selection, reopening...');
 
-      console.log('[CodePulse] Meeting selector window reopened:', selectionId, 'windowId:', newWindow?.id);
-      pendingMeetingSelections[selectionId] = {
-        meetingKey: entry.meetingKey,
-        windowId: newWindow?.id ?? null
-      };
+    chrome.storage.local.set({ [selectionId]: { url: entry.meetingKey } }, () => {
+      chrome.windows.create({
+        url: selectionUrl,
+        type: 'popup',
+        focused: true,
+        width: 420,
+        height: 700
+      }, (newWindow) => {
+        if (chrome.runtime.lastError) {
+          console.log('[CodePulse] Failed to reopen meeting selector window:', chrome.runtime.lastError.message);
+          return;
+        }
+
+        console.log('[CodePulse] Meeting selector window reopened:', selectionId, 'windowId:', newWindow?.id);
+        pendingMeetingSelections[selectionId] = {
+          meetingKey: entry.meetingKey,
+          windowId: newWindow?.id ?? null,
+          tabId: entry.tabId ?? null
+        };
+      });
     });
   });
 });

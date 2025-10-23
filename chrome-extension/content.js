@@ -1,4 +1,5 @@
 (async function () {
+
   let {
     showFloatingToolbar = true,
     activeProject,

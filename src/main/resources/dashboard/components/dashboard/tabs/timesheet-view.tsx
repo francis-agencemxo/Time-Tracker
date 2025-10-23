@@ -10,9 +10,20 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { StatsData, ProjectCustomName, ProjectClient, Commit } from "@/hooks/use-time-tracking-data"
 import { useTimeCalculations } from "@/hooks/use-time-calculations"
-import { Clock, Code, Globe, FileText, ExternalLink, GitCommit, Video, Pencil, Loader2 } from "lucide-react"
+import { Clock, Code, Globe, FileText, ExternalLink, GitCommit, Video, Pencil, Loader2, Trash2 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import Toastify from "toastify-js"
 
 interface TimesheetViewProps {
   statsData: StatsData
@@ -29,6 +40,7 @@ interface TimesheetViewProps {
     wrikePermalink: string
   }>
   onReassignSessions: (sessionIds: number[], projectName: string) => Promise<void>
+  onDeleteSessions: (sessionIds: number[]) => Promise<void>
 }
 
 interface DayProjectDetail {
@@ -60,6 +72,7 @@ export function TimesheetView({
   commits = [],
   wrikeProjectMappings = [],
   onReassignSessions,
+  onDeleteSessions,
 }: TimesheetViewProps) {
   const [selectedCell, setSelectedCell] = useState<DayProjectDetail | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -70,11 +83,29 @@ export function TimesheetView({
     currentProject: string
   } | null>(null)
   const [sessionUpdatePending, setSessionUpdatePending] = useState(false)
+  const [sessionDeletePending, setSessionDeletePending] = useState(false)
 
   useEffect(() => {
     setEditingSession(null)
     setSessionUpdatePending(false)
+    setSessionDeletePending(false)
   }, [selectedCell])
+
+  const notifyProjectChange = (message: string, variant: "success" | "error" = "success") => {
+    Toastify({
+      text: message,
+      duration: 4000,
+      gravity: "top",
+      position: "right",
+      close: true,
+      style: {
+        background:
+          variant === "success"
+            ? "linear-gradient(135deg, #14b8a6 0%, #0f766e 100%)"
+            : "linear-gradient(135deg, #f87171 0%, #b91c1c 100%)",
+      },
+    }).showToast()
+  }
 
   const { getStackedWeeklyData, getProjectChartData, formatHoursForChart, getMergedSessionsForProjectDay, calculateMergedDuration } = useTimeCalculations(
     statsData,
@@ -131,6 +162,7 @@ export function TimesheetView({
     if (!open) {
       setEditingSession(null)
       setSessionUpdatePending(false)
+      setSessionDeletePending(false)
     }
     setIsDialogOpen(open)
   }
@@ -297,13 +329,14 @@ export function TimesheetView({
 
     try {
       setSessionUpdatePending(true)
-      await onReassignSessions(editingSession.sessionIds, editingSession.selectedProject)
+      const { sessionIds, selectedProject } = editingSession
+      await onReassignSessions(sessionIds, selectedProject)
 
       let shouldCloseDialog = false
       setSelectedCell((prev) => {
         if (!prev) return prev
 
-        const idsToRemove = new Set(editingSession.sessionIds)
+        const idsToRemove = new Set(sessionIds)
         const remainingSessions = prev.sessions.filter((session) => {
           const ids = getSessionIds(session)
           return !ids.some((id) => idsToRemove.has(id))
@@ -327,11 +360,93 @@ export function TimesheetView({
         setIsDialogOpen(false)
       }
 
+      const reassignedCount = sessionIds.length
+      const displayName = getProjectDisplayName(selectedProject)
+      notifyProjectChange(`${reassignedCount} session${reassignedCount === 1 ? "" : "s"} reassigned to ${displayName}.`)
+
       setEditingSession(null)
     } catch (error) {
       console.error("Failed to reassign session project", error)
+      notifyProjectChange("Failed to reassign sessions. Please try again.", "error")
     } finally {
       setSessionUpdatePending(false)
+    }
+  }
+
+  const [sessionPendingDelete, setSessionPendingDelete] = useState<{
+    ids: number[]
+    description: string
+  } | null>(null)
+
+  const requestDeleteSession = (session: DayProjectDetail["sessions"][number]) => {
+    const ids = getSessionIds(session)
+    if (ids.length === 0) return
+
+    const date = new Date(session.start)
+    const timeRange = `${new Date(session.start).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    })} – ${new Date(session.end).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+
+    let description = `${formatSessionType(session.type)} session`
+    if (session.file) {
+      description = session.file
+    } else if (session.meetingTitle || session.host) {
+      description = session.meetingTitle || session.host || description
+    } else if (session.url) {
+      description = session.url
+    }
+
+    setSessionPendingDelete({
+      ids,
+      description: `${description} • ${timeRange}`,
+    })
+  }
+
+  const handleDeleteSession = async () => {
+    if (!sessionPendingDelete || sessionDeletePending) return
+
+    const ids = sessionPendingDelete.ids
+
+    try {
+      setSessionDeletePending(true)
+      await onDeleteSessions(ids)
+
+      const idsToRemove = new Set(ids)
+      let shouldCloseDialog = false
+
+      setSelectedCell((prev) => {
+        if (!prev) return prev
+
+        const remainingSessions = prev.sessions.filter((item) => {
+          const itemIds = getSessionIds(item)
+          return !itemIds.some((id) => idsToRemove.has(id))
+        })
+
+        if (remainingSessions.length === 0) {
+          shouldCloseDialog = true
+          return null
+        }
+
+        const remainingSeconds = remainingSessions.reduce((total, item) => total + item.duration, 0)
+
+        return {
+          ...prev,
+          sessions: remainingSessions,
+          hours: remainingSeconds / 3600,
+        }
+      })
+
+      setEditingSession(null)
+      setSessionPendingDelete(null)
+
+      if (shouldCloseDialog) {
+        setIsDialogOpen(false)
+      }
+    } catch (error) {
+      console.error("Failed to delete session", error)
+    } finally {
+      setSessionDeletePending(false)
     }
   }
 
@@ -516,7 +631,7 @@ export function TimesheetView({
                   {selectedCell.sessions.map((session, index) => {
                     const sessionIds = getSessionIds(session)
                     const isEditing = editingSession?.index === index
-                    const disableActions = sessionUpdatePending
+                    const disableActions = sessionUpdatePending || sessionDeletePending
                     const canEdit = sessionIds.length > 0
                     const availableProjects = Array.from(
                       new Set([selectedCell.project, ...allProjects].filter(Boolean)),
@@ -603,57 +718,67 @@ export function TimesheetView({
                             {formatHoursForChart(session.duration / 3600)}
                           </div>
                           {canEdit ? (
-                            isEditing ? (
-                              <div className="flex items-center gap-2">
-                                <Select
-                                  value={editingSession?.selectedProject ?? selectedCell.project}
-                                  onValueChange={handleProjectSelectionChange}
-                                  disabled={disableActions}
-                                >
-                                  <SelectTrigger className="w-44 h-8 text-left">
-                                    <SelectValue placeholder="Select project" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {availableProjects.map((projectName) => (
-                                      <SelectItem key={projectName} value={projectName}>
-                                        {getProjectDisplayName(projectName)}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <Button
-                                  size="sm"
-                                  onClick={handleConfirmProjectChange}
-                                  disabled={
-                                    disableActions ||
-                                    !editingSession ||
-                                    !editingSession.selectedProject ||
-                                    editingSession.selectedProject === editingSession.currentProject
-                                  }
-                                >
-                                  {disableActions ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
-                                </Button>
+                            <div className="flex gap-2">
+                              {isEditing ? (
+                                <div className="flex items-center gap-2">
+                                  <Select
+                                    value={editingSession?.selectedProject ?? selectedCell.project}
+                                    onValueChange={handleProjectSelectionChange}
+                                    disabled={disableActions}
+                                  >
+                                    <SelectTrigger className="w-44 h-6 text-left">
+                                      <SelectValue placeholder="Select project" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {availableProjects.map((projectName) => (
+                                        <SelectItem key={projectName} value={projectName}>
+                                          {getProjectDisplayName(projectName)}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <Button
+                                    size="xs"
+                                    onClick={handleConfirmProjectChange}
+                                    disabled={
+                                      disableActions ||
+                                      !editingSession ||
+                                      !editingSession.selectedProject ||
+                                      editingSession.selectedProject === editingSession.currentProject
+                                    }
+                                  >
+                                    {sessionUpdatePending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="xs"
+                                    onClick={handleCancelEditingSession}
+                                    disabled={disableActions}
+                                  >
+                                    Cancel
+                                  </Button>
+                                </div>
+                              ) : (
                                 <Button
                                   variant="ghost"
-                                  size="sm"
-                                  onClick={handleCancelEditingSession}
+                                  size="xs"
+                                  className="flex items-center gap-1"
+                                  onClick={() => handleStartEditingSession(session, index)}
                                   disabled={disableActions}
                                 >
-                                  Cancel
+                                  <Pencil className="w-4 h-4" />
                                 </Button>
-                              </div>
-                            ) : (
+                              )}
                               <Button
-                                variant="ghost"
-                                size="sm"
+                                variant="destructive"
+                                size="xs"
                                 className="flex items-center gap-1"
-                                onClick={() => handleStartEditingSession(session, index)}
+                                onClick={() => requestDeleteSession(session)}
                                 disabled={disableActions}
                               >
-                                <Pencil className="w-4 h-4" />
-                                Change project
+                                <Trash2 className="w-4 h-4" />
                               </Button>
-                            )
+                            </div>
                           ) : (
                             <span className="text-xs text-gray-400 dark:text-gray-500">Cannot edit</span>
                           )}
@@ -815,6 +940,32 @@ export function TimesheetView({
           )}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={sessionPendingDelete !== null} onOpenChange={(open) => !open && !sessionDeletePending && setSessionPendingDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete session?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {sessionPendingDelete?.description && (
+                <span className="block text-sm text-gray-600 dark:text-gray-300">{sessionPendingDelete.description}</span>
+              )}
+              <span className="block mt-3 text-sm text-gray-600 dark:text-gray-300">
+                This action permanently removes the tracked time and cannot be undone.
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={sessionDeletePending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteSession}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+              disabled={sessionDeletePending}
+            >
+              {sessionDeletePending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
