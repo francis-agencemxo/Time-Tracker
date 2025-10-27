@@ -7,6 +7,122 @@ let meetingProjectOverride = null; // Store project selection for meeting URLs
 const pendingMeetingSelections = {}; // Track forced selection windows by ID
 let previousActiveProject = null; // Store active project before meeting override
 
+function getWindowWithTabs(windowId) {
+  return new Promise((resolve) => {
+    if (!windowId && windowId !== 0) {
+      resolve(null);
+      return;
+    }
+    chrome.windows.get(windowId, { populate: true }, (windowInfo) => {
+      if (chrome.runtime.lastError) {
+        console.warn('[CodePulse] Failed to fetch selector window details:', chrome.runtime.lastError.message);
+        resolve(null);
+        return;
+      }
+      resolve(windowInfo || null);
+    });
+  });
+}
+
+function updateTab(tabId, props) {
+  return new Promise((resolve) => {
+    if (!tabId && tabId !== 0) {
+      resolve(null);
+      return;
+    }
+    chrome.tabs.update(tabId, props, (tab) => {
+      if (chrome.runtime.lastError) {
+        console.warn('[CodePulse] Failed to update selector tab:', chrome.runtime.lastError.message);
+        resolve(null);
+        return;
+      }
+      resolve(tab || null);
+    });
+  });
+}
+
+function setLocalStorage(data) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.set(data, () => {
+      if (chrome.runtime.lastError) {
+        reject(new Error(chrome.runtime.lastError.message));
+        return;
+      }
+      resolve();
+    });
+  });
+}
+
+async function reuseExistingMeetingSelectorWindow(meetingKey, meetingTabId) {
+  if (meetingTabId === null || meetingTabId === undefined) {
+    return false;
+  }
+
+  const reusableEntry = Object.entries(pendingMeetingSelections)
+    .find(([, entry]) => entry.tabId === meetingTabId && entry.windowId !== null && entry.windowId !== undefined);
+
+  if (!reusableEntry) {
+    return false;
+  }
+
+  const [existingSelectionId, existingEntry] = reusableEntry;
+  const windowInfo = await getWindowWithTabs(existingEntry.windowId);
+
+  if (!windowInfo || !Array.isArray(windowInfo.tabs) || windowInfo.tabs.length === 0) {
+    console.log('[CodePulse] Existing selector window not available; cleaning up');
+    closePendingMeetingSelection(existingSelectionId, {
+      reason: 'Selector window missing during reuse',
+      removeStorage: true,
+      closeWindow: false
+    });
+    return false;
+  }
+
+  const selectorTab = windowInfo.tabs.find((tab) => tab.id !== undefined);
+  if (!selectorTab) {
+    console.log('[CodePulse] Selector window has no active tab; aborting reuse');
+    closePendingMeetingSelection(existingSelectionId, {
+      reason: 'Selector window tab missing',
+      removeStorage: true,
+      closeWindow: false
+    });
+    return false;
+  }
+
+  const newSelectionId = `meeting_${Date.now()}`;
+  const selectionUrl = `${chrome.runtime.getURL('meeting-selector.html')}?notificationId=${newSelectionId}`;
+
+  console.log('[CodePulse] Reusing existing meeting selector window', {
+    previousSelectionId: existingSelectionId,
+    newSelectionId,
+    meetingKey
+  });
+
+  closePendingMeetingSelection(existingSelectionId, {
+    reason: 'Reusing meeting selector window',
+    removeStorage: true,
+    closeWindow: false
+  });
+
+  pendingMeetingSelections[newSelectionId] = {
+    meetingKey,
+    windowId: windowInfo.id ?? null,
+    tabId: meetingTabId ?? null,
+    selectorTabId: selectorTab.id ?? null
+  };
+
+  try {
+    await setLocalStorage({ [newSelectionId]: { url: meetingKey } });
+    await updateTab(selectorTab.id, { url: selectionUrl, active: true });
+    chrome.windows.update(windowInfo.id, { focused: true });
+    return true;
+  } catch (error) {
+    console.warn('[CodePulse] Failed to reuse meeting selector window, opening new window instead:', error.message);
+    closePendingMeetingSelection(newSelectionId, { reason: 'Reuse failed', closeWindow: false, removeStorage: true });
+    return false;
+  }
+}
+
 function closePendingMeetingSelection(selectionId, { reason, removeStorage = true, closeWindow = true } = {}) {
   const entry = pendingMeetingSelections[selectionId];
   if (!entry) return;
@@ -351,20 +467,32 @@ async function promptForMeetingProject(tab) {
     // No saved pattern found or API error, prompt the user to select a project
     console.log('[CodePulse] No saved pattern, opening forced selector...');
 
-    const existingEntry = Object.entries(pendingMeetingSelections)
+    const existingEntryTuple = Object.entries(pendingMeetingSelections)
       .find(([, entry]) => entry.meetingKey === meetingKey);
 
-    if (existingEntry) {
-      const current = existingEntry[1];
+    if (existingEntryTuple) {
+      const [existingSelectionId, current] = existingEntryTuple;
       if (tabId !== undefined) {
         current.tabId = tabId;
+        pendingMeetingSelections[existingSelectionId] = current;
       }
       if (current.windowId !== null && current.windowId !== undefined) {
         console.log('[CodePulse] Meeting selector already open, focusing existing window');
-        chrome.windows.update(current.windowId, { focused: true });
+        if (current.selectorTabId !== null && current.selectorTabId !== undefined) {
+          updateTab(current.selectorTabId, { active: true }).then(() => {
+            chrome.windows.update(current.windowId, { focused: true });
+          });
+        } else {
+          chrome.windows.update(current.windowId, { focused: true });
+        }
       } else {
         console.log('[CodePulse] Meeting selector is already being opened, waiting for window ID...');
       }
+      return;
+    }
+
+    const reused = await reuseExistingMeetingSelectorWindow(meetingKey, tabId ?? null);
+    if (reused) {
       return;
     }
 
@@ -373,7 +501,8 @@ async function promptForMeetingProject(tab) {
     pendingMeetingSelections[selectionId] = {
       meetingKey,
       windowId: null,
-      tabId: tabId ?? null
+      tabId: tabId ?? null,
+      selectorTabId: null
     };
 
     const selectionUrl = `${chrome.runtime.getURL('meeting-selector.html')}?notificationId=${selectionId}`;
@@ -384,7 +513,8 @@ async function promptForMeetingProject(tab) {
         type: 'popup',
         focused: true,
         width: 420,
-        height: 700
+        height: 700,
+        populate: true
       }, (createdWindow) => {
         if (chrome.runtime.lastError) {
           console.log('[CodePulse] Failed to open meeting selector window:', chrome.runtime.lastError.message);
@@ -393,11 +523,16 @@ async function promptForMeetingProject(tab) {
           return;
         }
 
+        const selectorTabId = Array.isArray(createdWindow?.tabs) && createdWindow.tabs.length > 0
+          ? createdWindow.tabs[0].id ?? null
+          : null;
+
         console.log('[CodePulse] Meeting selector window opened:', selectionId, 'windowId:', createdWindow?.id);
         pendingMeetingSelections[selectionId] = {
           meetingKey,
           windowId: createdWindow?.id ?? null,
-          tabId: tabId ?? null
+          tabId: tabId ?? null,
+          selectorTabId
         };
       });
     });
@@ -507,7 +642,8 @@ chrome.windows.onRemoved.addListener((windowId) => {
         type: 'popup',
         focused: true,
         width: 420,
-        height: 700
+        height: 700,
+        populate: true
       }, (newWindow) => {
         if (chrome.runtime.lastError) {
           console.log('[CodePulse] Failed to reopen meeting selector window:', chrome.runtime.lastError.message);
@@ -518,7 +654,10 @@ chrome.windows.onRemoved.addListener((windowId) => {
         pendingMeetingSelections[selectionId] = {
           meetingKey: entry.meetingKey,
           windowId: newWindow?.id ?? null,
-          tabId: entry.tabId ?? null
+          tabId: entry.tabId ?? null,
+          selectorTabId: Array.isArray(newWindow?.tabs) && newWindow.tabs.length > 0
+            ? newWindow.tabs[0].id ?? null
+            : null
         };
       });
     });
